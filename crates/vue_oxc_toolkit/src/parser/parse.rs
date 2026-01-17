@@ -66,9 +66,6 @@ impl<'a> ParserImpl<'a> {
 }
 
 impl<'a> ParserImpl<'a> {
-  /// # Panics
-  ///
-  /// Panics if the `lang` attribute is not a valid `SourceType` extension.
   pub fn parse(mut self) -> ParserImplReturn<'a> {
     let parser = Parser::new(ParseOption {
       whitespace: WhitespaceStrategy::Preserve,
@@ -552,9 +549,6 @@ impl<'a> ParserImpl<'a> {
     )
   }
 
-  /// # Panics
-  ///
-  /// Panics if the expression cannot be parsed or if the first statement is not an expression.
   fn parse_expression(&self, source: &'a str, start: usize) -> Expression<'a> {
     let ast = &self.ast;
     if is_simple_identifier(source) {
