@@ -72,6 +72,8 @@ impl<'a> ParserImpl<'a> {
       ..Default::default()
     });
     let errors = RefCell::new(vec![]);
+
+    // get ast from vue-compiler-core
     let scanner = Scanner::new(ScanOption::default());
     let tokens = scanner.scan(self.source_text, OxcErrorHandler { errors: &errors });
     let result = parser.parse(tokens, OxcErrorHandler { errors: &errors });
@@ -168,25 +170,24 @@ impl<'a> ParserImpl<'a> {
       }
     }
 
-    let program = ast.program(
-      SPAN,
-      self.source_type,
-      self.source_text,
-      self.comments.borrow_mut().take_in(ast.allocator),
-      None,
-      ast.vec(),
-      ast.vec1(ast.statement_expression(
-        SPAN,
-        ast.expression_jsx_fragment(
-          SPAN,
-          ast.jsx_opening_fragment(SPAN),
-          children,
-          ast.jsx_closing_fragment(SPAN),
-        ),
-      )),
-    );
     ParserImplReturn {
-      program,
+      program: ast.program(
+        SPAN,
+        self.source_type,
+        self.source_text,
+        self.comments.borrow_mut().take_in(ast.allocator),
+        None, // no hashbang needed for vue files
+        ast.vec(),
+        ast.vec1(ast.statement_expression(
+          SPAN,
+          ast.expression_jsx_fragment(
+            SPAN,
+            ast.jsx_opening_fragment(SPAN),
+            children,
+            ast.jsx_closing_fragment(SPAN),
+          ),
+        )),
+      ),
       fatal: false,
       errors: errors.take(),
     }
