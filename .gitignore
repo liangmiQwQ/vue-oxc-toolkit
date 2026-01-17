@@ -1,0 +1,13 @@
+# Rust
+/target
+debug
+
+# Misc
+.DS_Store
+temp
+.cache
+.idea
+*.log
+*.tgz
+lib-cov
+logs

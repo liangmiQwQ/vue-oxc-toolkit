@@ -1,0 +1,41 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.0.0"
+authors = ["Liang Mi <https://github.com/liangmiQwQ>", "contributors"]
+categories = ["ast"]
+keywords = ["Vue", "oxc"]
+license = "MIT"
+repository = "https://github.com/liangmiQwQ/vue-oxc-semantic"
+description = "Provide Semantic for the Vue-JSX transformed AST"
+
+edition = "2024"
+rust-version = "1.91.1"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = "symbols"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+nursery = { level = "warn", priority = -1 }
+
+cast_possible_truncation = { level = "allow" }
+too_many_lines = { level = "allow" }
+
+[workspace.dependencies]
+insta = "1.46.0"
+
+oxc_allocator = "0.108.0"
+oxc_ast = "0.108.0"
+oxc_ast_visit = "0.108.0"
+oxc_diagnostics = "0.108.0"
+oxc_parser = "0.108.0"
+oxc_semantic = "0.108.0"
+oxc_span = "0.108.0"
+
+vue-compiler-core = "0.1.0"
