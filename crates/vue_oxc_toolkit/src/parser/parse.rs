@@ -127,7 +127,7 @@ impl<'a> ParserImpl<'a> {
                       &self.empty_str[..span.start as usize - 4]
                     ))
                     .as_str(),
-                  SourceType::from_extension(lang).unwrap(),
+                  SourceType::from_extension(lang).unwrap(), // safe, fatal return above will prevent errors
                 )
                 .parse()
                 .program
