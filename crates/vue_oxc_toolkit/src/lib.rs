@@ -33,7 +33,7 @@ impl<'a> VueOxcParser<'a> {
 impl<'a> VueOxcParser<'a> {
   #[must_use]
   pub fn parse(&self) -> ParserReturn<'a> {
-    let ret = ParserImpl::new(self.allocator, self.source_text).parse();
+    let _ret = ParserImpl::new(self.allocator, self.source_text, self.options).parse();
 
     todo!()
   }
