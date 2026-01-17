@@ -629,3 +629,14 @@ impl<'a> VisitMut<'a> for DefaultValueToAssignment<'a, '_> {
     }
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use crate::test_ast;
+
+  #[test]
+  fn basic_vue() {
+    test_ast!("basic.vue");
+  }
+}
