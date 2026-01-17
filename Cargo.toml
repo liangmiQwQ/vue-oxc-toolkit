@@ -37,5 +37,6 @@ oxc_diagnostics = "0.108.0"
 oxc_parser = "0.108.0"
 oxc_semantic = "0.108.0"
 oxc_span = "0.108.0"
+oxc_syntax = "0.108.0"
 
 vue-compiler-core = "0.1.0"
