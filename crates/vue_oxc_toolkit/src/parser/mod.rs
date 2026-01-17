@@ -9,9 +9,6 @@ use oxc_span::SourceType;
 mod parse;
 mod utils;
 
-#[cfg(test)]
-mod test_safety;
-
 pub struct ParserImpl<'a> {
   allocator: &'a Allocator,
   source_type: SourceType,
