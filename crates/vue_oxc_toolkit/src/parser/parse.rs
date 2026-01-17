@@ -55,6 +55,14 @@ impl<'a> ParserImpl<'a> {
   ) -> oxc_parser::Parser<'a> {
     oxc_parser::Parser::new(self.allocator, source_text, source_type).with_options(self.options)
   }
+
+  fn pad_source(&self, source: &str, start: usize) -> String {
+    if start >= 4 {
+      format!("/*{}*/{source}", &self.empty_str[..start - 4])
+    } else {
+      format!("{}{source}", " ".repeat(start))
+    }
+  }
 }
 
 impl<'a> ParserImpl<'a> {
@@ -122,12 +130,10 @@ impl<'a> ParserImpl<'a> {
               self
                 .get_oxc_parser(
                   ast
-                    .atom(&format!(
-                      "/*{}*/{source}",
-                      &self.empty_str[..span.start as usize - 4]
-                    ))
+                    .atom(&self.pad_source(source, span.start as usize))
                     .as_str(),
-                  SourceType::from_extension(lang).unwrap(), // safe, fatal return above will prevent errors
+                  // SAFETY: lang is validated above to be "js" or "ts" based extensions which are valid for from_extension
+                  SourceType::from_extension(lang).unwrap(),
                 )
                 .parse()
                 .program
@@ -261,7 +267,7 @@ impl<'a> ParserImpl<'a> {
         node.location.span()
       } else {
         let end = node.location.end.offset;
-        let start = (self.roffset(end) - node.tag_name.len() - 3) as u32;
+        let start = self.roffset(end).saturating_sub(node.tag_name.len() + 3) as u32;
         Span::new(start, end as u32)
       }
     };
@@ -347,6 +353,7 @@ impl<'a> ParserImpl<'a> {
                   // :foo="bar"
                   ast.jsx_attribute_name_identifier(
                     Span::new(dir_start + 1, dir.head_loc.end.offset as u32),
+                    // SAFETY: dir.argument must be Some(DirectiveArg) for :foo shorthand
                     self.parse_argument(dir.argument.as_ref().unwrap(), &modifiers),
                   )
                 } else {
@@ -356,6 +363,7 @@ impl<'a> ParserImpl<'a> {
                     ast.jsx_identifier(Span::new(dir_start, dir_start + 6), ast.atom("v-bind")),
                     ast.jsx_identifier(
                       Span::new(dir_start + 7, dir.head_loc.end.offset as u32),
+                      // SAFETY: dir.argument must be Some(DirectiveArg) for v-bind:foo
                       self.parse_argument(dir.argument.as_ref().unwrap(), &modifiers),
                     ),
                   )
@@ -388,6 +396,7 @@ impl<'a> ParserImpl<'a> {
                       } else {
                         Span::new(namespace_end, namespace_end + arg.len() as u32)
                       },
+                      // SAFETY: dir.argument is checked to be Some(DirectiveArg::Static(arg)) in this match arm
                       self.parse_argument(dir.argument.as_ref().unwrap(), &modifiers),
                     ),
                   ),
@@ -396,6 +405,7 @@ impl<'a> ParserImpl<'a> {
                     ast.atom(&format!(
                       "v-{}{}",
                       dir.name,
+                      // SAFETY: dir.argument is checked to be Some(DirectiveArg::Dynamic(_)) in this match arm
                       self.parse_argument(dir.argument.as_ref().unwrap(), &modifiers)
                     )),
                   ),
@@ -554,19 +564,16 @@ impl<'a> ParserImpl<'a> {
       );
     }
 
-    let source_text = ast
-      .atom(&format!(
-        "/*{}*/({})",
-        // Using comments instead of whitespace to improve performance.
-        &self.empty_str[..start - 4],
-        &source
-      ))
-      .as_str();
     let mut program = self
-      .get_oxc_parser(source_text, self.source_type)
+      .get_oxc_parser(
+        ast.atom(&self.pad_source(source, start)).as_str(),
+        self.source_type,
+      )
       .parse()
       .program;
     let Some(Statement::ExpressionStatement(stmt)) = program.body.get_mut(0) else {
+      // SAFETY: We always wrap the source in parentheses, so it should always be an expression statement
+      // if it was valid partially. If it's invalid, the parser might return empty body if it fails early.
       panic!("parse expression error")
     };
     let Expression::ParenthesizedExpression(expression) = &mut stmt.expression else {
@@ -611,15 +618,12 @@ impl<'a> VisitMut<'a> for DefaultValueToAssignment<'a, '_> {
         .context
         .get_oxc_parser(
           ast
-            .atom(&format!(
-              "/*{}*/{}",
-              &self.context.empty_str[..it.span.start as usize - 4],
-              source
-            ))
+            .atom(&self.context.pad_source(source, value_start))
             .as_str(),
           self.context.source_type,
         )
         .parse_expression()
+        // SAFETY: The source is a slice of a valid property value, so it should always be parseable as an expression.
         .unwrap();
       if let Expression::AssignmentExpression(expr) = &mut expression {
         if let AssignmentTarget::AssignmentTargetIdentifier(id) = &mut expr.left {
