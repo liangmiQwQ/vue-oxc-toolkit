@@ -31,6 +31,6 @@ fn main() {
 
 ## License
 
-This project include a fork from [vue-oxc-parser](https://github.com/zhiyuanzmj/vue-oxc-parser) originally created by zhiyuanzmj.
+This project includes a fork from [vue-oxc-parser](https://github.com/zhiyuanzmj/vue-oxc-parser) originally created by zhiyuanzmj.
 
 [MIT](./LICENSE) License - see [LICENSE](LICENSE) file for details.
