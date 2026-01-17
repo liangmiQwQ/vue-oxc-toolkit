@@ -1,4 +1,4 @@
-# Vue OXC Semantic
+# Vue OXC Toolkit
 
 A toolkit to parse `.vue` file into semantically correct oxc jsx/tsx ast. Include generate `module_record`, `irregular_whitespaces` which are required by oxc_linter.
 
