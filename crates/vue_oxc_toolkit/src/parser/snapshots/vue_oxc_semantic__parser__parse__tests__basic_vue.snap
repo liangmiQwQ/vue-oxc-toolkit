@@ -7,7 +7,7 @@ Program: Program {
         start: 0,
         end: 0,
     },
-    source_text: "<template>\n  <div>\n    {{ count }}\n  </div>\n</template>\n\n<script lang=\"ts\" setup>\nconst count = 1;\n</script>\n\n<style></style>\n",
+    source_text: "<template>\n  <div>\n    {{ count }}\n  </div>\n</template>\n\n<script lang=\"js\" setup>\nconst count = 1;\n</script>\n\n<style></style>\n",
     comments: Vec(
         [],
     ),
@@ -258,7 +258,7 @@ Program: Program {
                                                                                 start: 71,
                                                                                 end: 73,
                                                                             },
-                                                                            value: "ts",
+                                                                            value: "js",
                                                                             raw: None,
                                                                             lone_surrogates: false,
                                                                         },
@@ -439,7 +439,7 @@ Program: Program {
         value: None,
     },
     source_type: SourceType {
-        language: TypeScript,
+        language: JavaScript,
         module_kind: Module,
         variant: Jsx,
     },

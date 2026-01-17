@@ -4,7 +4,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="js" setup>
 const count = 1;
 </script>
 
