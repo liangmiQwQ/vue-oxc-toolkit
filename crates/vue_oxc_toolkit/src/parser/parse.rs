@@ -55,18 +55,24 @@ impl<'a> ParserImpl<'a> {
   ) -> oxc_parser::Parser<'a> {
     oxc_parser::Parser::new(self.allocator, source_text, source_type).with_options(self.options)
   }
+
+  /// A workaround
+  /// Use comment placeholder to make the location AST returned correct
+  /// The start must > 4 in any valid Vue files
+  fn pad_source(&self, source: &str, start: usize) -> String {
+    format!("/*{}*/{source}", &self.empty_str[..start - 4])
+  }
 }
 
 impl<'a> ParserImpl<'a> {
-  /// # Panics
-  ///
-  /// Panics if the `lang` attribute is not a valid `SourceType` extension.
   pub fn parse(mut self) -> ParserImplReturn<'a> {
     let parser = Parser::new(ParseOption {
       whitespace: WhitespaceStrategy::Preserve,
       ..Default::default()
     });
     let errors = RefCell::new(vec![]);
+
+    // get ast from vue-compiler-core
     let scanner = Scanner::new(ScanOption::default());
     let tokens = scanner.scan(self.source_text, OxcErrorHandler { errors: &errors });
     let result = parser.parse(tokens, OxcErrorHandler { errors: &errors });
@@ -122,11 +128,9 @@ impl<'a> ParserImpl<'a> {
               self
                 .get_oxc_parser(
                   ast
-                    .atom(&format!(
-                      "/*{}*/{source}",
-                      &self.empty_str[..span.start as usize - 4]
-                    ))
+                    .atom(&self.pad_source(source, span.start as usize))
                     .as_str(),
+                  // SAFETY: lang is validated above to be "js" or "ts" based extensions which are valid for from_extension
                   SourceType::from_extension(lang).unwrap(),
                 )
                 .parse()
@@ -165,25 +169,24 @@ impl<'a> ParserImpl<'a> {
       }
     }
 
-    let program = ast.program(
-      SPAN,
-      self.source_type,
-      self.source_text,
-      self.comments.borrow_mut().take_in(ast.allocator),
-      None,
-      ast.vec(),
-      ast.vec1(ast.statement_expression(
-        SPAN,
-        ast.expression_jsx_fragment(
-          SPAN,
-          ast.jsx_opening_fragment(SPAN),
-          children,
-          ast.jsx_closing_fragment(SPAN),
-        ),
-      )),
-    );
     ParserImplReturn {
-      program,
+      program: ast.program(
+        SPAN,
+        self.source_type,
+        self.source_text,
+        self.comments.borrow_mut().take_in(ast.allocator),
+        None, // no hashbang needed for vue files
+        ast.vec(),
+        ast.vec1(ast.statement_expression(
+          SPAN,
+          ast.expression_jsx_fragment(
+            SPAN,
+            ast.jsx_opening_fragment(SPAN),
+            children,
+            ast.jsx_closing_fragment(SPAN),
+          ),
+        )),
+      ),
       fatal: false,
       errors: errors.take(),
     }
@@ -261,7 +264,7 @@ impl<'a> ParserImpl<'a> {
         node.location.span()
       } else {
         let end = node.location.end.offset;
-        let start = (self.roffset(end) - node.tag_name.len() - 3) as u32;
+        let start = self.roffset(end).saturating_sub(node.tag_name.len() + 3) as u32;
         Span::new(start, end as u32)
       }
     };
@@ -347,6 +350,7 @@ impl<'a> ParserImpl<'a> {
                   // :foo="bar"
                   ast.jsx_attribute_name_identifier(
                     Span::new(dir_start + 1, dir.head_loc.end.offset as u32),
+                    // SAFETY: dir.argument must be Some(DirectiveArg) for :foo shorthand
                     self.parse_argument(dir.argument.as_ref().unwrap(), &modifiers),
                   )
                 } else {
@@ -356,6 +360,7 @@ impl<'a> ParserImpl<'a> {
                     ast.jsx_identifier(Span::new(dir_start, dir_start + 6), ast.atom("v-bind")),
                     ast.jsx_identifier(
                       Span::new(dir_start + 7, dir.head_loc.end.offset as u32),
+                      // SAFETY: dir.argument must be Some(DirectiveArg) for v-bind:foo
                       self.parse_argument(dir.argument.as_ref().unwrap(), &modifiers),
                     ),
                   )
@@ -388,6 +393,7 @@ impl<'a> ParserImpl<'a> {
                       } else {
                         Span::new(namespace_end, namespace_end + arg.len() as u32)
                       },
+                      // SAFETY: dir.argument is checked to be Some(DirectiveArg::Static(arg)) in this match arm
                       self.parse_argument(dir.argument.as_ref().unwrap(), &modifiers),
                     ),
                   ),
@@ -396,6 +402,7 @@ impl<'a> ParserImpl<'a> {
                     ast.atom(&format!(
                       "v-{}{}",
                       dir.name,
+                      // SAFETY: dir.argument is checked to be Some(DirectiveArg::Dynamic(_)) in this match arm
                       self.parse_argument(dir.argument.as_ref().unwrap(), &modifiers)
                     )),
                   ),
@@ -542,9 +549,6 @@ impl<'a> ParserImpl<'a> {
     )
   }
 
-  /// # Panics
-  ///
-  /// Panics if the expression cannot be parsed or if the first statement is not an expression.
   fn parse_expression(&self, source: &'a str, start: usize) -> Expression<'a> {
     let ast = &self.ast;
     if is_simple_identifier(source) {
@@ -554,20 +558,19 @@ impl<'a> ParserImpl<'a> {
       );
     }
 
-    let source_text = ast
-      .atom(&format!(
-        "/*{}*/({})",
-        // Using comments instead of whitespace to improve performance.
-        &self.empty_str[..start - 4],
-        &source
-      ))
-      .as_str();
     let mut program = self
-      .get_oxc_parser(source_text, self.source_type)
+      .get_oxc_parser(
+        ast
+          .atom(&self.pad_source(&format!("({source})"), start.saturating_sub(1)))
+          .as_str(),
+        self.source_type,
+      )
       .parse()
       .program;
     let Some(Statement::ExpressionStatement(stmt)) = program.body.get_mut(0) else {
-      panic!("parse expression error")
+      // SAFETY: We always wrap the source in parentheses, so it should always be an expression statement
+      // if it was valid partially. If it's invalid, the parser might return empty body if it fails early.
+      unreachable!()
     };
     let Expression::ParenthesizedExpression(expression) = &mut stmt.expression else {
       unreachable!()
@@ -611,15 +614,12 @@ impl<'a> VisitMut<'a> for DefaultValueToAssignment<'a, '_> {
         .context
         .get_oxc_parser(
           ast
-            .atom(&format!(
-              "/*{}*/{}",
-              &self.context.empty_str[..it.span.start as usize - 4],
-              source
-            ))
+            .atom(&self.context.pad_source(source, value_start))
             .as_str(),
           self.context.source_type,
         )
         .parse_expression()
+        // SAFETY: The source is a slice of a valid property value, so it should always be parseable as an expression.
         .unwrap();
       if let Expression::AssignmentExpression(expr) = &mut expression {
         if let AssignmentTarget::AssignmentTargetIdentifier(id) = &mut expr.left {
@@ -628,5 +628,16 @@ impl<'a> VisitMut<'a> for DefaultValueToAssignment<'a, '_> {
         it.value = expression.take_in(ast.allocator);
       }
     }
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use crate::test_ast;
+
+  #[test]
+  fn basic_vue() {
+    test_ast!("basic.vue");
   }
 }
