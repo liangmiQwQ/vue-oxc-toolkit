@@ -56,12 +56,11 @@ impl<'a> ParserImpl<'a> {
     oxc_parser::Parser::new(self.allocator, source_text, source_type).with_options(self.options)
   }
 
+  /// A workaround
+  /// Use comment placeholder to make the location AST returned correct
+  /// The start must > 4 in any valid Vue files
   fn pad_source(&self, source: &str, start: usize) -> String {
-    if start >= 4 {
-      format!("/*{}*/{source}", &self.empty_str[..start - 4])
-    } else {
-      format!("{}{source}", " ".repeat(start))
-    }
+    format!("/*{}*/{source}", &self.empty_str[..start - 4])
   }
 }
 
@@ -561,7 +560,9 @@ impl<'a> ParserImpl<'a> {
 
     let mut program = self
       .get_oxc_parser(
-        ast.atom(&self.pad_source(source, start)).as_str(),
+        ast
+          .atom(&self.pad_source(&format!("({source})"), start.saturating_sub(1)))
+          .as_str(),
         self.source_type,
       )
       .parse()
@@ -569,7 +570,7 @@ impl<'a> ParserImpl<'a> {
     let Some(Statement::ExpressionStatement(stmt)) = program.body.get_mut(0) else {
       // SAFETY: We always wrap the source in parentheses, so it should always be an expression statement
       // if it was valid partially. If it's invalid, the parser might return empty body if it fails early.
-      panic!("parse expression error")
+      unreachable!()
     };
     let Expression::ParenthesizedExpression(expression) = &mut stmt.expression else {
       unreachable!()
