@@ -445,4 +445,14 @@ Program: Program {
     },
 } 
  Errors: []
- JS: "<><template>\n  <div>\n    {count}\n  </div>\n</template>\n\n<script lang=\"js\" setup>{() => {\n\tconst count = 1;\n}}</script>\n\n</>;\n"
+ JS: <><template>
+  <div>
+    {count}
+  </div>
+</template>
+
+<script lang="js" setup>{() => {
+	const count = 1;
+}}</script>
+
+</>;
