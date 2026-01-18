@@ -639,5 +639,6 @@ mod tests {
   #[test]
   fn basic_vue() {
     test_ast!("basic.vue");
+    test_ast!("typescript.vue");
   }
 }
