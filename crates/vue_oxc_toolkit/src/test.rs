@@ -1,11 +1,12 @@
 #[macro_export]
 macro_rules! test_ast {
   ($file_path:expr) => {
-    test_ast!($file_path, false);
+    test_ast!($file_path, false, false);
   };
-  ($file_path:expr, $should_panic:expr) => {{
+  ($file_path:expr, $should_errors:expr, $should_panic:expr) => {{
     use insta::assert_snapshot;
     use oxc_allocator::Allocator;
+    use oxc_codegen::Codegen;
     use oxc_parser::ParseOptions;
 
     use crate::parser::ParserImpl;
@@ -15,8 +16,12 @@ macro_rules! test_ast {
     let source_text = read_file($file_path);
 
     let ret = ParserImpl::new(&allocator, &source_text, ParseOptions::default()).parse();
+    let js = Codegen::new().build(&ret.program);
 
-    let result = format!("Program: {:#?} \n Errors: {:#?}", ret.program, ret.errors);
+    let result = format!(
+      "Program: {:#?} \n Errors: {:#?}\n JS: {:#?}",
+      ret.program, ret.errors, js.code
+    );
     assert_eq!(ret.fatal, $should_panic);
     assert_snapshot!(result);
   }};
