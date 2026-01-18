@@ -1059,7 +1059,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "vue-oxc-semantic"
+name = "vue_oxc_toolkit"
 version = "0.0.0"
 dependencies = [
  "insta",

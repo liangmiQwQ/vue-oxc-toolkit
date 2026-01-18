@@ -1,5 +1,5 @@
 [package]
-name = "vue-oxc-semantic"
+name = "vue_oxc_toolkit"
 version.workspace = true
 authors.workspace = true
 categories.workspace = true
