@@ -19,7 +19,7 @@ macro_rules! test_ast {
     let js = Codegen::new().build(&ret.program);
 
     let result = format!(
-      "Program: {:#?} \n Errors: {:#?}\n JS: {}",
+      "Program: {:#?}\nErrors: {:#?}\nJS: {}",
       ret.program, ret.errors, js.code
     );
     assert_eq!(ret.fatal, $should_panic);

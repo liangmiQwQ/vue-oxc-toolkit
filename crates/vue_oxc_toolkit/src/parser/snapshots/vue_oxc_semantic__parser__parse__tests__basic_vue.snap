@@ -443,9 +443,9 @@ Program: Program {
         module_kind: Module,
         variant: Jsx,
     },
-} 
- Errors: []
- JS: <><template>
+}
+Errors: []
+JS: <><template>
   <div>
     {count}
   </div>
