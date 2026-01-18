@@ -511,7 +511,9 @@ impl<'a> ParserImpl<'a> {
   }
 
   fn parse_text(&self, text: &TextNode<'a>) -> JSXChild<'a> {
-    let raw = self.ast.atom(text.text[0].raw);
+    let raw = self
+      .ast
+      .atom(&text.text.iter().map(|t| t.raw).collect::<String>());
     self
       .ast
       .jsx_child_text(text.location.span(), raw, Some(raw))

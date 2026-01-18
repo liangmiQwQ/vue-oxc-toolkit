@@ -4,6 +4,5 @@ const a = someFunction<{ msg: 1 }>()
 
 <template>
   <div>{{ a.msg }}</div>
-  <pre>a b c</pre>
-  <span>8 & 9 & 10</span>
+  <div> I think 1 < 2, isn't it? </div>
 </template>
