@@ -581,36 +581,7 @@ Program: Program {
         variant: Jsx,
     },
 }
-Errors: [
-    OxcDiagnostic {
-        inner: OxcDiagnosticInner {
-            message: "Illegal tag name. Use '&lt;' to print '<'.",
-            labels: None,
-            help: None,
-            note: None,
-            severity: Error,
-            code: OxcCode {
-                scope: None,
-                number: None,
-            },
-            url: None,
-        },
-    },
-    OxcDiagnostic {
-        inner: OxcDiagnosticInner {
-            message: "Illegal tag name. Use '&lt;' to print '<'.",
-            labels: None,
-            help: None,
-            note: None,
-            severity: Error,
-            code: OxcCode {
-                scope: None,
-                number: None,
-            },
-            url: None,
-        },
-    },
-]
+Errors: []
 JS: <><script lang="ts" setup>{() => {
 	const a = someFunction<{
 		msg: 1;

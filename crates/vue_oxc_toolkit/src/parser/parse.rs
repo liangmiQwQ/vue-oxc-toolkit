@@ -20,6 +20,8 @@ use vue_compiler_core::parser::{
 use vue_compiler_core::scanner::{ScanOption, Scanner};
 use vue_compiler_core::util::find_prop;
 
+use crate::parser::utils::filter_vue_parser_errors;
+
 use super::ParserImpl;
 use super::ParserImplReturn;
 use super::utils::is_simple_identifier;
@@ -76,8 +78,10 @@ impl<'a> ParserImpl<'a> {
     let scanner = Scanner::new(ScanOption::default());
     let tokens = scanner.scan(self.source_text, OxcErrorHandler { errors: &errors });
     let result = parser.parse(tokens, OxcErrorHandler { errors: &errors });
-    let mut source_types: HashSet<&str> = HashSet::new();
 
+    filter_vue_parser_errors(errors.borrow_mut());
+
+    let mut source_types: HashSet<&str> = HashSet::new();
     let ast = &self.ast;
     let mut children = ast.vec();
     for child in result.children {
