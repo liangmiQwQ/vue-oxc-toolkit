@@ -4,13 +4,12 @@ use std::mem;
 
 use oxc_allocator::{self, Dummy, TakeIn};
 use oxc_ast::ast::{
-  AssignmentTarget, Expression, FormalParameterKind, JSXAttributeItem, JSXChild, JSXExpression,
-  Program, PropertyKind, Statement,
+  Expression, FormalParameterKind, JSXAttributeItem, JSXChild, JSXExpression, Program,
+  PropertyKind, Statement,
 };
 use oxc_ast::{Comment, CommentKind, NONE};
-use oxc_ast_visit::VisitMut;
 use oxc_diagnostics::OxcDiagnostic;
-use oxc_span::{Atom, GetSpan, SPAN, SourceType, Span};
+use oxc_span::{Atom, SPAN, SourceType, Span};
 use vue_compiler_core::SourceLocation;
 use vue_compiler_core::error::ErrorHandler;
 use vue_compiler_core::parser::{
@@ -424,22 +423,17 @@ impl<'a> ParserImpl<'a> {
             }
           },
           if let Some(expr) = &dir.expression {
-            // v-for="item of list" => v-for="item in list"
-            let raw = if dir.name == "for" {
-              ast.atom(&expr.content.raw.replace(" of ", "in")).as_str()
+            if matches!(dir.name, "for" | "slot") {
+              // TODO: Handle for and slot
+              None
             } else {
-              expr.content.raw
-            };
-            let mut expression = self.parse_expression(raw, expr.location.start.offset);
+              let expression = self.parse_expression(expr.content.raw, expr.location.start.offset);
 
-            if dir.name == "slot" || dir.name == "for" {
-              DefaultValueToAssignment::new(self).visit_expression(&mut expression);
+              Some(ast.jsx_attribute_value_expression_container(
+                Span::new(expr.location.start.offset as u32 + 1, dir_end - 1),
+                self.parse_dynamic_argument(&dir, expression).into(),
+              ))
             }
-
-            Some(ast.jsx_attribute_value_expression_container(
-              Span::new(expr.location.start.offset as u32 + 1, dir_end - 1),
-              self.parse_dynamic_argument(&dir, expression).into(),
-            ))
           } else if let Some(argument) = &dir.argument
             && let DirectiveArg::Dynamic(_) = argument
           {
@@ -599,41 +593,6 @@ impl<'a> ParserImpl<'a> {
         .rev()
         .take_while(|c| c.is_whitespace())
         .count()
-  }
-}
-
-struct DefaultValueToAssignment<'a, 'ctx> {
-  context: &'ctx ParserImpl<'a>,
-}
-impl<'a, 'ctx> DefaultValueToAssignment<'a, 'ctx> {
-  pub const fn new(context: &'ctx ParserImpl<'a>) -> Self {
-    Self { context }
-  }
-}
-impl<'a> VisitMut<'a> for DefaultValueToAssignment<'a, '_> {
-  fn visit_object_property(&mut self, it: &mut oxc_ast::ast::ObjectProperty<'a>) {
-    if it.value.span().end != it.span.end {
-      let ast = &self.context.ast;
-      let value_start = it.value.span().start as usize;
-      let source = &self.context.source_text[value_start..it.span.end as usize];
-      let mut expression = self
-        .context
-        .get_oxc_parser(
-          ast
-            .atom(&self.context.pad_source(source, value_start))
-            .as_str(),
-          self.context.source_type,
-        )
-        .parse_expression()
-        // SAFETY: The source is a slice of a valid property value, so it should always be parseable as an expression.
-        .unwrap();
-      if let Expression::AssignmentExpression(expr) = &mut expression {
-        if let AssignmentTarget::AssignmentTargetIdentifier(id) = &mut expr.left {
-          id.span = SPAN;
-        }
-        it.value = expression.take_in(ast.allocator);
-      }
-    }
   }
 }
 
