@@ -58,7 +58,13 @@ impl<'a> VueOxcParser<'a> {
     } = ParserImpl::new(self.allocator, self.source_text, self.options).parse();
 
     if fatal {
-      return self.fatal(errors);
+      return VueParserReturn {
+        program: Program::dummy(self.allocator),
+        module_record: ModuleRecord::new(self.allocator),
+        errors,
+        irregular_whitespaces: Box::new([]),
+        panicked: true,
+      };
     }
 
     VueParserReturn {
@@ -68,16 +74,6 @@ impl<'a> VueOxcParser<'a> {
       irregular_whitespaces: todo!(),
       #[allow(unreachable_code)]
       module_record: todo!(),
-    }
-  }
-
-  fn fatal(&self, errors: Vec<OxcDiagnostic>) -> VueParserReturn<'a> {
-    VueParserReturn {
-      program: Program::dummy(self.allocator),
-      module_record: ModuleRecord::new(self.allocator),
-      errors,
-      irregular_whitespaces: Box::new([]),
-      panicked: true,
     }
   }
 }
