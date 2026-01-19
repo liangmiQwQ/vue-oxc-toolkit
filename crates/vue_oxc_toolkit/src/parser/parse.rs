@@ -1,11 +1,12 @@
+use core::panic;
 use std::cell::RefCell;
 use std::collections::HashSet;
 use std::mem;
 
-use oxc_allocator::{self, Dummy, TakeIn};
+use oxc_allocator::{self, TakeIn};
 use oxc_ast::ast::{
-  Expression, FormalParameterKind, JSXAttributeItem, JSXChild, JSXExpression, Program,
-  PropertyKind, Statement,
+  Expression, FormalParameterKind, JSXAttributeItem, JSXChild, JSXExpression, PropertyKind,
+  Statement,
 };
 use oxc_ast::{Comment, CommentKind, NONE};
 use oxc_diagnostics::OxcDiagnostic;
@@ -18,8 +19,6 @@ use vue_compiler_core::parser::{
 };
 use vue_compiler_core::scanner::{ScanOption, Scanner};
 use vue_compiler_core::util::find_prop;
-
-use crate::parser::utils::filter_vue_parser_errors;
 
 use super::ParserImpl;
 use super::ParserImplReturn;
@@ -63,6 +62,13 @@ impl<'a> ParserImpl<'a> {
   fn pad_source(&self, source: &str, start: usize) -> String {
     format!("/*{}*/{source}", &self.empty_str[..start - 4])
   }
+
+  fn filter_errors(&self) {
+    self
+      .errors
+      .borrow_mut()
+      .retain(|e| e.message != "Illegal tag name. Use '&lt;' to print '<'.");
+  }
 }
 
 impl<'a> ParserImpl<'a> {
@@ -71,14 +77,22 @@ impl<'a> ParserImpl<'a> {
       whitespace: WhitespaceStrategy::Preserve,
       ..Default::default()
     });
-    let errors = RefCell::new(vec![]);
 
     // get ast from vue-compiler-core
     let scanner = Scanner::new(ScanOption::default());
-    let tokens = scanner.scan(self.source_text, OxcErrorHandler { errors: &errors });
-    let result = parser.parse(tokens, OxcErrorHandler { errors: &errors });
-
-    filter_vue_parser_errors(errors.borrow_mut());
+    let tokens = scanner.scan(
+      self.source_text,
+      OxcErrorHandler {
+        errors: &self.errors,
+      },
+    );
+    let result = parser.parse(
+      tokens,
+      OxcErrorHandler {
+        errors: &self.errors,
+      },
+    );
+    self.filter_errors();
 
     let mut source_types: HashSet<&str> = HashSet::new();
     let ast = &self.ast;
@@ -97,15 +111,11 @@ impl<'a> ParserImpl<'a> {
             source_types.insert(lang);
 
             if source_types.len() > 1 {
-              errors.borrow_mut().push(OxcDiagnostic::error(format!(
+              self.errors.borrow_mut().push(OxcDiagnostic::error(format!(
                 "Multiple script tags with different languages: {source_types:?}"
               )));
 
-              return ParserImplReturn {
-                program: Program::dummy(ast.allocator),
-                fatal: true,
-                errors: errors.take(),
-              };
+              panic!();
             }
 
             self.source_type = if lang.starts_with("js") {
@@ -113,15 +123,11 @@ impl<'a> ParserImpl<'a> {
             } else if lang.starts_with("ts") {
               SourceType::tsx()
             } else {
-              errors.borrow_mut().push(OxcDiagnostic::error(format!(
+              self.errors.borrow_mut().push(OxcDiagnostic::error(format!(
                 "Unsupported script language: {lang}"
               )));
 
-              return ParserImplReturn {
-                program: Program::dummy(ast.allocator),
-                fatal: true,
-                errors: errors.take(),
-              };
+              panic!();
             };
 
             let script_block = if let Some(child) = node.children.first() {
@@ -191,7 +197,7 @@ impl<'a> ParserImpl<'a> {
         )),
       ),
       fatal: false,
-      errors: errors.take(),
+      errors: self.errors.take(),
     }
   }
 

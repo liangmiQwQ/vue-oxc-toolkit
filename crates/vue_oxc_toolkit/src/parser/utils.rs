@@ -22,8 +22,3 @@ pub fn is_simple_identifier(s: &str) -> bool {
   }
   true
 }
-
-/// A workaround to process false unnecessary errors from vue-compiler-core
-pub fn filter_vue_parser_errors(mut errors: RefMut<Vec<OxcDiagnostic>>) {
-  errors.retain(|e| e.message != "Illegal tag name. Use '&lt;' to print '<'.");
-}

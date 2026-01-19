@@ -15,6 +15,7 @@ pub struct ParserImpl<'a> {
   source_text: &'a str,
   ast: AstBuilder<'a>,
   comments: RefCell<oxc_allocator::Vec<'a, Comment>>,
+  errors: RefCell<Vec<OxcDiagnostic>>,
   empty_str: String,
   options: ParseOptions,
 }
@@ -29,6 +30,7 @@ impl<'a> ParserImpl<'a> {
       source_text,
       ast,
       comments: RefCell::from(ast.vec()),
+      errors: RefCell::from(vec![]),
       empty_str: ".".repeat(source_text.len()),
       options,
     }
