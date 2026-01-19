@@ -61,7 +61,14 @@ impl<'a> VueOxcParser<'a> {
       return self.fatal(errors);
     }
 
-    todo!()
+    VueParserReturn {
+      program,
+      errors,
+      panicked: false,
+      irregular_whitespaces: todo!(),
+      #[allow(unreachable_code)]
+      module_record: todo!(),
+    }
   }
 
   fn fatal(&self, errors: Vec<OxcDiagnostic>) -> VueParserReturn<'a> {
