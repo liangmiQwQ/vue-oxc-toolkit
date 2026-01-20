@@ -2,10 +2,10 @@ use std::cell::RefCell;
 use std::collections::HashSet;
 use std::mem;
 
-use oxc_allocator::{self, TakeIn, Vec as ArenaVec};
+use oxc_allocator::{self, Dummy, TakeIn, Vec as ArenaVec};
 use oxc_ast::ast::{
-  Expression, FormalParameterKind, JSXAttributeItem, JSXChild, JSXExpression, PropertyKind,
-  Statement,
+  Expression, FormalParameterKind, JSXAttributeItem, JSXChild, JSXExpression, Program,
+  PropertyKind, Statement,
 };
 use oxc_ast::{Comment, CommentKind, NONE};
 use oxc_diagnostics::OxcDiagnostic;
@@ -94,7 +94,11 @@ impl<'a> ParserImpl<'a> {
           errors: self.errors.take(),
         }
       }
-      None => todo!(),
+      None => ParserImplReturn {
+        program: Program::dummy(self.allocator),
+        fatal: true,
+        errors: self.errors.take(),
+      },
     }
   }
 
@@ -158,7 +162,7 @@ impl<'a> ParserImpl<'a> {
               let span = child.get_location().span();
               let source = span.source_text(self.source_text);
 
-              self
+              let ret = self
                 .get_oxc_parser(
                   self
                     .ast
@@ -167,9 +171,13 @@ impl<'a> ParserImpl<'a> {
                   // SAFETY: lang is validated above to be "js" or "ts" based extensions which are valid for from_extension
                   SourceType::from_extension(lang).unwrap(),
                 )
-                .parse()
-                .program
-                .body
+                .parse();
+
+              self.errors.borrow_mut().extend(ret.errors);
+              if ret.panicked {
+                return None;
+              }
+              ret.program.body
             } else {
               self.ast.vec()
             };
@@ -192,14 +200,14 @@ impl<'a> ParserImpl<'a> {
                   self.ast.function_body(SPAN, self.ast.vec(), script_block),
                 )),
               ))),
-            ));
+            )?);
           } else if node.tag_name == "template" {
-            children.push(self.parse_element(node, None));
+            children.push(self.parse_element(node, None)?);
           }
         }
         AstNode::Text(text) => children.push(self.parse_text(&text)),
         AstNode::Comment(comment) => children.push(self.parse_comment(&comment)),
-        AstNode::Interpolation(interp) => children.push(self.parse_interpolation(&interp)),
+        AstNode::Interpolation(interp) => children.push(self.parse_interpolation(&interp)?),
       }
     }
 
@@ -211,10 +219,10 @@ impl<'a> ParserImpl<'a> {
     start: u32,
     end: u32,
     children: Vec<AstNode<'a>>,
-  ) -> oxc_allocator::Vec<'a, JSXChild<'a>> {
+  ) -> Option<oxc_allocator::Vec<'a, JSXChild<'a>>> {
     let ast = self.ast;
     if children.is_empty() {
-      return ast.vec();
+      return Some(ast.vec());
     }
     let mut result = self.ast.vec_with_capacity(children.len() + 2);
 
@@ -238,25 +246,27 @@ impl<'a> ParserImpl<'a> {
       None
     };
 
-    result.extend(children.into_iter().map(|child| match child {
-      AstNode::Element(node) => self.parse_element(node, None),
-      AstNode::Text(text) => self.parse_text(&text),
-      AstNode::Comment(comment) => self.parse_comment(&comment),
-      AstNode::Interpolation(interp) => self.parse_interpolation(&interp),
-    }));
+    for child in children {
+      result.push(match child {
+        AstNode::Element(node) => self.parse_element(node, None)?,
+        AstNode::Text(text) => self.parse_text(&text),
+        AstNode::Comment(comment) => self.parse_comment(&comment),
+        AstNode::Interpolation(interp) => self.parse_interpolation(&interp)?,
+      });
+    }
 
     if let Some(last) = last {
       result.push(last);
     }
 
-    result
+    Some(result)
   }
 
   fn parse_element(
     &self,
     node: Element<'a>,
     children: Option<oxc_allocator::Vec<'a, JSXChild<'a>>>,
-  ) -> JSXChild<'a> {
+  ) -> Option<JSXChild<'a>> {
     let ast = self.ast;
 
     let open_element_span = {
@@ -283,7 +293,12 @@ impl<'a> ParserImpl<'a> {
       }
     };
 
-    ast.jsx_child_element(
+    let mut attributes = ast.vec();
+    for prop in node.properties {
+      attributes.push(self.parse_attribute(prop)?);
+    }
+
+    Some(ast.jsx_child_element(
       location_span,
       ast.jsx_opening_element(
         open_element_span,
@@ -295,17 +310,12 @@ impl<'a> ParserImpl<'a> {
           ast.atom(node.tag_name),
         ),
         NONE,
-        ast.vec_from_iter(
-          node
-            .properties
-            .into_iter()
-            .map(|prop| self.parse_attribute(prop)),
-        ),
+        attributes,
       ),
       if let Some(children) = children {
         children
       } else {
-        self.parse_children(open_element_span.end, end_element_span.start, node.children)
+        self.parse_children(open_element_span.end, end_element_span.start, node.children)?
       },
       if end_element_span.eq(&location_span) {
         None
@@ -321,16 +331,16 @@ impl<'a> ParserImpl<'a> {
           ),
         ))
       },
-    )
+    ))
   }
 
-  fn parse_attribute(&self, prop: ElemProp<'a>) -> JSXAttributeItem<'a> {
+  fn parse_attribute(&self, prop: ElemProp<'a>) -> Option<JSXAttributeItem<'a>> {
     let ast = self.ast;
     match prop {
       ElemProp::Attr(attr) => {
         let attr_end = self.roffset(attr.location.end.offset) as u32;
         let attr_span = Span::new(attr.location.start.offset as u32, attr_end);
-        ast.jsx_attribute_item_attribute(
+        Some(ast.jsx_attribute_item_attribute(
           attr_span,
           ast.jsx_attribute_name_identifier(attr.name_loc.span(), ast.atom(attr.name)),
           if let Some(value) = attr.value {
@@ -342,14 +352,14 @@ impl<'a> ParserImpl<'a> {
           } else {
             None
           },
-        )
+        ))
       }
       ElemProp::Dir(mut dir) => {
         let dir_start = dir.location.start.offset as u32;
         let dir_end = self.roffset(dir.location.end.offset) as u32;
         let head_name = dir.head_loc.span().source_text(self.source_text);
         let modifiers = mem::take(&mut dir.modifiers);
-        ast.jsx_attribute_item_attribute(
+        Some(ast.jsx_attribute_item_attribute(
           Span::new(dir_start, dir_end),
           match dir.name {
             "bind" => {
@@ -438,11 +448,12 @@ impl<'a> ParserImpl<'a> {
               // TODO: Handle for and slot
               None
             } else {
-              let expression = self.parse_expression(expr.content.raw, expr.location.start.offset);
+              let expression =
+                self.parse_expression(expr.content.raw, expr.location.start.offset)?;
 
               Some(ast.jsx_attribute_value_expression_container(
                 Span::new(expr.location.start.offset as u32 + 1, dir_end - 1),
-                self.parse_dynamic_argument(&dir, expression).into(),
+                self.parse_dynamic_argument(&dir, expression)?.into(),
               ))
             }
           } else if let Some(argument) = &dir.argument
@@ -453,14 +464,14 @@ impl<'a> ParserImpl<'a> {
               ast.jsx_attribute_value_expression_container(
                 SPAN,
                 self
-                  .parse_dynamic_argument(&dir, ast.expression_identifier(SPAN, "undefined"))
+                  .parse_dynamic_argument(&dir, ast.expression_identifier(SPAN, "undefined"))?
                   .into(),
               ),
             )
           } else {
             None
           },
-        )
+        ))
       }
     }
   }
@@ -469,7 +480,7 @@ impl<'a> ParserImpl<'a> {
     &self,
     dir: &Directive<'a>,
     expression: Expression<'a>,
-  ) -> Expression<'a> {
+  ) -> Option<Expression<'a>> {
     let ast = &self.ast;
     let head_name = dir.head_loc.span().source_text(self.source_text);
     let dir_start = dir.location.start.offset;
@@ -483,8 +494,8 @@ impl<'a> ParserImpl<'a> {
         } else {
           dir_start + 1
         },
-      );
-      ast.expression_object(
+      )?;
+      Some(ast.expression_object(
         SPAN,
         ast.vec1(ast.object_property_kind_object_property(
           SPAN,
@@ -495,9 +506,9 @@ impl<'a> ParserImpl<'a> {
           false,
           true,
         )),
-      )
+      ))
     } else {
-      expression
+      Some(expression)
     }
   }
 
@@ -546,47 +557,59 @@ impl<'a> ParserImpl<'a> {
     )
   }
 
-  fn parse_interpolation(&self, introp: &SourceNode<'a>) -> JSXChild<'a> {
+  fn parse_interpolation(&self, introp: &SourceNode<'a>) -> Option<JSXChild<'a>> {
     let ast = self.ast;
     let span = Span::new(
       introp.location.start.offset as u32 + 1,
       introp.location.end.offset as u32 - 1,
     );
-    ast.jsx_child_expression_container(
-      span,
-      self
-        .parse_expression(introp.source, span.start as usize)
-        .into(),
+    Some(
+      ast.jsx_child_expression_container(
+        span,
+        self
+          .parse_expression(introp.source, span.start as usize)?
+          .into(),
+      ),
     )
   }
 
-  fn parse_expression(&self, source: &'a str, start: usize) -> Expression<'a> {
+  fn parse_expression(&self, source: &'a str, start: usize) -> Option<Expression<'a>> {
     let ast = &self.ast;
     if is_simple_identifier(source) {
-      return ast.expression_identifier(
+      return Some(ast.expression_identifier(
         Span::new(start as u32 + 1, (start + source.len() + 1) as u32),
         source,
-      );
+      ));
     }
 
-    let mut program = self
+    let ret = self
       .get_oxc_parser(
         ast
           .atom(&self.pad_source(&format!("({source})"), start.saturating_sub(1)))
           .as_str(),
         self.source_type,
       )
-      .parse()
-      .program;
+      .parse();
+
+    self.errors.borrow_mut().extend(ret.errors);
+
+    if ret.panicked {
+      return None;
+    }
+
+    let mut program = ret.program;
+
     let Some(Statement::ExpressionStatement(stmt)) = program.body.get_mut(0) else {
       // SAFETY: We always wrap the source in parentheses, so it should always be an expression statement
       // if it was valid partially. If it's invalid, the parser might return empty body if it fails early.
-      unreachable!()
+      // unreachable!()
+      return None;
     };
     let Expression::ParenthesizedExpression(expression) = &mut stmt.expression else {
-      unreachable!()
+      // unreachable!()
+      return None;
     };
-    expression.expression.take_in(self.allocator)
+    Some(expression.expression.take_in(self.allocator))
   }
 
   fn offset(&self, start: usize) -> usize {
