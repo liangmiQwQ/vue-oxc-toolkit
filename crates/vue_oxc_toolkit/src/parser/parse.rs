@@ -1,4 +1,3 @@
-use core::panic;
 use std::cell::RefCell;
 use std::collections::HashSet;
 use std::mem;
@@ -33,10 +32,12 @@ impl ErrorHandler for OxcErrorHandler<'_> {
     if error.kind == CompilationErrorKind::InvalidFirstCharacterOfTagName {
       return;
     }
-    self
-      .errors
-      .borrow_mut()
-      .push(OxcDiagnostic::error(error.to_string()));
+    self.errors.borrow_mut().push(
+      OxcDiagnostic::error(error.to_string()).with_label(Span::new(
+        error.location.start.offset as u32,
+        error.location.end.offset as u32,
+      )),
+    );
   }
 }
 
