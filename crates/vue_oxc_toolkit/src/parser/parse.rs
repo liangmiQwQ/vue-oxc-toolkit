@@ -3,7 +3,7 @@ use std::cell::RefCell;
 use std::collections::HashSet;
 use std::mem;
 
-use oxc_allocator::{self, TakeIn};
+use oxc_allocator::{self, TakeIn, Vec as ArenaVec};
 use oxc_ast::ast::{
   Expression, FormalParameterKind, JSXAttributeItem, JSXChild, JSXExpression, PropertyKind,
   Statement,
@@ -12,7 +12,7 @@ use oxc_ast::{Comment, CommentKind, NONE};
 use oxc_diagnostics::OxcDiagnostic;
 use oxc_span::{Atom, SPAN, SourceType, Span};
 use vue_compiler_core::SourceLocation;
-use vue_compiler_core::error::ErrorHandler;
+use vue_compiler_core::error::{CompilationErrorKind, ErrorHandler};
 use vue_compiler_core::parser::{
   AstNode, Directive, DirectiveArg, ElemProp, Element, ParseOption, Parser, SourceNode, TextNode,
   WhitespaceStrategy,
@@ -30,6 +30,9 @@ struct OxcErrorHandler<'a> {
 
 impl ErrorHandler for OxcErrorHandler<'_> {
   fn on_error(&self, error: vue_compiler_core::error::CompilationError) {
+    if error.kind == CompilationErrorKind::InvalidFirstCharacterOfTagName {
+      return;
+    }
     self
       .errors
       .borrow_mut()
@@ -62,17 +65,39 @@ impl<'a> ParserImpl<'a> {
   fn pad_source(&self, source: &str, start: usize) -> String {
     format!("/*{}*/{source}", &self.empty_str[..start - 4])
   }
-
-  fn filter_errors(&self) {
-    self
-      .errors
-      .borrow_mut()
-      .retain(|e| e.message != "Illegal tag name. Use '&lt;' to print '<'.");
-  }
 }
 
 impl<'a> ParserImpl<'a> {
   pub fn parse(mut self) -> ParserImplReturn<'a> {
+    match self.get_children() {
+      Some(children) => {
+        ParserImplReturn {
+          program: self.ast.program(
+            SPAN,
+            self.source_type,
+            self.source_text,
+            self.comments.borrow_mut().take_in(self.ast.allocator),
+            None, // no hashbang needed for vue files
+            self.ast.vec(),
+            self.ast.vec1(self.ast.statement_expression(
+              SPAN,
+              self.ast.expression_jsx_fragment(
+                SPAN,
+                self.ast.jsx_opening_fragment(SPAN),
+                children,
+                self.ast.jsx_closing_fragment(SPAN),
+              ),
+            )),
+          ),
+          fatal: false,
+          errors: self.errors.take(),
+        }
+      }
+      None => todo!(),
+    }
+  }
+
+  fn get_children(&mut self) -> Option<ArenaVec<'a, JSXChild<'a>>> {
     let parser = Parser::new(ParseOption {
       whitespace: WhitespaceStrategy::Preserve,
       ..Default::default()
@@ -92,11 +117,9 @@ impl<'a> ParserImpl<'a> {
         errors: &self.errors,
       },
     );
-    self.filter_errors();
 
     let mut source_types: HashSet<&str> = HashSet::new();
-    let ast = &self.ast;
-    let mut children = ast.vec();
+    let mut children = self.ast.vec();
     for child in result.children {
       match child {
         AstNode::Element(node) => {
@@ -115,7 +138,7 @@ impl<'a> ParserImpl<'a> {
                 "Multiple script tags with different languages: {source_types:?}"
               )));
 
-              panic!();
+              return None;
             }
 
             self.source_type = if lang.starts_with("js") {
@@ -127,7 +150,7 @@ impl<'a> ParserImpl<'a> {
                 "Unsupported script language: {lang}"
               )));
 
-              panic!();
+              return None;
             };
 
             let script_block = if let Some(child) = node.children.first() {
@@ -136,7 +159,8 @@ impl<'a> ParserImpl<'a> {
 
               self
                 .get_oxc_parser(
-                  ast
+                  self
+                    .ast
                     .atom(&self.pad_source(source, span.start as usize))
                     .as_str(),
                   // SAFETY: lang is validated above to be "js" or "ts" based extensions which are valid for from_extension
@@ -146,25 +170,25 @@ impl<'a> ParserImpl<'a> {
                 .program
                 .body
             } else {
-              ast.vec()
+              self.ast.vec()
             };
             children.push(self.parse_element(
               node,
-              Some(ast.vec1(ast.jsx_child_expression_container(
+              Some(self.ast.vec1(self.ast.jsx_child_expression_container(
                 SPAN,
-                JSXExpression::ArrowFunctionExpression(ast.alloc_arrow_function_expression(
+                JSXExpression::ArrowFunctionExpression(self.ast.alloc_arrow_function_expression(
                   SPAN,
                   false,
                   false,
                   NONE,
-                  ast.formal_parameters(
+                  self.ast.formal_parameters(
                     SPAN,
                     FormalParameterKind::ArrowFormalParameters,
-                    ast.vec(),
+                    self.ast.vec(),
                     NONE,
                   ),
                   NONE,
-                  ast.function_body(SPAN, ast.vec(), script_block),
+                  self.ast.function_body(SPAN, self.ast.vec(), script_block),
                 )),
               ))),
             ));
@@ -178,27 +202,7 @@ impl<'a> ParserImpl<'a> {
       }
     }
 
-    ParserImplReturn {
-      program: ast.program(
-        SPAN,
-        self.source_type,
-        self.source_text,
-        self.comments.borrow_mut().take_in(ast.allocator),
-        None, // no hashbang needed for vue files
-        ast.vec(),
-        ast.vec1(ast.statement_expression(
-          SPAN,
-          ast.expression_jsx_fragment(
-            SPAN,
-            ast.jsx_opening_fragment(SPAN),
-            children,
-            ast.jsx_closing_fragment(SPAN),
-          ),
-        )),
-      ),
-      fatal: false,
-      errors: self.errors.take(),
-    }
+    Some(children)
   }
 
   fn parse_children(

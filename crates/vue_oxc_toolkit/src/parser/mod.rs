@@ -11,13 +11,14 @@ mod utils;
 
 pub struct ParserImpl<'a> {
   allocator: &'a Allocator,
-  source_type: SourceType,
   source_text: &'a str,
+  options: ParseOptions,
+  empty_str: String,
   ast: AstBuilder<'a>,
+
+  source_type: SourceType,
   comments: RefCell<oxc_allocator::Vec<'a, Comment>>,
   errors: RefCell<Vec<OxcDiagnostic>>,
-  empty_str: String,
-  options: ParseOptions,
 }
 
 impl<'a> ParserImpl<'a> {
@@ -26,9 +27,9 @@ impl<'a> ParserImpl<'a> {
     let ast = AstBuilder::new(allocator);
     Self {
       allocator,
-      source_type: SourceType::jsx(),
       source_text,
       ast,
+      source_type: SourceType::jsx(),
       comments: RefCell::from(ast.vec()),
       errors: RefCell::from(vec![]),
       empty_str: ".".repeat(source_text.len()),
