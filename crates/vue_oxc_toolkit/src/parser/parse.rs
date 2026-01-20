@@ -640,4 +640,14 @@ mod tests {
     test_ast!("basic.vue");
     test_ast!("typescript.vue");
   }
+
+  #[test]
+  fn errors() {
+    test_ast!("error/template.vue");
+    test_ast!("error/recoverable-script.vue");
+    test_ast!("error/irrecoverable-script.vue");
+    test_ast!("error/recoverable-directive.vue");
+    test_ast!("error/irrecoverable-directive.vue");
+    test_ast!("error/interpolation.vue");
+  }
 }
