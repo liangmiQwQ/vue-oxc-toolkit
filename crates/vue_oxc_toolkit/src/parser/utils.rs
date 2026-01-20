@@ -1,7 +1,3 @@
-use std::cell::RefMut;
-
-use oxc_diagnostics::OxcDiagnostic;
-
 #[must_use]
 pub fn is_simple_identifier(s: &str) -> bool {
   let mut chars = s.chars();
