@@ -23,7 +23,10 @@ macro_rules! test_ast {
       ret.program, ret.errors, js.code
     );
     assert_eq!(ret.fatal, $should_panic);
-    assert_snapshot!(result);
+
+    // Generate a readable snapshot name from the file path
+    let snapshot_name = $file_path.replace('/', "_").replace('.', "_");
+    assert_snapshot!(snapshot_name, result);
   }};
 }
 
