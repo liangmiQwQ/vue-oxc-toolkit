@@ -226,6 +226,7 @@ impl<'a> ParserImpl<'a> {
     }
     let mut result = self.ast.vec_with_capacity(children.len() + 2);
 
+    // Process the whitespaces text there <div>____<br>_____</div>
     if let Some(first) = children.first()
       && matches!(first, AstNode::Element(_) | AstNode::Interpolation(_))
       && start != first.get_location().start.offset as u32
