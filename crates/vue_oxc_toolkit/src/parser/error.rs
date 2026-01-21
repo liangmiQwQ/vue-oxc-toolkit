@@ -39,10 +39,30 @@ const fn is_warn(error: &CompilationError) -> bool {
   matches!(
     error.kind,
     CompilationErrorKind::InvalidFirstCharacterOfTagName
+      | CompilationErrorKind::NestedComment
+      | CompilationErrorKind::IncorrectlyClosedComment
+      | CompilationErrorKind::IncorrectlyOpenedComment
+      | CompilationErrorKind::AbruptClosingOfEmptyComment
+      | CompilationErrorKind::MissingWhitespaceBetweenAttributes
   )
 }
 
 #[must_use]
 const fn should_panic(error: &CompilationError) -> bool {
-  matches!(error.kind, CompilationErrorKind::MissingEndTag)
+  matches!(
+    error.kind,
+    // EOF errors - incomplete template structure
+    CompilationErrorKind::EofInTag
+      | CompilationErrorKind::EofInComment
+      | CompilationErrorKind::EofInCdata
+      | CompilationErrorKind::EofBeforeTagName
+      | CompilationErrorKind::EofInScriptHtmlCommentLikeText
+      // Vue syntax incomplete - can't generate valid JSX
+      | CompilationErrorKind::MissingInterpolationEnd
+      | CompilationErrorKind::MissingDynamicDirectiveArgumentEnd
+      | CompilationErrorKind::MissingEndTag
+      // Critical structural issues
+      | CompilationErrorKind::UnexpectedNullCharacter
+      | CompilationErrorKind::CDataInHtmlContent
+  )
 }
