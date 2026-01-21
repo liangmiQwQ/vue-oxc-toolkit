@@ -11,7 +11,6 @@ use oxc_ast::{Comment, CommentKind, NONE};
 use oxc_diagnostics::OxcDiagnostic;
 use oxc_span::{Atom, SPAN, SourceType, Span};
 use vue_compiler_core::SourceLocation;
-use vue_compiler_core::error::{CompilationErrorKind, ErrorHandler};
 use vue_compiler_core::parser::{
   AstNode, Directive, DirectiveArg, ElemProp, Element, ParseOption, Parser, SourceNode, TextNode,
   WhitespaceStrategy,
@@ -19,27 +18,11 @@ use vue_compiler_core::parser::{
 use vue_compiler_core::scanner::{ScanOption, Scanner};
 use vue_compiler_core::util::find_prop;
 
+use crate::parser::error::OxcErrorHandler;
+
 use super::ParserImpl;
 use super::ParserImplReturn;
 use super::utils::is_simple_identifier;
-
-struct OxcErrorHandler<'a> {
-  errors: &'a RefCell<Vec<OxcDiagnostic>>,
-}
-
-impl ErrorHandler for OxcErrorHandler<'_> {
-  fn on_error(&self, error: vue_compiler_core::error::CompilationError) {
-    if error.kind == CompilationErrorKind::InvalidFirstCharacterOfTagName {
-      return;
-    }
-    self.errors.borrow_mut().push(
-      OxcDiagnostic::error(error.to_string()).with_label(Span::new(
-        error.location.start.offset as u32,
-        error.location.end.offset as u32,
-      )),
-    );
-  }
-}
 
 pub trait SourceLocatonSpan {
   fn span(&self) -> Span;
@@ -91,13 +74,13 @@ impl<'a> ParserImpl<'a> {
             )),
           ),
           fatal: false,
-          errors: self.errors.take(),
+          errors: self.errors,
         }
       }
       None => ParserImplReturn {
         program: Program::dummy(self.allocator),
         fatal: true,
-        errors: self.errors.take(),
+        errors: self.errors,
       },
     }
   }
@@ -110,18 +93,15 @@ impl<'a> ParserImpl<'a> {
 
     // get ast from vue-compiler-core
     let scanner = Scanner::new(ScanOption::default());
-    let tokens = scanner.scan(
-      self.source_text,
-      OxcErrorHandler {
-        errors: &self.errors,
-      },
-    );
-    let result = parser.parse(
-      tokens,
-      OxcErrorHandler {
-        errors: &self.errors,
-      },
-    );
+    // error processing
+    let errors = RefCell::from(&mut self.errors);
+    let panicked = RefCell::from(false);
+    let tokens = scanner.scan(self.source_text, OxcErrorHandler::new(&errors, &panicked));
+    let result = parser.parse(tokens, OxcErrorHandler::new(&errors, &panicked));
+
+    if *panicked.borrow() {
+      return None;
+    }
 
     let mut source_types: HashSet<&str> = HashSet::new();
     let mut children = self.ast.vec();
@@ -139,7 +119,7 @@ impl<'a> ParserImpl<'a> {
             source_types.insert(lang);
 
             if source_types.len() > 1 {
-              self.errors.borrow_mut().push(OxcDiagnostic::error(format!(
+              self.errors.push(OxcDiagnostic::error(format!(
                 "Multiple script tags with different languages: {source_types:?}"
               )));
 
@@ -151,7 +131,7 @@ impl<'a> ParserImpl<'a> {
             } else if lang.starts_with("ts") {
               SourceType::tsx()
             } else {
-              self.errors.borrow_mut().push(OxcDiagnostic::error(format!(
+              self.errors.push(OxcDiagnostic::error(format!(
                 "Unsupported script language: {lang}"
               )));
 
@@ -173,7 +153,7 @@ impl<'a> ParserImpl<'a> {
                 )
                 .parse();
 
-              self.errors.borrow_mut().extend(ret.errors);
+              self.errors.extend(ret.errors);
               if ret.panicked {
                 return None;
               }
@@ -215,7 +195,7 @@ impl<'a> ParserImpl<'a> {
   }
 
   fn parse_children(
-    &self,
+    &mut self,
     start: u32,
     end: u32,
     children: Vec<AstNode<'a>>,
@@ -264,7 +244,7 @@ impl<'a> ParserImpl<'a> {
   }
 
   fn parse_element(
-    &self,
+    &mut self,
     node: Element<'a>,
     children: Option<ArenaVec<'a, JSXChild<'a>>>,
   ) -> Option<JSXChild<'a>> {
@@ -335,7 +315,7 @@ impl<'a> ParserImpl<'a> {
     ))
   }
 
-  fn parse_attribute(&self, prop: ElemProp<'a>) -> Option<JSXAttributeItem<'a>> {
+  fn parse_attribute(&mut self, prop: ElemProp<'a>) -> Option<JSXAttributeItem<'a>> {
     let ast = self.ast;
     match prop {
       ElemProp::Attr(attr) => {
@@ -478,11 +458,10 @@ impl<'a> ParserImpl<'a> {
   }
 
   fn parse_dynamic_argument(
-    &self,
+    &mut self,
     dir: &Directive<'a>,
     expression: Expression<'a>,
   ) -> Option<Expression<'a>> {
-    let ast = &self.ast;
     let head_name = dir.head_loc.span().source_text(self.source_text);
     let dir_start = dir.location.start.offset;
     if let Some(argument) = &dir.argument
@@ -496,9 +475,9 @@ impl<'a> ParserImpl<'a> {
           dir_start + 1
         },
       )?;
-      Some(ast.expression_object(
+      Some(self.ast.expression_object(
         SPAN,
-        ast.vec1(ast.object_property_kind_object_property(
+        self.ast.vec1(self.ast.object_property_kind_object_property(
           SPAN,
           PropertyKind::Init,
           dynamic_arg_expression.into(),
@@ -558,7 +537,7 @@ impl<'a> ParserImpl<'a> {
     )
   }
 
-  fn parse_interpolation(&self, introp: &SourceNode<'a>) -> Option<JSXChild<'a>> {
+  fn parse_interpolation(&mut self, introp: &SourceNode<'a>) -> Option<JSXChild<'a>> {
     let ast = self.ast;
     let span = Span::new(
       introp.location.start.offset as u32 + 1,
@@ -574,7 +553,7 @@ impl<'a> ParserImpl<'a> {
     )
   }
 
-  fn parse_expression(&self, source: &'a str, start: usize) -> Option<Expression<'a>> {
+  fn parse_expression(&mut self, source: &'a str, start: usize) -> Option<Expression<'a>> {
     let ast = &self.ast;
     if is_simple_identifier(source) {
       return Some(ast.expression_identifier(
@@ -592,7 +571,7 @@ impl<'a> ParserImpl<'a> {
       )
       .parse();
 
-    self.errors.borrow_mut().extend(ret.errors);
+    self.errors.extend(ret.errors);
 
     if ret.panicked {
       return None;

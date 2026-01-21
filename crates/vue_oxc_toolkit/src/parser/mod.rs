@@ -6,6 +6,7 @@ use oxc_diagnostics::OxcDiagnostic;
 use oxc_parser::ParseOptions;
 use oxc_span::SourceType;
 
+mod error;
 mod parse;
 mod utils;
 
@@ -18,7 +19,7 @@ pub struct ParserImpl<'a> {
 
   source_type: SourceType,
   comments: RefCell<oxc_allocator::Vec<'a, Comment>>,
-  errors: RefCell<Vec<OxcDiagnostic>>,
+  errors: Vec<OxcDiagnostic>,
 }
 
 impl<'a> ParserImpl<'a> {
@@ -31,7 +32,7 @@ impl<'a> ParserImpl<'a> {
       ast,
       source_type: SourceType::jsx(),
       comments: RefCell::from(ast.vec()),
-      errors: RefCell::from(vec![]),
+      errors: vec![],
       empty_str: ".".repeat(source_text.len()),
       options,
     }
