@@ -646,8 +646,8 @@ mod tests {
     test_ast!("error/template.vue");
     test_ast!("error/interpolation.vue");
     test_ast!("error/recoverable-script.vue");
-    test_ast!("error/irrecoverable-script.vue");
     test_ast!("error/recoverable-directive.vue");
+    test_ast!("error/irrecoverable-script.vue");
     test_ast!("error/irrecoverable-directive.vue");
   }
 }
