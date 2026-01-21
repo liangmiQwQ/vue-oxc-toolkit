@@ -219,7 +219,7 @@ impl<'a> ParserImpl<'a> {
     start: u32,
     end: u32,
     children: Vec<AstNode<'a>>,
-  ) -> Option<oxc_allocator::Vec<'a, JSXChild<'a>>> {
+  ) -> Option<ArenaVec<'a, JSXChild<'a>>> {
     let ast = self.ast;
     if children.is_empty() {
       return Some(ast.vec());
@@ -265,7 +265,7 @@ impl<'a> ParserImpl<'a> {
   fn parse_element(
     &self,
     node: Element<'a>,
-    children: Option<oxc_allocator::Vec<'a, JSXChild<'a>>>,
+    children: Option<ArenaVec<'a, JSXChild<'a>>>,
   ) -> Option<JSXChild<'a>> {
     let ast = self.ast;
 
