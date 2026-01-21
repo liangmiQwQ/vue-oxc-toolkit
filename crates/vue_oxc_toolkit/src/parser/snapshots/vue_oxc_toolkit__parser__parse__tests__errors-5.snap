@@ -30,16 +30,16 @@ Program: Program {
 Errors: [
     OxcDiagnostic {
         inner: OxcDiagnosticInner {
-            message: "Element is missing end tag.",
+            message: "Identifier expected. 'const' is a reserved word that cannot be used here.",
             labels: Some(
                 [
                     LabeledSpan {
                         label: None,
                         span: SourceSpan {
                             offset: SourceOffset(
-                                13,
+                                67,
                             ),
-                            length: 0,
+                            length: 5,
                         },
                         primary: false,
                     },

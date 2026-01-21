@@ -30,16 +30,30 @@ Program: Program {
 Errors: [
     OxcDiagnostic {
         inner: OxcDiagnosticInner {
-            message: "Element is missing end tag.",
+            message: "Expected `,` or `)` but found `decimal`",
             labels: Some(
                 [
                     LabeledSpan {
-                        label: None,
+                        label: Some(
+                            "`,` or `)` expected",
+                        ),
                         span: SourceSpan {
                             offset: SourceOffset(
-                                13,
+                                25,
                             ),
-                            length: 0,
+                            length: 1,
+                        },
+                        primary: true,
+                    },
+                    LabeledSpan {
+                        label: Some(
+                            "Opened here",
+                        ),
+                        span: SourceSpan {
+                            offset: SourceOffset(
+                                22,
+                            ),
+                            length: 1,
                         },
                         primary: false,
                     },

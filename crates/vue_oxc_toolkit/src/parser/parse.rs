@@ -623,11 +623,11 @@ mod tests {
 
   #[test]
   fn errors() {
-    test_ast!("error/template.vue");
-    test_ast!("error/interpolation.vue");
-    test_ast!("error/recoverable-script.vue");
-    test_ast!("error/recoverable-directive.vue");
-    test_ast!("error/irrecoverable-script.vue");
-    test_ast!("error/irrecoverable-directive.vue");
+    test_ast!("error/template.vue", true, true);
+    test_ast!("error/interpolation.vue", true, true);
+    test_ast!("error/recoverable-script.vue", true, false);
+    test_ast!("error/recoverable-directive.vue", true, false);
+    test_ast!("error/irrecoverable-script.vue", true, true);
+    test_ast!("error/irrecoverable-directive.vue", true, true);
   }
 }
