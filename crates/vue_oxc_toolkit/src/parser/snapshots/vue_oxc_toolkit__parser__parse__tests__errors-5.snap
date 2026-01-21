@@ -1,0 +1,59 @@
+---
+source: crates/vue_oxc_toolkit/src/parser/parse.rs
+expression: result
+---
+Program: Program {
+    span: Span {
+        start: 0,
+        end: 0,
+    },
+    source_text: "",
+    comments: Vec(
+        [],
+    ),
+    hashbang: None,
+    directives: Vec(
+        [],
+    ),
+    body: Vec(
+        [],
+    ),
+    scope_id: Cell {
+        value: None,
+    },
+    source_type: SourceType {
+        language: JavaScript,
+        module_kind: Script,
+        variant: Standard,
+    },
+}
+Errors: [
+    OxcDiagnostic {
+        inner: OxcDiagnosticInner {
+            message: "Identifier expected. 'const' is a reserved word that cannot be used here.",
+            labels: Some(
+                [
+                    LabeledSpan {
+                        label: None,
+                        span: SourceSpan {
+                            offset: SourceOffset(
+                                67,
+                            ),
+                            length: 5,
+                        },
+                        primary: false,
+                    },
+                ],
+            ),
+            help: None,
+            note: None,
+            severity: Error,
+            code: OxcCode {
+                scope: None,
+                number: None,
+            },
+            url: None,
+        },
+    },
+]
+JS:

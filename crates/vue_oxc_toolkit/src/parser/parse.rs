@@ -2,17 +2,15 @@ use std::cell::RefCell;
 use std::collections::HashSet;
 use std::mem;
 
-use oxc_allocator::{self, Dummy, TakeIn};
+use oxc_allocator::{self, Dummy, TakeIn, Vec as ArenaVec};
 use oxc_ast::ast::{
-  AssignmentTarget, Expression, FormalParameterKind, JSXAttributeItem, JSXChild, JSXExpression,
-  Program, PropertyKind, Statement,
+  Expression, FormalParameterKind, JSXAttributeItem, JSXChild, JSXExpression, Program,
+  PropertyKind, Statement,
 };
 use oxc_ast::{Comment, CommentKind, NONE};
-use oxc_ast_visit::VisitMut;
 use oxc_diagnostics::OxcDiagnostic;
-use oxc_span::{Atom, GetSpan, SPAN, SourceType, Span};
+use oxc_span::{Atom, SPAN, SourceType, Span};
 use vue_compiler_core::SourceLocation;
-use vue_compiler_core::error::ErrorHandler;
 use vue_compiler_core::parser::{
   AstNode, Directive, DirectiveArg, ElemProp, Element, ParseOption, Parser, SourceNode, TextNode,
   WhitespaceStrategy,
@@ -20,24 +18,11 @@ use vue_compiler_core::parser::{
 use vue_compiler_core::scanner::{ScanOption, Scanner};
 use vue_compiler_core::util::find_prop;
 
-use crate::parser::utils::filter_vue_parser_errors;
+use crate::parser::error::OxcErrorHandler;
 
 use super::ParserImpl;
 use super::ParserImplReturn;
 use super::utils::is_simple_identifier;
-
-struct OxcErrorHandler<'a> {
-  errors: &'a RefCell<Vec<OxcDiagnostic>>,
-}
-
-impl ErrorHandler for OxcErrorHandler<'_> {
-  fn on_error(&self, error: vue_compiler_core::error::CompilationError) {
-    self
-      .errors
-      .borrow_mut()
-      .push(OxcDiagnostic::error(error.to_string()));
-  }
-}
 
 pub trait SourceLocatonSpan {
   fn span(&self) -> Span;
@@ -68,22 +53,58 @@ impl<'a> ParserImpl<'a> {
 
 impl<'a> ParserImpl<'a> {
   pub fn parse(mut self) -> ParserImplReturn<'a> {
+    match self.get_root_children() {
+      Some(children) => {
+        ParserImplReturn {
+          program: self.ast.program(
+            SPAN,
+            self.source_type,
+            self.source_text,
+            self.comments.take_in(self.ast.allocator),
+            None, // no hashbang needed for vue files
+            self.ast.vec(),
+            self.ast.vec1(self.ast.statement_expression(
+              SPAN,
+              self.ast.expression_jsx_fragment(
+                SPAN,
+                self.ast.jsx_opening_fragment(SPAN),
+                children,
+                self.ast.jsx_closing_fragment(SPAN),
+              ),
+            )),
+          ),
+          fatal: false,
+          errors: self.errors,
+        }
+      }
+      None => ParserImplReturn {
+        program: Program::dummy(self.allocator),
+        fatal: true,
+        errors: self.errors,
+      },
+    }
+  }
+
+  fn get_root_children(&mut self) -> Option<ArenaVec<'a, JSXChild<'a>>> {
     let parser = Parser::new(ParseOption {
       whitespace: WhitespaceStrategy::Preserve,
       ..Default::default()
     });
-    let errors = RefCell::new(vec![]);
 
     // get ast from vue-compiler-core
     let scanner = Scanner::new(ScanOption::default());
-    let tokens = scanner.scan(self.source_text, OxcErrorHandler { errors: &errors });
-    let result = parser.parse(tokens, OxcErrorHandler { errors: &errors });
+    // error processing
+    let errors = RefCell::from(&mut self.errors);
+    let panicked = RefCell::from(false);
+    let tokens = scanner.scan(self.source_text, OxcErrorHandler::new(&errors, &panicked));
+    let result = parser.parse(tokens, OxcErrorHandler::new(&errors, &panicked));
 
-    filter_vue_parser_errors(errors.borrow_mut());
+    if *panicked.borrow() {
+      return None;
+    }
 
     let mut source_types: HashSet<&str> = HashSet::new();
-    let ast = &self.ast;
-    let mut children = ast.vec();
+    let mut children = self.ast.vec();
     for child in result.children {
       match child {
         AstNode::Element(node) => {
@@ -98,15 +119,11 @@ impl<'a> ParserImpl<'a> {
             source_types.insert(lang);
 
             if source_types.len() > 1 {
-              errors.borrow_mut().push(OxcDiagnostic::error(format!(
+              self.errors.push(OxcDiagnostic::error(format!(
                 "Multiple script tags with different languages: {source_types:?}"
               )));
 
-              return ParserImplReturn {
-                program: Program::dummy(ast.allocator),
-                fatal: true,
-                errors: errors.take(),
-              };
+              return None;
             }
 
             self.source_type = if lang.starts_with("js") {
@@ -114,100 +131,82 @@ impl<'a> ParserImpl<'a> {
             } else if lang.starts_with("ts") {
               SourceType::tsx()
             } else {
-              errors.borrow_mut().push(OxcDiagnostic::error(format!(
+              self.errors.push(OxcDiagnostic::error(format!(
                 "Unsupported script language: {lang}"
               )));
 
-              return ParserImplReturn {
-                program: Program::dummy(ast.allocator),
-                fatal: true,
-                errors: errors.take(),
-              };
+              return None;
             };
 
             let script_block = if let Some(child) = node.children.first() {
               let span = child.get_location().span();
               let source = span.source_text(self.source_text);
 
-              self
+              let ret = self
                 .get_oxc_parser(
-                  ast
+                  self
+                    .ast
                     .atom(&self.pad_source(source, span.start as usize))
                     .as_str(),
                   // SAFETY: lang is validated above to be "js" or "ts" based extensions which are valid for from_extension
                   SourceType::from_extension(lang).unwrap(),
                 )
-                .parse()
-                .program
-                .body
+                .parse();
+
+              self.errors.extend(ret.errors);
+              if ret.panicked {
+                return None;
+              }
+              ret.program.body
             } else {
-              ast.vec()
+              self.ast.vec()
             };
             children.push(self.parse_element(
               node,
-              Some(ast.vec1(ast.jsx_child_expression_container(
+              Some(self.ast.vec1(self.ast.jsx_child_expression_container(
                 SPAN,
-                JSXExpression::ArrowFunctionExpression(ast.alloc_arrow_function_expression(
+                JSXExpression::ArrowFunctionExpression(self.ast.alloc_arrow_function_expression(
                   SPAN,
                   false,
                   false,
                   NONE,
-                  ast.formal_parameters(
+                  self.ast.formal_parameters(
                     SPAN,
                     FormalParameterKind::ArrowFormalParameters,
-                    ast.vec(),
+                    self.ast.vec(),
                     NONE,
                   ),
                   NONE,
-                  ast.function_body(SPAN, ast.vec(), script_block),
+                  self.ast.function_body(SPAN, self.ast.vec(), script_block),
                 )),
               ))),
-            ));
+            )?);
           } else if node.tag_name == "template" {
-            children.push(self.parse_element(node, None));
+            children.push(self.parse_element(node, None)?);
           }
         }
         AstNode::Text(text) => children.push(self.parse_text(&text)),
         AstNode::Comment(comment) => children.push(self.parse_comment(&comment)),
-        AstNode::Interpolation(interp) => children.push(self.parse_interpolation(&interp)),
+        AstNode::Interpolation(interp) => children.push(self.parse_interpolation(&interp)?),
       }
     }
 
-    ParserImplReturn {
-      program: ast.program(
-        SPAN,
-        self.source_type,
-        self.source_text,
-        self.comments.borrow_mut().take_in(ast.allocator),
-        None, // no hashbang needed for vue files
-        ast.vec(),
-        ast.vec1(ast.statement_expression(
-          SPAN,
-          ast.expression_jsx_fragment(
-            SPAN,
-            ast.jsx_opening_fragment(SPAN),
-            children,
-            ast.jsx_closing_fragment(SPAN),
-          ),
-        )),
-      ),
-      fatal: false,
-      errors: errors.take(),
-    }
+    Some(children)
   }
 
   fn parse_children(
-    &self,
+    &mut self,
     start: u32,
     end: u32,
     children: Vec<AstNode<'a>>,
-  ) -> oxc_allocator::Vec<'a, JSXChild<'a>> {
+  ) -> Option<ArenaVec<'a, JSXChild<'a>>> {
     let ast = self.ast;
     if children.is_empty() {
-      return ast.vec();
+      return Some(ast.vec());
     }
     let mut result = self.ast.vec_with_capacity(children.len() + 2);
 
+    // Process the whitespaces text there <div>____<br>_____</div>
     if let Some(first) = children.first()
       && matches!(first, AstNode::Element(_) | AstNode::Interpolation(_))
       && start != first.get_location().start.offset as u32
@@ -228,25 +227,27 @@ impl<'a> ParserImpl<'a> {
       None
     };
 
-    result.extend(children.into_iter().map(|child| match child {
-      AstNode::Element(node) => self.parse_element(node, None),
-      AstNode::Text(text) => self.parse_text(&text),
-      AstNode::Comment(comment) => self.parse_comment(&comment),
-      AstNode::Interpolation(interp) => self.parse_interpolation(&interp),
-    }));
+    for child in children {
+      result.push(match child {
+        AstNode::Element(node) => self.parse_element(node, None)?,
+        AstNode::Text(text) => self.parse_text(&text),
+        AstNode::Comment(comment) => self.parse_comment(&comment),
+        AstNode::Interpolation(interp) => self.parse_interpolation(&interp)?,
+      });
+    }
 
     if let Some(last) = last {
       result.push(last);
     }
 
-    result
+    Some(result)
   }
 
   fn parse_element(
-    &self,
+    &mut self,
     node: Element<'a>,
-    children: Option<oxc_allocator::Vec<'a, JSXChild<'a>>>,
-  ) -> JSXChild<'a> {
+    children: Option<ArenaVec<'a, JSXChild<'a>>>,
+  ) -> Option<JSXChild<'a>> {
     let ast = self.ast;
 
     let open_element_span = {
@@ -273,7 +274,12 @@ impl<'a> ParserImpl<'a> {
       }
     };
 
-    ast.jsx_child_element(
+    let mut attributes = ast.vec();
+    for prop in node.properties {
+      attributes.push(self.parse_attribute(prop)?);
+    }
+
+    Some(ast.jsx_child_element(
       location_span,
       ast.jsx_opening_element(
         open_element_span,
@@ -285,17 +291,12 @@ impl<'a> ParserImpl<'a> {
           ast.atom(node.tag_name),
         ),
         NONE,
-        ast.vec_from_iter(
-          node
-            .properties
-            .into_iter()
-            .map(|prop| self.parse_attribute(prop)),
-        ),
+        attributes,
       ),
       if let Some(children) = children {
         children
       } else {
-        self.parse_children(open_element_span.end, end_element_span.start, node.children)
+        self.parse_children(open_element_span.end, end_element_span.start, node.children)?
       },
       if end_element_span.eq(&location_span) {
         None
@@ -311,16 +312,16 @@ impl<'a> ParserImpl<'a> {
           ),
         ))
       },
-    )
+    ))
   }
 
-  fn parse_attribute(&self, prop: ElemProp<'a>) -> JSXAttributeItem<'a> {
+  fn parse_attribute(&mut self, prop: ElemProp<'a>) -> Option<JSXAttributeItem<'a>> {
     let ast = self.ast;
     match prop {
       ElemProp::Attr(attr) => {
         let attr_end = self.roffset(attr.location.end.offset) as u32;
         let attr_span = Span::new(attr.location.start.offset as u32, attr_end);
-        ast.jsx_attribute_item_attribute(
+        Some(ast.jsx_attribute_item_attribute(
           attr_span,
           ast.jsx_attribute_name_identifier(attr.name_loc.span(), ast.atom(attr.name)),
           if let Some(value) = attr.value {
@@ -332,14 +333,14 @@ impl<'a> ParserImpl<'a> {
           } else {
             None
           },
-        )
+        ))
       }
       ElemProp::Dir(mut dir) => {
         let dir_start = dir.location.start.offset as u32;
         let dir_end = self.roffset(dir.location.end.offset) as u32;
         let head_name = dir.head_loc.span().source_text(self.source_text);
         let modifiers = mem::take(&mut dir.modifiers);
-        ast.jsx_attribute_item_attribute(
+        Some(ast.jsx_attribute_item_attribute(
           Span::new(dir_start, dir_end),
           match dir.name {
             "bind" => {
@@ -424,22 +425,18 @@ impl<'a> ParserImpl<'a> {
             }
           },
           if let Some(expr) = &dir.expression {
-            // v-for="item of list" => v-for="item in list"
-            let raw = if dir.name == "for" {
-              ast.atom(&expr.content.raw.replace(" of ", "in")).as_str()
+            if matches!(dir.name, "for" | "slot") {
+              // TODO: Handle for and slot
+              None
             } else {
-              expr.content.raw
-            };
-            let mut expression = self.parse_expression(raw, expr.location.start.offset);
+              let expression =
+                self.parse_expression(expr.content.raw, expr.location.start.offset)?;
 
-            if dir.name == "slot" || dir.name == "for" {
-              DefaultValueToAssignment::new(self).visit_expression(&mut expression);
+              Some(ast.jsx_attribute_value_expression_container(
+                Span::new(expr.location.start.offset as u32 + 1, dir_end - 1),
+                self.parse_dynamic_argument(&dir, expression)?.into(),
+              ))
             }
-
-            Some(ast.jsx_attribute_value_expression_container(
-              Span::new(expr.location.start.offset as u32 + 1, dir_end - 1),
-              self.parse_dynamic_argument(&dir, expression).into(),
-            ))
           } else if let Some(argument) = &dir.argument
             && let DirectiveArg::Dynamic(_) = argument
           {
@@ -448,24 +445,23 @@ impl<'a> ParserImpl<'a> {
               ast.jsx_attribute_value_expression_container(
                 SPAN,
                 self
-                  .parse_dynamic_argument(&dir, ast.expression_identifier(SPAN, "undefined"))
+                  .parse_dynamic_argument(&dir, ast.expression_identifier(SPAN, "undefined"))?
                   .into(),
               ),
             )
           } else {
             None
           },
-        )
+        ))
       }
     }
   }
 
   fn parse_dynamic_argument(
-    &self,
+    &mut self,
     dir: &Directive<'a>,
     expression: Expression<'a>,
-  ) -> Expression<'a> {
-    let ast = &self.ast;
+  ) -> Option<Expression<'a>> {
     let head_name = dir.head_loc.span().source_text(self.source_text);
     let dir_start = dir.location.start.offset;
     if let Some(argument) = &dir.argument
@@ -478,10 +474,10 @@ impl<'a> ParserImpl<'a> {
         } else {
           dir_start + 1
         },
-      );
-      ast.expression_object(
+      )?;
+      Some(self.ast.expression_object(
         SPAN,
-        ast.vec1(ast.object_property_kind_object_property(
+        self.ast.vec1(self.ast.object_property_kind_object_property(
           SPAN,
           PropertyKind::Init,
           dynamic_arg_expression.into(),
@@ -490,9 +486,9 @@ impl<'a> ParserImpl<'a> {
           false,
           true,
         )),
-      )
+      ))
     } else {
-      expression
+      Some(expression)
     }
   }
 
@@ -523,10 +519,10 @@ impl<'a> ParserImpl<'a> {
       .jsx_child_text(text.location.span(), raw, Some(raw))
   }
 
-  fn parse_comment(&self, comment: &SourceNode<'a>) -> JSXChild<'a> {
+  fn parse_comment(&mut self, comment: &SourceNode<'a>) -> JSXChild<'a> {
     let ast = self.ast;
     let span = comment.location.span();
-    self.comments.borrow_mut().push(Comment::new(
+    self.comments.push(Comment::new(
       span.start + 1,
       span.end - 1,
       if comment.source.contains('\n') {
@@ -541,47 +537,59 @@ impl<'a> ParserImpl<'a> {
     )
   }
 
-  fn parse_interpolation(&self, introp: &SourceNode<'a>) -> JSXChild<'a> {
+  fn parse_interpolation(&mut self, introp: &SourceNode<'a>) -> Option<JSXChild<'a>> {
     let ast = self.ast;
     let span = Span::new(
       introp.location.start.offset as u32 + 1,
       introp.location.end.offset as u32 - 1,
     );
-    ast.jsx_child_expression_container(
-      span,
-      self
-        .parse_expression(introp.source, span.start as usize)
-        .into(),
+    Some(
+      ast.jsx_child_expression_container(
+        span,
+        self
+          .parse_expression(introp.source, span.start as usize)?
+          .into(),
+      ),
     )
   }
 
-  fn parse_expression(&self, source: &'a str, start: usize) -> Expression<'a> {
+  fn parse_expression(&mut self, source: &'a str, start: usize) -> Option<Expression<'a>> {
     let ast = &self.ast;
     if is_simple_identifier(source) {
-      return ast.expression_identifier(
+      return Some(ast.expression_identifier(
         Span::new(start as u32 + 1, (start + source.len() + 1) as u32),
         source,
-      );
+      ));
     }
 
-    let mut program = self
+    let ret = self
       .get_oxc_parser(
         ast
           .atom(&self.pad_source(&format!("({source})"), start.saturating_sub(1)))
           .as_str(),
         self.source_type,
       )
-      .parse()
-      .program;
+      .parse();
+
+    self.errors.extend(ret.errors);
+
+    if ret.panicked {
+      return None;
+    }
+
+    let mut program = ret.program;
+
     let Some(Statement::ExpressionStatement(stmt)) = program.body.get_mut(0) else {
       // SAFETY: We always wrap the source in parentheses, so it should always be an expression statement
       // if it was valid partially. If it's invalid, the parser might return empty body if it fails early.
-      unreachable!()
+      // unreachable!()
+      return None;
     };
     let Expression::ParenthesizedExpression(expression) = &mut stmt.expression else {
-      unreachable!()
+      // unreachable!()
+      return None;
     };
-    expression.expression.take_in(self.allocator)
+    Some(expression.expression.take_in(self.allocator))
   }
 
   fn offset(&self, start: usize) -> usize {
@@ -602,41 +610,6 @@ impl<'a> ParserImpl<'a> {
   }
 }
 
-struct DefaultValueToAssignment<'a, 'ctx> {
-  context: &'ctx ParserImpl<'a>,
-}
-impl<'a, 'ctx> DefaultValueToAssignment<'a, 'ctx> {
-  pub const fn new(context: &'ctx ParserImpl<'a>) -> Self {
-    Self { context }
-  }
-}
-impl<'a> VisitMut<'a> for DefaultValueToAssignment<'a, '_> {
-  fn visit_object_property(&mut self, it: &mut oxc_ast::ast::ObjectProperty<'a>) {
-    if it.value.span().end != it.span.end {
-      let ast = &self.context.ast;
-      let value_start = it.value.span().start as usize;
-      let source = &self.context.source_text[value_start..it.span.end as usize];
-      let mut expression = self
-        .context
-        .get_oxc_parser(
-          ast
-            .atom(&self.context.pad_source(source, value_start))
-            .as_str(),
-          self.context.source_type,
-        )
-        .parse_expression()
-        // SAFETY: The source is a slice of a valid property value, so it should always be parseable as an expression.
-        .unwrap();
-      if let Expression::AssignmentExpression(expr) = &mut expression {
-        if let AssignmentTarget::AssignmentTargetIdentifier(id) = &mut expr.left {
-          id.span = SPAN;
-        }
-        it.value = expression.take_in(ast.allocator);
-      }
-    }
-  }
-}
-
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -646,5 +619,15 @@ mod tests {
   fn basic_vue() {
     test_ast!("basic.vue");
     test_ast!("typescript.vue");
+  }
+
+  #[test]
+  fn errors() {
+    test_ast!("error/template.vue", true, true);
+    test_ast!("error/interpolation.vue", true, true);
+    test_ast!("error/recoverable-script.vue", true, false);
+    test_ast!("error/recoverable-directive.vue", true, false);
+    test_ast!("error/irrecoverable-script.vue", true, true);
+    test_ast!("error/irrecoverable-directive.vue", true, true);
   }
 }

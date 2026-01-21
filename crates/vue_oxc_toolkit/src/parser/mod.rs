@@ -1,22 +1,23 @@
-use std::cell::RefCell;
-
 use oxc_allocator::Allocator;
 use oxc_ast::{AstBuilder, Comment, ast::Program};
 use oxc_diagnostics::OxcDiagnostic;
 use oxc_parser::ParseOptions;
 use oxc_span::SourceType;
 
+mod error;
 mod parse;
 mod utils;
 
 pub struct ParserImpl<'a> {
   allocator: &'a Allocator,
-  source_type: SourceType,
   source_text: &'a str,
-  ast: AstBuilder<'a>,
-  comments: RefCell<oxc_allocator::Vec<'a, Comment>>,
-  empty_str: String,
   options: ParseOptions,
+  empty_str: String,
+  ast: AstBuilder<'a>,
+
+  source_type: SourceType,
+  comments: oxc_allocator::Vec<'a, Comment>,
+  errors: Vec<OxcDiagnostic>,
 }
 
 impl<'a> ParserImpl<'a> {
@@ -25,10 +26,11 @@ impl<'a> ParserImpl<'a> {
     let ast = AstBuilder::new(allocator);
     Self {
       allocator,
-      source_type: SourceType::jsx(),
       source_text,
       ast,
-      comments: RefCell::from(ast.vec()),
+      source_type: SourceType::jsx(),
+      comments: ast.vec(),
+      errors: vec![],
       empty_str: ".".repeat(source_text.len()),
       options,
     }
