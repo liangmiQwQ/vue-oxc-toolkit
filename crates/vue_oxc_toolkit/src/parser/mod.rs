@@ -1,5 +1,3 @@
-use std::cell::RefCell;
-
 use oxc_allocator::Allocator;
 use oxc_ast::{AstBuilder, Comment, ast::Program};
 use oxc_diagnostics::OxcDiagnostic;
@@ -18,7 +16,7 @@ pub struct ParserImpl<'a> {
   ast: AstBuilder<'a>,
 
   source_type: SourceType,
-  comments: RefCell<oxc_allocator::Vec<'a, Comment>>,
+  comments: oxc_allocator::Vec<'a, Comment>,
   errors: Vec<OxcDiagnostic>,
 }
 
@@ -31,7 +29,7 @@ impl<'a> ParserImpl<'a> {
       source_text,
       ast,
       source_type: SourceType::jsx(),
-      comments: RefCell::from(ast.vec()),
+      comments: ast.vec(),
       errors: vec![],
       empty_str: ".".repeat(source_text.len()),
       options,

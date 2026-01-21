@@ -60,7 +60,7 @@ impl<'a> ParserImpl<'a> {
             SPAN,
             self.source_type,
             self.source_text,
-            self.comments.borrow_mut().take_in(self.ast.allocator),
+            self.comments.take_in(self.ast.allocator),
             None, // no hashbang needed for vue files
             self.ast.vec(),
             self.ast.vec1(self.ast.statement_expression(
@@ -519,10 +519,10 @@ impl<'a> ParserImpl<'a> {
       .jsx_child_text(text.location.span(), raw, Some(raw))
   }
 
-  fn parse_comment(&self, comment: &SourceNode<'a>) -> JSXChild<'a> {
+  fn parse_comment(&mut self, comment: &SourceNode<'a>) -> JSXChild<'a> {
     let ast = self.ast;
     let span = comment.location.span();
-    self.comments.borrow_mut().push(Comment::new(
+    self.comments.push(Comment::new(
       span.start + 1,
       span.end - 1,
       if comment.source.contains('\n') {
