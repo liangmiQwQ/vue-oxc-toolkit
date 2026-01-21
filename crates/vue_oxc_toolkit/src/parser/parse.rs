@@ -70,7 +70,7 @@ impl<'a> ParserImpl<'a> {
 
 impl<'a> ParserImpl<'a> {
   pub fn parse(mut self) -> ParserImplReturn<'a> {
-    match self.get_children() {
+    match self.get_root_children() {
       Some(children) => {
         ParserImplReturn {
           program: self.ast.program(
@@ -102,7 +102,7 @@ impl<'a> ParserImpl<'a> {
     }
   }
 
-  fn get_children(&mut self) -> Option<ArenaVec<'a, JSXChild<'a>>> {
+  fn get_root_children(&mut self) -> Option<ArenaVec<'a, JSXChild<'a>>> {
     let parser = Parser::new(ParseOption {
       whitespace: WhitespaceStrategy::Preserve,
       ..Default::default()
