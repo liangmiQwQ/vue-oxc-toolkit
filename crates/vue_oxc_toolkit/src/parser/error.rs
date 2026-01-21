@@ -20,7 +20,7 @@ impl<'a> OxcErrorHandler<'a> {
 
 impl ErrorHandler for OxcErrorHandler<'_> {
   fn on_error(&self, error: CompilationError) {
-    if should_panick(&error) {
+    if should_panic(&error) {
       *self.panicked.borrow_mut() = true;
     }
     if !is_warn(&error) {
@@ -43,6 +43,6 @@ const fn is_warn(error: &CompilationError) -> bool {
 }
 
 #[must_use]
-const fn should_panick(error: &CompilationError) -> bool {
+const fn should_panic(error: &CompilationError) -> bool {
   matches!(error.kind, CompilationErrorKind::MissingEndTag)
 }
