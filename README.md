@@ -1,5 +1,7 @@
 # Vue OXC Toolkit
 
+> Fork from [vue-oxc-parser](https://github.com/zhiyuanzmj/vue-oxc-parser) originally created by zhiyuanzmj.
+
 A toolkit to parse `.vue` file into semantically correct oxc jsx/tsx ast. Include generate `module_record`, `irregular_whitespaces` which are required by oxc_linter.
 
 ## Usage
@@ -31,6 +33,6 @@ fn main() {
 
 ## License
 
-This project includes a fork from [vue-oxc-parser](https://github.com/zhiyuanzmj/vue-oxc-parser) originally created by zhiyuanzmj.
+This project is a fork from [vue-oxc-parser](https://github.com/zhiyuanzmj/vue-oxc-parser) originally created by zhiyuanzmj.
 
 [MIT](./LICENSE) License - see [LICENSE](LICENSE) file for details.
