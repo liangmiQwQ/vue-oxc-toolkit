@@ -46,4 +46,4 @@ build:
   cargo build
 
 bump:
-  cargo workspaces version -y
+  cargo workspaces version -y -m "chore: release v%v"
