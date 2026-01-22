@@ -3,9 +3,9 @@ resolver = "3"
 members = ["crates/*"]
 
 [workspace.package]
-version = "0.0.0"
+version = "0.0.0-alpha.0"
 authors = ["Liang Mi <https://github.com/liangmiQwQ>", "contributors"]
-categories = ["ast"]
+categories = ["parsing", "parser-implementations"]
 keywords = ["Vue", "oxc"]
 license = "MIT"
 repository = "https://github.com/liangmiQwQ/vue-oxc-semantic"
