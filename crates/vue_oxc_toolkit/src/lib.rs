@@ -7,6 +7,7 @@ use oxc_syntax::module_record::ModuleRecord;
 
 use crate::parser::{ParserImpl, ParserImplReturn};
 
+mod irregular_whitespaces;
 mod parser;
 
 #[cfg(test)]
@@ -58,22 +59,21 @@ impl<'a> VueOxcParser<'a> {
     } = ParserImpl::new(self.allocator, self.source_text, self.options).parse();
 
     if fatal {
-      return VueParserReturn {
+      VueParserReturn {
         program: Program::dummy(self.allocator),
         module_record: ModuleRecord::new(self.allocator),
         errors,
         irregular_whitespaces: Box::new([]),
         panicked: true,
-      };
-    }
-
-    VueParserReturn {
-      program,
-      errors,
-      panicked: false,
-      irregular_whitespaces: todo!(),
-      #[allow(unreachable_code)]
-      module_record: todo!(),
+      }
+    } else {
+      VueParserReturn {
+        program,
+        errors,
+        panicked: false,
+        irregular_whitespaces: self.get_irregular_whitespaces(),
+        module_record: ModuleRecord::new(self.allocator),
+      }
     }
   }
 }
