@@ -44,6 +44,8 @@ impl<'a> ParserImpl<'a> {
 
 pub struct ParserImplReturn<'a> {
   pub program: Program<'a>,
+  pub module_record: ModuleRecord<'a>,
+
   pub fatal: bool,
   pub errors: Vec<OxcDiagnostic>,
 }

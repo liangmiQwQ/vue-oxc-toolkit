@@ -10,6 +10,7 @@ use oxc_ast::ast::{
 use oxc_ast::{Comment, CommentKind, NONE};
 use oxc_diagnostics::OxcDiagnostic;
 use oxc_span::{Atom, SPAN, SourceType, Span};
+use oxc_syntax::module_record::ModuleRecord;
 use vue_compiler_core::SourceLocation;
 use vue_compiler_core::parser::{
   AstNode, Directive, DirectiveArg, ElemProp, Element, ParseOption, Parser, SourceNode, TextNode,
@@ -76,12 +77,14 @@ impl<'a> ParserImpl<'a> {
           ),
           fatal: false,
           errors: self.errors,
+          module_record: self.module_records,
         }
       }
       None => ParserImplReturn {
         program: Program::dummy(self.allocator),
         fatal: true,
         errors: self.errors,
+        module_record: ModuleRecord::new(self.allocator),
       },
     }
   }
@@ -163,6 +166,7 @@ impl<'a> ParserImpl<'a> {
               let is_setup = find_prop(&node, "setup").is_some();
 
               if is_setup {
+                // Only merge imports, as exports are not allowed in <script setup>
                 self.module_records.merge_imports(ret.module_record);
               } else {
                 self.module_records.merge(ret.module_record);

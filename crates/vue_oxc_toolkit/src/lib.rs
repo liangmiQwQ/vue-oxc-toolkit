@@ -56,12 +56,13 @@ impl<'a> VueOxcParser<'a> {
       program,
       errors,
       fatal,
+      module_record,
     } = ParserImpl::new(self.allocator, self.source_text, self.options).parse();
 
     if fatal {
       VueParserReturn {
         program: Program::dummy(self.allocator),
-        module_record: ModuleRecord::new(self.allocator),
+        module_record, // Dummy one if fatal, can be directly passed there without recreate a new one
         errors,
         irregular_whitespaces: Box::new([]),
         panicked: true,
@@ -72,7 +73,7 @@ impl<'a> VueOxcParser<'a> {
         errors,
         panicked: false,
         irregular_whitespaces: self.get_irregular_whitespaces(),
-        module_record: ModuleRecord::new(self.allocator),
+        module_record,
       }
     }
   }
