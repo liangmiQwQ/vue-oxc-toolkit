@@ -3,8 +3,10 @@ use oxc_ast::{AstBuilder, Comment, ast::Program};
 use oxc_diagnostics::OxcDiagnostic;
 use oxc_parser::ParseOptions;
 use oxc_span::SourceType;
+use oxc_syntax::module_record::ModuleRecord;
 
 mod error;
+mod modules;
 mod parse;
 mod utils;
 
@@ -15,6 +17,7 @@ pub struct ParserImpl<'a> {
   empty_str: String,
   ast: AstBuilder<'a>,
 
+  module_records: ModuleRecord<'a>,
   source_type: SourceType,
   comments: oxc_allocator::Vec<'a, Comment>,
   errors: Vec<OxcDiagnostic>,
@@ -30,6 +33,8 @@ impl<'a> ParserImpl<'a> {
       ast,
       source_type: SourceType::jsx(),
       comments: ast.vec(),
+
+      module_records: ModuleRecord::new(allocator),
       errors: vec![],
       empty_str: ".".repeat(source_text.len()),
       options,
