@@ -57,6 +57,8 @@ impl<'a> ParserImpl<'a> {
   pub fn parse(mut self) -> ParserImplReturn<'a> {
     match self.get_root_children() {
       Some(children) => {
+        self.fix_module_records();
+
         ParserImplReturn {
           program: self.ast.program(
             SPAN,

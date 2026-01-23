@@ -1,5 +1,7 @@
 use oxc_syntax::module_record::ModuleRecord;
 
+use crate::parser::ParserImpl;
+
 pub trait Merge: Sized {
   fn merge_imports(&mut self, instance: Self);
   fn merge(&mut self, instance: Self);
@@ -30,5 +32,21 @@ impl Merge for ModuleRecord<'_> {
     self.import_entries.extend(instance.import_entries);
     self.dynamic_imports.extend(instance.dynamic_imports);
     self.import_metas.extend(instance.import_metas);
+  }
+}
+
+impl ParserImpl<'_> {
+  pub fn fix_module_records(&mut self) {
+    self.module_records.merge(ModuleRecord::new(self.allocator));
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use crate::test_module_record;
+
+  #[test]
+  fn basic() {
+    test_module_record!("modules/basic.vue");
   }
 }
