@@ -19,6 +19,7 @@ use vue_compiler_core::scanner::{ScanOption, Scanner};
 use vue_compiler_core::util::find_prop;
 
 use crate::parser::error::OxcErrorHandler;
+use crate::parser::modules::Merge;
 
 use super::ParserImpl;
 use super::ParserImplReturn;
@@ -157,6 +158,16 @@ impl<'a> ParserImpl<'a> {
               if ret.panicked {
                 return None;
               }
+
+              // Deal with modules record there
+              let is_setup = find_prop(&node, "setup").is_some();
+
+              if is_setup {
+                self.module_records.merge_imports(ret.module_record);
+              } else {
+                self.module_records.merge(ret.module_record);
+              }
+
               ret.program.body
             } else {
               self.ast.vec()
