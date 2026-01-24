@@ -72,4 +72,9 @@ mod tests {
     test_module_record!("modules/import.vue");
     test_module_record!("modules/no-imports.vue");
   }
+
+  #[test]
+  fn setup() {
+    test_module_record!("modules/setup.vue");
+  }
 }
