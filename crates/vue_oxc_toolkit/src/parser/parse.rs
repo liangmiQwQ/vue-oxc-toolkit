@@ -80,7 +80,7 @@ impl<'a> ParserImpl<'a> {
           ),
           fatal: false,
           errors: self.errors,
-          module_record: self.module_records,
+          module_record: self.module_record,
         }
       }
       None => ParserImplReturn {
@@ -170,9 +170,9 @@ impl<'a> ParserImpl<'a> {
 
               if is_setup {
                 // Only merge imports, as exports are not allowed in <script setup>
-                self.module_records.merge_imports(ret.module_record);
+                self.module_record.merge_imports(ret.module_record);
               } else {
-                self.module_records.merge(ret.module_record);
+                self.module_record.merge(ret.module_record);
               }
 
               ret.program.body

@@ -40,16 +40,16 @@ impl Merge for ModuleRecord<'_> {
 
 impl ParserImpl<'_> {
   pub fn fix_module_records(&mut self, span: Span) {
-    self.module_records.has_module_syntax = true;
+    self.module_record.has_module_syntax = true;
 
     if !self
-      .module_records
+      .module_record
       .local_export_entries
       .iter()
       .any(|entry| entry.export_name.is_default())
     {
       // For no script or <script setup> only file
-      self.module_records.local_export_entries.push(ExportEntry {
+      self.module_record.local_export_entries.push(ExportEntry {
         span,
         statement_span: span,
         module_request: None,

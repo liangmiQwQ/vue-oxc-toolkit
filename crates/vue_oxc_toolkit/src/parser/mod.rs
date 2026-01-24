@@ -17,7 +17,7 @@ pub struct ParserImpl<'a> {
   empty_str: String,
   ast: AstBuilder<'a>,
 
-  module_records: ModuleRecord<'a>,
+  module_record: ModuleRecord<'a>,
   source_type: SourceType,
   comments: oxc_allocator::Vec<'a, Comment>,
   errors: Vec<OxcDiagnostic>,
@@ -34,7 +34,7 @@ impl<'a> ParserImpl<'a> {
       source_type: SourceType::jsx(),
       comments: ast.vec(),
 
-      module_records: ModuleRecord::new(allocator),
+      module_record: ModuleRecord::new(allocator),
       errors: vec![],
       empty_str: ".".repeat(source_text.len()),
       options,
