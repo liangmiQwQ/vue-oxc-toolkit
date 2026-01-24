@@ -1,5 +1,5 @@
 ---
-source: crates/vue_oxc_toolkit/src/parser/modules.rs
+source: crates/vue_oxc_toolkit/src/test.rs
 expression: result
 ---
 Module Record: ModuleRecord {
@@ -61,7 +61,28 @@ Module Record: ModuleRecord {
         ],
     ),
     local_export_entries: Vec(
-        [],
+        [
+            ExportEntry {
+                span: Span {
+                    start: 0,
+                    end: 0,
+                },
+                statement_span: Span {
+                    start: 0,
+                    end: 0,
+                },
+                module_request: None,
+                import_name: Null,
+                export_name: Default(
+                    Span {
+                        start: 0,
+                        end: 0,
+                    },
+                ),
+                local_name: Null,
+                is_type: false,
+            },
+        ],
     ),
     indirect_export_entries: Vec(
         [],

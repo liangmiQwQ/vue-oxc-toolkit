@@ -1,4 +1,7 @@
-use oxc_syntax::module_record::ModuleRecord;
+use oxc_span::SPAN;
+use oxc_syntax::module_record::{
+  ExportEntry, ExportExportName, ExportImportName, ExportLocalName, ModuleRecord,
+};
 
 use crate::parser::ParserImpl;
 
@@ -38,7 +41,24 @@ impl Merge for ModuleRecord<'_> {
 impl ParserImpl<'_> {
   pub fn fix_module_records(&mut self) {
     self.module_records.has_module_syntax = true;
-    self.module_records.merge(ModuleRecord::new(self.allocator));
+
+    if !self
+      .module_records
+      .local_export_entries
+      .iter()
+      .any(|entry| entry.export_name.is_default())
+    {
+      // For no script or <script setup> only file
+      self.module_records.local_export_entries.push(ExportEntry {
+        span: SPAN,
+        statement_span: SPAN,
+        module_request: None,
+        import_name: ExportImportName::Null,
+        export_name: ExportExportName::Default(SPAN),
+        local_name: ExportLocalName::Null,
+        is_type: false,
+      });
+    }
   }
 }
 
