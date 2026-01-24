@@ -41,9 +41,9 @@ where
 
   let result = f(&ret);
 
-  let snapshot_name = file_path.replace('/', "_").replace('.', "_");
+  let snapshot_name = file_path.replace(['/', '.'], "_");
   let mut settings = insta::Settings::clone_current();
-  settings.set_snapshot_path(format!("parser/snapshots/{}", folder));
+  settings.set_snapshot_path(format!("parser/snapshots/{folder}"));
   settings.set_prepend_module_to_snapshot(false);
   settings.bind(|| {
     insta::assert_snapshot!(snapshot_name, result);
@@ -51,5 +51,5 @@ where
 }
 
 pub fn read_file(file_path: &str) -> String {
-  std::fs::read_to_string(format!("fixtures/{}", file_path)).expect("Failed to read test file")
+  std::fs::read_to_string(format!("fixtures/{file_path}")).expect("Failed to read test file")
 }
