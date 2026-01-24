@@ -62,7 +62,7 @@ impl<'a> ParserImpl<'a> {
 
         ParserImplReturn {
           program: self.ast.program(
-            SPAN,
+            span,
             self.source_type,
             self.source_text,
             self.comments.take_in(self.ast.allocator),

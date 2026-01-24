@@ -1,11 +1,11 @@
 ---
-source: crates/vue_oxc_toolkit/src/parser/parse.rs
+source: crates/vue_oxc_toolkit/src/test.rs
 expression: result
 ---
 Program: Program {
     span: Span {
         start: 0,
-        end: 0,
+        end: 161,
     },
     source_text: "<script lang=\"ts\" setup>\nconst a = someFunction<{ msg: 1 }>()\n</script>\n\n<template>\n  <div>{{ a.msg }}</div>\n  <div> I think 1 < 2, isn't it? </div>\n</template>\n",
     comments: Vec(

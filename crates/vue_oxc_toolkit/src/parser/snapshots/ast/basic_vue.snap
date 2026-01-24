@@ -1,11 +1,11 @@
 ---
-source: crates/vue_oxc_toolkit/src/parser/parse.rs
+source: crates/vue_oxc_toolkit/src/test.rs
 expression: result
 ---
 Program: Program {
     span: Span {
         start: 0,
-        end: 0,
+        end: 126,
     },
     source_text: "<template>\n  <div>\n    {{ count }}\n  </div>\n</template>\n\n<script lang=\"js\" setup>\nconst count = 1;\n</script>\n\n<style></style>\n",
     comments: Vec(
