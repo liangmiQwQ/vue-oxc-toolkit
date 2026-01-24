@@ -629,7 +629,6 @@ impl<'a> ParserImpl<'a> {
 
 #[cfg(test)]
 mod tests {
-  use super::*;
   use crate::test_ast;
 
   #[test]
