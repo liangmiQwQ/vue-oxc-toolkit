@@ -1,36 +1,17 @@
 # vue_oxc_toolkit
 
-> Include a fork from `vue-oxc-parser` originally created by zhiyuanzmj.
+A high-performance toolkit to generate semantically correct AST from Vue SFCs for code linting purposes.
 
-A toolkit to parse `.vue` file into semantically correct oxc jsx/tsx ast. Include generate `module_record`, `irregular_whitespaces` which are required by oxc_linter.
+## Features
 
-## Usage
+- **Full SFC Parsing**: Support for both composition and options API. Support parsing `<template>` block and TypeScript code as well.
+- **JSX/TSX Transformation**: Transforms Vue templates into OXC-compatible JSX/TSX AST, enabling deep semantic analysis.
+- **Linter Ready**: Automatically generates metadatas which are required by `oxc_linter` (such as`module_record` and `irregular_whitespaces`).
+- **High Performance**: Complete the AST transformation in a single traversal.
+- **Error Handling**: Collect the errors from both `vue-compiler-rs` and `oxc-parser`. Implement similar `paincked` logic like `oxc-parser`
 
-```rust
-use vue_oxc_toolkit::VueOxcParser;
-use oxc_allocator::Allocator;
-use oxc_parser::ParserReturn;
+## Credits
 
+This project includes a fork of [vue-oxc-parser](https://github.com/zhiyuanzmj/vue-oxc-parser) originally created by zhiyuanzmj.
 
-fn main() {
-  let allocator = Allocator::new();
-  let source = include_str!("example.vue");
-
-  // get the result there
-  let ret: ParserReturn = VueOxcParser::new(source, &allocator);
-
-  let SemanticBuilderReturn { semantic, .. } = SemanticBuilder::new()
-    .with_cfg(true)
-    .with_scope_tree_child_ids(true)
-    .with_check_syntax_error(true)
-    .build(allocator.alloc(ret.program));
-
-  semantic.set_irregular_whitespaces(ret.irregular_whitespaces);
-
-  /* Omit the future code */
-}
-```
-
----
-
-This project includes a fork from [vue-oxc-parser](https://github.com/zhiyuanzmj/vue-oxc-parser). But with local latest dependencies of oxc, and remove unused stringify ast functions.
+This project depends on [vue-compiler-rs](https://github.com/HerringtonDarkholme/vue-compiler) which provides underlying support for Vue parsing.

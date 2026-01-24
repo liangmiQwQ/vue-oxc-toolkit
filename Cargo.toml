@@ -9,7 +9,7 @@ categories = ["parsing", "parser-implementations"]
 keywords = ["Vue", "oxc"]
 license = "MIT"
 repository = "https://github.com/liangmiQwQ/vue-oxc-toolkit"
-description = "A parser to generate semantically correct AST from .vue file. Good for linting integration"
+description = "A parser to generate semantically correct AST from Vue SFCs for code linting purposes."
 
 edition = "2024"
 rust-version = "1.91.1"
