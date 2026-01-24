@@ -10,6 +10,7 @@ use oxc_ast::ast::{
 use oxc_ast::{Comment, CommentKind, NONE};
 use oxc_diagnostics::OxcDiagnostic;
 use oxc_span::{Atom, SPAN, SourceType, Span};
+use oxc_syntax::module_record::ModuleRecord;
 use vue_compiler_core::SourceLocation;
 use vue_compiler_core::parser::{
   AstNode, Directive, DirectiveArg, ElemProp, Element, ParseOption, Parser, SourceNode, TextNode,
@@ -19,6 +20,7 @@ use vue_compiler_core::scanner::{ScanOption, Scanner};
 use vue_compiler_core::util::find_prop;
 
 use crate::parser::error::OxcErrorHandler;
+use crate::parser::modules::Merge;
 
 use super::ParserImpl;
 use super::ParserImplReturn;
@@ -55,6 +57,9 @@ impl<'a> ParserImpl<'a> {
   pub fn parse(mut self) -> ParserImplReturn<'a> {
     match self.get_root_children() {
       Some(children) => {
+        let span = Span::new(0, self.source_text.len() as u32);
+        self.fix_module_records(span);
+
         ParserImplReturn {
           program: self.ast.program(
             SPAN,
@@ -75,12 +80,14 @@ impl<'a> ParserImpl<'a> {
           ),
           fatal: false,
           errors: self.errors,
+          module_record: self.module_records,
         }
       }
       None => ParserImplReturn {
         program: Program::dummy(self.allocator),
         fatal: true,
         errors: self.errors,
+        module_record: ModuleRecord::new(self.allocator),
       },
     }
   }
@@ -157,6 +164,17 @@ impl<'a> ParserImpl<'a> {
               if ret.panicked {
                 return None;
               }
+
+              // Deal with modules record there
+              let is_setup = find_prop(&node, "setup").is_some();
+
+              if is_setup {
+                // Only merge imports, as exports are not allowed in <script setup>
+                self.module_records.merge_imports(ret.module_record);
+              } else {
+                self.module_records.merge(ret.module_record);
+              }
+
               ret.program.body
             } else {
               self.ast.vec()
@@ -612,7 +630,6 @@ impl<'a> ParserImpl<'a> {
 
 #[cfg(test)]
 mod tests {
-  use super::*;
   use crate::test_ast;
 
   #[test]
