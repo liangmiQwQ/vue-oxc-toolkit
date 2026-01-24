@@ -1,4 +1,4 @@
-use oxc_span::SPAN;
+use oxc_span::{SPAN, Span};
 use oxc_syntax::module_record::{
   ExportEntry, ExportExportName, ExportImportName, ExportLocalName, ModuleRecord,
 };
@@ -39,7 +39,7 @@ impl Merge for ModuleRecord<'_> {
 }
 
 impl ParserImpl<'_> {
-  pub fn fix_module_records(&mut self) {
+  pub fn fix_module_records(&mut self, span: Span) {
     self.module_records.has_module_syntax = true;
 
     if !self
@@ -50,8 +50,8 @@ impl ParserImpl<'_> {
     {
       // For no script or <script setup> only file
       self.module_records.local_export_entries.push(ExportEntry {
-        span: SPAN,
-        statement_span: SPAN,
+        span,
+        statement_span: span,
         module_request: None,
         import_name: ExportImportName::Null,
         export_name: ExportExportName::Default(SPAN),
