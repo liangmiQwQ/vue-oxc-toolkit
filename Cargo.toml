@@ -3,7 +3,7 @@ resolver = "3"
 members = ["crates/*"]
 
 [workspace.package]
-version = "0.0.0"
+version = "0.1.0"
 authors = ["Liang Mi <https://github.com/liangmiQwQ>", "contributors"]
 categories = ["parsing", "parser-implementations"]
 keywords = ["Vue", "oxc"]
