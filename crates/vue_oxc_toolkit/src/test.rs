@@ -35,7 +35,6 @@ macro_rules! test_module_record {
   ($file_path:expr) => {{
     use insta::assert_snapshot;
     use oxc_allocator::Allocator;
-    use oxc_codegen::Codegen;
     use oxc_parser::ParseOptions;
 
     use crate::parser::ParserImpl;

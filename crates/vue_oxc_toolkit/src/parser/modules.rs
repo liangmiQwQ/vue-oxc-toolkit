@@ -37,6 +37,7 @@ impl Merge for ModuleRecord<'_> {
 
 impl ParserImpl<'_> {
   pub fn fix_module_records(&mut self) {
+    self.module_records.has_module_syntax = true;
     self.module_records.merge(ModuleRecord::new(self.allocator));
   }
 }
@@ -48,5 +49,7 @@ mod tests {
   #[test]
   fn basic() {
     test_module_record!("modules/basic.vue");
+    test_module_record!("modules/import.vue");
+    test_module_record!("modules/no-imports.vue");
   }
 }

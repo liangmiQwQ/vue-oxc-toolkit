@@ -1,0 +1,35 @@
+---
+source: crates/vue_oxc_toolkit/src/parser/modules.rs
+expression: result
+---
+Module Record: ModuleRecord {
+    has_module_syntax: true,
+    requested_modules: HashMap(
+        ManuallyDrop {
+            value: {},
+        },
+    ),
+    import_entries: Vec(
+        [],
+    ),
+    local_export_entries: Vec(
+        [],
+    ),
+    indirect_export_entries: Vec(
+        [],
+    ),
+    star_export_entries: Vec(
+        [],
+    ),
+    exported_bindings: HashMap(
+        ManuallyDrop {
+            value: {},
+        },
+    ),
+    dynamic_imports: Vec(
+        [],
+    ),
+    import_metas: Vec(
+        [],
+    ),
+}

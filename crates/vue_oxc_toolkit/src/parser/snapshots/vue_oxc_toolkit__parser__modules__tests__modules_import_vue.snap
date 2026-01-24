@@ -1,0 +1,83 @@
+---
+source: crates/vue_oxc_toolkit/src/parser/modules.rs
+expression: result
+---
+Module Record: ModuleRecord {
+    has_module_syntax: true,
+    requested_modules: HashMap(
+        ManuallyDrop {
+            value: {
+                "vue": Vec(
+                    [
+                        RequestedModule {
+                            statement_span: Span {
+                                start: 51,
+                                end: 77,
+                            },
+                            span: Span {
+                                start: 71,
+                                end: 76,
+                            },
+                            is_type: false,
+                            is_import: true,
+                        },
+                    ],
+                ),
+            },
+        },
+    ),
+    import_entries: Vec(
+        [
+            ImportEntry {
+                statement_span: Span {
+                    start: 51,
+                    end: 77,
+                },
+                module_request: NameSpan {
+                    span: Span {
+                        start: 71,
+                        end: 76,
+                    },
+                    name: "vue",
+                },
+                import_name: Name(
+                    NameSpan {
+                        span: Span {
+                            start: 60,
+                            end: 63,
+                        },
+                        name: "ref",
+                    },
+                ),
+                local_name: NameSpan {
+                    span: Span {
+                        start: 60,
+                        end: 63,
+                    },
+                    name: "ref",
+                },
+                is_type: false,
+            },
+        ],
+    ),
+    local_export_entries: Vec(
+        [],
+    ),
+    indirect_export_entries: Vec(
+        [],
+    ),
+    star_export_entries: Vec(
+        [],
+    ),
+    exported_bindings: HashMap(
+        ManuallyDrop {
+            value: {},
+        },
+    ),
+    dynamic_imports: Vec(
+        [],
+    ),
+    import_metas: Vec(
+        [],
+    ),
+}
