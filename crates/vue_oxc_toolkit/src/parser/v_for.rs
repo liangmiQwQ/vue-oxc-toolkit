@@ -18,27 +18,40 @@ pub struct VForWrapper<'a, 'b> {
   params: Option<FormalParameters<'b>>,
 }
 
-impl ParserImpl<'_> {
-  fn invalid_v_for_expression(&mut self, span: Span) {
+impl<'a> ParserImpl<'a> {
+  fn invalid_v_for_expression(&mut self, span: Span) -> Option<()> {
     self
       .errors
       .push(OxcDiagnostic::error("Invalid v-for expression").with_label(span));
+    None
   }
 
-  pub fn analyze_v_for<'b>(&mut self, dir: &Directive<'b>, wrapper: &mut VForWrapper<'_, 'b>) {
+  pub fn analyze_v_for(
+    &mut self,
+    dir: &Directive<'a>,
+    wrapper: &mut VForWrapper<'_, 'a>,
+  ) -> Option<()> {
     if dir.has_empty_expr() {
-      self.invalid_v_for_expression(dir.location.span());
+      self.invalid_v_for_expression(dir.location.span())?;
     }
     let expr = dir.expression.as_ref().unwrap();
-    let for_alias_regex = Regex::new(r"^([\s\S]*?)\s+(?:in|of)\s+(\S[\s\S]*)").unwrap();
 
-    if let Some(caps) = for_alias_regex.captures(expr.content.raw) {
-      let data_origin = &caps[1];
-      // let data_origin = self.parse_expression(data_origin);
-      let params = &caps[2];
+    let for_alias_regex = Regex::new(r"^([\s\S]*?)\s+(?:in|of)\s+(\S[\s\S]*)").unwrap();
+    if let Some(caps) = for_alias_regex.captures(expr.content.raw)
+      && let Some(cap1) = caps.get(1)
+      && let Some(cap2) = caps.get(2)
+    {
+      wrapper.set_data_origin(self.ast.parenthesized_expression(
+        SPAN,
+        self.parse_expression(cap1.as_str(), expr.location.start.offset)?,
+      ));
+
+      let params = cap2.as_str();
     } else {
-      self.invalid_v_for_expression(dir.location.span());
+      self.invalid_v_for_expression(dir.location.span())?;
     }
+
+    Some(())
   }
 }
 

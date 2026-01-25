@@ -25,7 +25,6 @@ use crate::parser::v_for::VForWrapper;
 
 use super::ParserImpl;
 use super::ParserImplReturn;
-use super::utils::is_simple_identifier;
 
 pub trait SourceLocatonSpan {
   fn span(&self) -> Span;
@@ -299,7 +298,7 @@ impl<'a> ParserImpl<'a> {
       if let ElemProp::Dir(dir) = &prop
         && dir.name == "for"
       {
-        self.analyze_v_for(dir, &mut v_for_wrapper);
+        self.analyze_v_for(dir, &mut v_for_wrapper)?;
       }
 
       attributes.push(self.parse_attribute(prop)?);
@@ -581,7 +580,7 @@ impl<'a> ParserImpl<'a> {
     )
   }
 
-  fn parse_expression(&mut self, source: &'a str, start: usize) -> Option<Expression<'a>> {
+  pub fn parse_expression(&mut self, source: &'a str, start: usize) -> Option<Expression<'a>> {
     let ast = &self.ast;
 
     let ret = self

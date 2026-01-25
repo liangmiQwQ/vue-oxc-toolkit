@@ -8,7 +8,6 @@ use oxc_syntax::module_record::ModuleRecord;
 mod error;
 mod modules;
 mod parse;
-mod utils;
 
 mod v_for;
 
