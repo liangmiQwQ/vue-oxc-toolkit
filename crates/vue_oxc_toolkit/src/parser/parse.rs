@@ -292,12 +292,14 @@ impl<'a> ParserImpl<'a> {
       }
     };
 
-    // TODO: Handle v-for wrapper there
-    let v_for = find_dir(&node, "for");
-    println!("{}", v_for.is_some());
-
     let mut attributes = ast.vec();
     for prop in node.properties {
+      if let ElemProp::Dir(dir) = &prop
+        && dir.name == "for"
+      {
+        // TODO: v-for
+      }
+
       attributes.push(self.parse_attribute(prop)?);
     }
 
@@ -365,6 +367,7 @@ impl<'a> ParserImpl<'a> {
         let head_name = dir.head_loc.span().source_text(self.source_text);
         let modifiers = mem::take(&mut dir.modifiers);
         Some(ast.jsx_attribute_item_attribute(
+          // TODO: Remove the code below, keep the original props as oxc use string to save prop name (for linting use)
           Span::new(dir_start, dir_end),
           match dir.name {
             "bind" => {
