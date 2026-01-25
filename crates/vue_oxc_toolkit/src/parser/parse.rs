@@ -17,7 +17,7 @@ use vue_compiler_core::parser::{
   WhitespaceStrategy,
 };
 use vue_compiler_core::scanner::{ScanOption, Scanner};
-use vue_compiler_core::util::find_prop;
+use vue_compiler_core::util::{find_dir, find_prop};
 
 use crate::parser::error::OxcErrorHandler;
 use crate::parser::modules::Merge;
@@ -293,6 +293,8 @@ impl<'a> ParserImpl<'a> {
     };
 
     // TODO: Handle v-for wrapper there
+    let v_for = find_dir(&node, "for");
+    println!("{}", v_for.is_some());
 
     let mut attributes = ast.vec();
     for prop in node.properties {

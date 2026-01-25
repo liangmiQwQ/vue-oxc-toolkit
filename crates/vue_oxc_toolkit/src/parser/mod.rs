@@ -10,6 +10,8 @@ mod modules;
 mod parse;
 mod utils;
 
+mod v_for;
+
 pub struct ParserImpl<'a> {
   allocator: &'a Allocator,
   source_text: &'a str,
