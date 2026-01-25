@@ -583,12 +583,6 @@ impl<'a> ParserImpl<'a> {
 
   fn parse_expression(&mut self, source: &'a str, start: usize) -> Option<Expression<'a>> {
     let ast = &self.ast;
-    if is_simple_identifier(source) {
-      return Some(ast.expression_identifier(
-        Span::new(start as u32 + 1, (start + source.len() + 1) as u32),
-        source,
-      ));
-    }
 
     let ret = self
       .get_oxc_parser(

@@ -39,4 +39,5 @@ oxc_semantic = "0.110.0"
 oxc_span = "0.110.0"
 oxc_syntax = "0.110.0"
 
+regex = "1.12.2"
 vue-compiler-core = "0.1.0"

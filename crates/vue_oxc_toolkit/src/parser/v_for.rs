@@ -5,10 +5,12 @@ use oxc_ast::{
     ParenthesizedExpression, Statement,
   },
 };
-use oxc_span::SPAN;
+use oxc_diagnostics::OxcDiagnostic;
+use oxc_span::{SPAN, Span};
+use regex::Regex;
 use vue_compiler_core::parser::Directive;
 
-use crate::parser::ParserImpl;
+use crate::parser::{ParserImpl, parse::SourceLocatonSpan};
 
 pub struct VForWrapper<'a, 'b> {
   ast: &'a AstBuilder<'b>,
@@ -17,8 +19,26 @@ pub struct VForWrapper<'a, 'b> {
 }
 
 impl ParserImpl<'_> {
-  pub fn analyze_v_for<'b>(&self, dir: &Directive<'b>, wrapper: &mut VForWrapper<'_, 'b>) {
-    wrapper.set_data_origin(todo!());
+  fn invalid_v_for_expression(&mut self, span: Span) {
+    self
+      .errors
+      .push(OxcDiagnostic::error("Invalid v-for expression").with_label(span));
+  }
+
+  pub fn analyze_v_for<'b>(&mut self, dir: &Directive<'b>, wrapper: &mut VForWrapper<'_, 'b>) {
+    if dir.has_empty_expr() {
+      self.invalid_v_for_expression(dir.location.span());
+    }
+    let expr = dir.expression.as_ref().unwrap();
+    let for_alias_regex = Regex::new(r"^([\s\S]*?)\s+(?:in|of)\s+(\S[\s\S]*)").unwrap();
+
+    if let Some(caps) = for_alias_regex.captures(expr.content.raw) {
+      let data_origin = &caps[1];
+      // let data_origin = self.parse_expression(data_origin);
+      let params = &caps[2];
+    } else {
+      self.invalid_v_for_expression(dir.location.span());
+    }
   }
 }
 
