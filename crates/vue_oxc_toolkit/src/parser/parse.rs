@@ -21,6 +21,7 @@ use vue_compiler_core::util::{find_dir, find_prop};
 
 use crate::parser::error::OxcErrorHandler;
 use crate::parser::modules::Merge;
+use crate::parser::v_for::VForWrapper;
 
 use super::ParserImpl;
 use super::ParserImplReturn;
@@ -292,6 +293,7 @@ impl<'a> ParserImpl<'a> {
       }
     };
 
+    let mut v_for_wrapper = VForWrapper::new(&ast);
     let mut attributes = ast.vec();
     for prop in node.properties {
       if let ElemProp::Dir(dir) = &prop
@@ -309,7 +311,7 @@ impl<'a> ParserImpl<'a> {
       None => self.parse_children(open_element_span.end, end_element_span.start, node.children)?,
     };
 
-    Some(ast.jsx_child_element(
+    Some(v_for_wrapper.wrapper(ast.jsx_element(
       location_span,
       ast.jsx_opening_element(
         open_element_span,
@@ -338,7 +340,7 @@ impl<'a> ParserImpl<'a> {
           ),
         ))
       },
-    ))
+    )))
   }
 
   fn parse_attribute(&mut self, prop: ElemProp<'a>) -> Option<JSXAttributeItem<'a>> {
