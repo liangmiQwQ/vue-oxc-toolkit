@@ -42,21 +42,20 @@ impl<'a> ParserImpl<'a> {
       && let Some(cap1) = caps.get(1)
       && let Some(cap2) = caps.get(2)
     {
-      wrapper.set_data_origin(
-        self
-          .ast
-          .parenthesized_expression(SPAN, self.parse_expression(cap2.as_str(), cap2.start())?),
-      );
+      wrapper.set_data_origin(self.ast.parenthesized_expression(
+        SPAN,
+        self.parse_expression(cap2.as_str(), expr.location.start.offset + cap2.start())?,
+      ));
 
       let params = cap1.as_str();
       let (str, start, should_dummy_span) =
         if params.trim().starts_with('(') && params.trim().ends_with(')') {
           let str = format!("{params} => 0");
-          let start = cap1.start();
+          let start = expr.location.start.offset + cap1.start();
           (str, start, false)
         } else {
           let str = format!("({params}) => 0");
-          let start = cap1.start() - 1;
+          let start = expr.location.start.offset + cap1.start() - 1;
           (str, start, true)
         };
 
@@ -166,6 +165,6 @@ mod tests {
 
   #[test]
   fn v_for_error() {
-    test_ast!("directive/v-for-error.vue", true, false);
+    test_ast!("directive/v-for-error.vue", true, true);
   }
 }
