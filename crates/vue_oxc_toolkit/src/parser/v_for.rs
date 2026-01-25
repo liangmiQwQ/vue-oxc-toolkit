@@ -1,66 +1,99 @@
 use oxc_ast::{
   AstBuilder, NONE,
-  ast::{Argument, Expression, JSXChild, JSXElement, JSXExpression, Statement},
+  ast::{
+    Argument, Expression, FormalParameters, JSXChild, JSXElement, JSXExpression,
+    ParenthesizedExpression, Statement,
+  },
 };
 use oxc_span::SPAN;
-use vue_compiler_core::parser::Element;
+use vue_compiler_core::parser::Directive;
+
+use crate::parser::ParserImpl;
 
 pub struct VForWrapper<'a, 'b> {
-  inclulde_v_for: bool,
   ast: &'a AstBuilder<'b>,
+  data_origin: Option<ParenthesizedExpression<'b>>,
+  params: Option<FormalParameters<'b>>,
+}
+
+impl ParserImpl<'_> {
+  pub fn analyze_v_for<'b>(&self, dir: &Directive<'b>, wrapper: &mut VForWrapper<'_, 'b>) {
+    wrapper.set_data_origin(todo!());
+  }
 }
 
 impl<'a, 'b> VForWrapper<'a, 'b> {
   pub const fn new(ast: &'a AstBuilder<'b>) -> Self {
     Self {
-      inclulde_v_for: false,
       ast,
+      data_origin: None,
+      params: None,
     }
   }
 
   pub fn wrapper(self, element: JSXElement<'b>) -> JSXChild<'b> {
-    if self.inclulde_v_for {
-      let expr_statement = self.ast.alloc_expression_statement(
-        SPAN,
-        Expression::ParenthesizedExpression(
-          self
-            .ast
-            .alloc_parenthesized_expression(SPAN, Expression::JSXElement(self.ast.alloc(element))),
-        ),
-      );
+    if self.inclulde_v_for() {
+      let Self {
+        ast,
+        data_origin,
+        params,
+      } = self;
+      let data_origin = data_origin.unwrap();
+      let params = params.unwrap();
 
-      let arrow_function = Expression::ArrowFunctionExpression(
-        self.ast.alloc_arrow_function_expression(
-          SPAN,
-          true,
-          false,
-          NONE,
-          todo!(),
-          NONE,
-          self.ast.function_body(
+      ast.jsx_child_expression_container(
+        SPAN,
+        JSXExpression::from(Expression::CallExpression(
+          ast.alloc_call_expression(
             SPAN,
-            self.ast.vec(),
+            Expression::ParenthesizedExpression(ast.alloc(data_origin)),
+            NONE,
             self
               .ast
-              .vec1(Statement::ExpressionStatement(expr_statement)),
+              .vec1(Argument::from(Expression::ArrowFunctionExpression(
+                ast.alloc_arrow_function_expression(
+                  SPAN,
+                  true,
+                  false,
+                  NONE,
+                  params,
+                  NONE,
+                  ast.function_body(
+                    SPAN,
+                    ast.vec(),
+                    ast.vec1(Statement::ExpressionStatement(
+                      ast.alloc_expression_statement(
+                        SPAN,
+                        Expression::ParenthesizedExpression(ast.alloc_parenthesized_expression(
+                          SPAN,
+                          Expression::JSXElement(self.ast.alloc(element)),
+                        )),
+                      ),
+                    )),
+                  ),
+                ),
+              ))),
+            false,
           ),
-        ),
-      );
-
-      let call_expr = Expression::CallExpression(self.ast.alloc_call_expression(
-        SPAN,
-        todo!("IDENTIFIER THERE"),
-        NONE,
-        self.ast.vec1(Argument::from(arrow_function)),
-        false,
-      ));
-
-      self
-        .ast
-        .jsx_child_expression_container(SPAN, JSXExpression::from(call_expr))
+        )),
+      )
     } else {
       JSXChild::Element(self.ast.alloc(element))
     }
+  }
+}
+
+impl<'b> VForWrapper<'_, 'b> {
+  const fn inclulde_v_for(&self) -> bool {
+    self.data_origin.is_some() && self.params.is_some()
+  }
+
+  const fn set_data_origin(&mut self, data_origin: ParenthesizedExpression<'b>) {
+    self.data_origin = Some(data_origin);
+  }
+
+  const fn set_params(&mut self, params: FormalParameters<'b>) {
+    self.params = Some(params);
   }
 }
 

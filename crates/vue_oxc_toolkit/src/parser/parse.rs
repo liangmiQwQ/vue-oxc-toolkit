@@ -17,7 +17,7 @@ use vue_compiler_core::parser::{
   WhitespaceStrategy,
 };
 use vue_compiler_core::scanner::{ScanOption, Scanner};
-use vue_compiler_core::util::{find_dir, find_prop};
+use vue_compiler_core::util::find_prop;
 
 use crate::parser::error::OxcErrorHandler;
 use crate::parser::modules::Merge;
@@ -299,7 +299,7 @@ impl<'a> ParserImpl<'a> {
       if let ElemProp::Dir(dir) = &prop
         && dir.name == "for"
       {
-        // TODO: v-for
+        self.analyze_v_for(dir, &mut v_for_wrapper);
       }
 
       attributes.push(self.parse_attribute(prop)?);
