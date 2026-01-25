@@ -292,10 +292,18 @@ impl<'a> ParserImpl<'a> {
       }
     };
 
+    // TODO: Handle v-for wrapper there
+
     let mut attributes = ast.vec();
     for prop in node.properties {
       attributes.push(self.parse_attribute(prop)?);
     }
+
+    let children = match children {
+      Some(children) => children,
+      // TODO: Handle v-slot wrapper there
+      None => self.parse_children(open_element_span.end, end_element_span.start, node.children)?,
+    };
 
     Some(ast.jsx_child_element(
       location_span,
@@ -311,11 +319,7 @@ impl<'a> ParserImpl<'a> {
         NONE,
         attributes,
       ),
-      if let Some(children) = children {
-        children
-      } else {
-        self.parse_children(open_element_span.end, end_element_span.start, node.children)?
-      },
+      children,
       if end_element_span.eq(&location_span) {
         None
       } else {
@@ -444,7 +448,6 @@ impl<'a> ParserImpl<'a> {
           },
           if let Some(expr) = &dir.expression {
             if matches!(dir.name, "for" | "slot") {
-              // TODO: Handle for and slot
               None
             } else {
               let expression =
