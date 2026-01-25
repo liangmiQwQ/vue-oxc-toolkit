@@ -1,3 +1,4 @@
+use oxc_allocator::TakeIn;
 use oxc_ast::{
   AstBuilder, NONE,
   ast::{
@@ -41,12 +42,36 @@ impl<'a> ParserImpl<'a> {
       && let Some(cap1) = caps.get(1)
       && let Some(cap2) = caps.get(2)
     {
-      wrapper.set_data_origin(self.ast.parenthesized_expression(
-        SPAN,
-        self.parse_expression(cap1.as_str(), expr.location.start.offset)?,
-      ));
+      wrapper.set_data_origin(
+        self
+          .ast
+          .parenthesized_expression(SPAN, self.parse_expression(cap2.as_str(), cap2.start())?),
+      );
 
-      let params = cap2.as_str();
+      let params = cap1.as_str();
+      let (str, start, should_dummy_span) =
+        if params.trim().starts_with('(') && params.trim().ends_with(')') {
+          let str = format!("{params} => 0");
+          let start = cap1.start();
+          (str, start, false)
+        } else {
+          let str = format!("({params}) => 0");
+          let start = cap1.start() - 1;
+          (str, start, true)
+        };
+
+      let mut expr = self.parse_expression(self.ast.atom(&str).as_str(), start)?;
+
+      let Expression::ArrowFunctionExpression(expression) = &mut expr else {
+        return None;
+      };
+
+      let mut params = expression.params.take_in(self.ast.allocator);
+      if should_dummy_span {
+        params.span = SPAN;
+      }
+
+      wrapper.set_params(params);
     } else {
       self.invalid_v_for_expression(dir.location.span())?;
     }
