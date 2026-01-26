@@ -18,10 +18,12 @@ oxc_parser = { workspace = true }
 oxc_span = { workspace = true }
 oxc_syntax = { workspace = true }
 
+regex = { workspace = true }
 vue-compiler-core = { workspace = true }
 
 [dev-dependencies]
 insta = { workspace = true }
+oxc_ast_visit = { workspace = true }
 oxc_codegen = { workspace = true }
 
 [lints]

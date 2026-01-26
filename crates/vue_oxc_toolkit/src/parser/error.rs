@@ -1,8 +1,9 @@
 use std::cell::RefCell;
 
 use oxc_diagnostics::OxcDiagnostic;
-use oxc_span::Span;
 use vue_compiler_core::error::{CompilationError, CompilationErrorKind, ErrorHandler};
+
+use crate::parser::parse::SourceLocatonSpan;
 
 pub struct OxcErrorHandler<'a> {
   errors: &'a RefCell<&'a mut Vec<OxcDiagnostic>>,
@@ -24,12 +25,10 @@ impl ErrorHandler for OxcErrorHandler<'_> {
       *self.panicked.borrow_mut() = true;
     }
     if !is_warn(&error) {
-      self.errors.borrow_mut().push(
-        OxcDiagnostic::error(error.to_string()).with_label(Span::new(
-          error.location.start.offset as u32,
-          error.location.end.offset as u32,
-        )),
-      );
+      self
+        .errors
+        .borrow_mut()
+        .push(OxcDiagnostic::error(error.to_string()).with_label(error.location.span()));
     }
   }
 }

@@ -21,10 +21,10 @@ use vue_compiler_core::util::find_prop;
 
 use crate::parser::error::OxcErrorHandler;
 use crate::parser::modules::Merge;
+use crate::parser::v_for::VForWrapper;
 
 use super::ParserImpl;
 use super::ParserImplReturn;
-use super::utils::is_simple_identifier;
 
 pub trait SourceLocatonSpan {
   fn span(&self) -> Span;
@@ -42,6 +42,9 @@ impl<'a> ParserImpl<'a> {
     source_text: &'a str,
     source_type: SourceType,
   ) -> oxc_parser::Parser<'a> {
+    // TODO: extend this function logic, add parsing, comments, errors processing
+    // TODO: add comments support
+    // TODO: do not panic even if JS parsing panic
     oxc_parser::Parser::new(self.allocator, source_text, source_type).with_options(self.options)
   }
 
@@ -292,12 +295,25 @@ impl<'a> ParserImpl<'a> {
       }
     };
 
+    let mut v_for_wrapper = VForWrapper::new(&ast);
     let mut attributes = ast.vec();
     for prop in node.properties {
+      if let ElemProp::Dir(dir) = &prop
+        && dir.name == "for"
+      {
+        self.analyze_v_for(dir, &mut v_for_wrapper)?;
+      }
+
       attributes.push(self.parse_attribute(prop)?);
     }
 
-    Some(ast.jsx_child_element(
+    let children = match children {
+      Some(children) => children,
+      // TODO: Handle v-slot wrapper there
+      None => self.parse_children(open_element_span.end, end_element_span.start, node.children)?,
+    };
+
+    Some(v_for_wrapper.wrap(ast.jsx_element(
       location_span,
       ast.jsx_opening_element(
         open_element_span,
@@ -311,11 +327,7 @@ impl<'a> ParserImpl<'a> {
         NONE,
         attributes,
       ),
-      if let Some(children) = children {
-        children
-      } else {
-        self.parse_children(open_element_span.end, end_element_span.start, node.children)?
-      },
+      children,
       if end_element_span.eq(&location_span) {
         None
       } else {
@@ -330,7 +342,7 @@ impl<'a> ParserImpl<'a> {
           ),
         ))
       },
-    ))
+    )))
   }
 
   fn parse_attribute(&mut self, prop: ElemProp<'a>) -> Option<JSXAttributeItem<'a>> {
@@ -359,6 +371,7 @@ impl<'a> ParserImpl<'a> {
         let head_name = dir.head_loc.span().source_text(self.source_text);
         let modifiers = mem::take(&mut dir.modifiers);
         Some(ast.jsx_attribute_item_attribute(
+          // TODO: Remove the code below, keep the original props as oxc use string to save prop name (for linting use)
           Span::new(dir_start, dir_end),
           match dir.name {
             "bind" => {
@@ -444,7 +457,6 @@ impl<'a> ParserImpl<'a> {
           },
           if let Some(expr) = &dir.expression {
             if matches!(dir.name, "for" | "slot") {
-              // TODO: Handle for and slot
               None
             } else {
               let expression =
@@ -571,14 +583,8 @@ impl<'a> ParserImpl<'a> {
     )
   }
 
-  fn parse_expression(&mut self, source: &'a str, start: usize) -> Option<Expression<'a>> {
+  pub fn parse_expression(&mut self, source: &'a str, start: usize) -> Option<Expression<'a>> {
     let ast = &self.ast;
-    if is_simple_identifier(source) {
-      return Some(ast.expression_identifier(
-        Span::new(start as u32 + 1, (start + source.len() + 1) as u32),
-        source,
-      ));
-    }
 
     let ret = self
       .get_oxc_parser(
