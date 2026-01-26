@@ -448,7 +448,10 @@ impl<'a> ParserImpl<'a> {
           },
           if let Some(expr) = &dir.expression {
             if matches!(dir.name, "for" | "slot") {
-              None
+              Some(ast.jsx_attribute_value_expression_container(
+                expr.location.span(),
+                JSXExpression::EmptyExpression(ast.jsx_empty_expression(SPAN)),
+              ))
             } else {
               let expression =
                 self.parse_expression(expr.content.raw, expr.location.start.offset)?;

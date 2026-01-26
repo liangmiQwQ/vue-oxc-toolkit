@@ -218,7 +218,24 @@ Program: Program {
                                                                                                                                                     name: "v-for",
                                                                                                                                                 },
                                                                                                                                             ),
-                                                                                                                                            value: None,
+                                                                                                                                            value: Some(
+                                                                                                                                                ExpressionContainer(
+                                                                                                                                                    JSXExpressionContainer {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 24,
+                                                                                                                                                            end: 41,
+                                                                                                                                                        },
+                                                                                                                                                        expression: EmptyExpression(
+                                                                                                                                                            JSXEmptyExpression {
+                                                                                                                                                                span: Span {
+                                                                                                                                                                    start: 0,
+                                                                                                                                                                    end: 0,
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                        ),
+                                                                                                                                                    },
+                                                                                                                                                ),
+                                                                                                                                            ),
                                                                                                                                         },
                                                                                                                                     ),
                                                                                                                                 ],
@@ -408,7 +425,24 @@ Program: Program {
                                                                                                                                                     name: "v-for",
                                                                                                                                                 },
                                                                                                                                             ),
-                                                                                                                                            value: None,
+                                                                                                                                            value: Some(
+                                                                                                                                                ExpressionContainer(
+                                                                                                                                                    JSXExpressionContainer {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 57,
+                                                                                                                                                            end: 76,
+                                                                                                                                                        },
+                                                                                                                                                        expression: EmptyExpression(
+                                                                                                                                                            JSXEmptyExpression {
+                                                                                                                                                                span: Span {
+                                                                                                                                                                    start: 0,
+                                                                                                                                                                    end: 0,
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                        ),
+                                                                                                                                                    },
+                                                                                                                                                ),
+                                                                                                                                            ),
                                                                                                                                         },
                                                                                                                                     ),
                                                                                                                                 ],
@@ -625,7 +659,24 @@ Program: Program {
                                                                                                                                                     name: "v-for",
                                                                                                                                                 },
                                                                                                                                             ),
-                                                                                                                                            value: None,
+                                                                                                                                            value: Some(
+                                                                                                                                                ExpressionContainer(
+                                                                                                                                                    JSXExpressionContainer {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 92,
+                                                                                                                                                            end: 121,
+                                                                                                                                                        },
+                                                                                                                                                        expression: EmptyExpression(
+                                                                                                                                                            JSXEmptyExpression {
+                                                                                                                                                                span: Span {
+                                                                                                                                                                    start: 0,
+                                                                                                                                                                    end: 0,
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                        ),
+                                                                                                                                                    },
+                                                                                                                                                ),
+                                                                                                                                            ),
                                                                                                                                         },
                                                                                                                                     ),
                                                                                                                                 ],
@@ -870,7 +921,24 @@ Program: Program {
                                                                                                                                                     name: "v-for",
                                                                                                                                                 },
                                                                                                                                             ),
-                                                                                                                                            value: None,
+                                                                                                                                            value: Some(
+                                                                                                                                                ExpressionContainer(
+                                                                                                                                                    JSXExpressionContainer {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 137,
+                                                                                                                                                            end: 177,
+                                                                                                                                                        },
+                                                                                                                                                        expression: EmptyExpression(
+                                                                                                                                                            JSXEmptyExpression {
+                                                                                                                                                                span: Span {
+                                                                                                                                                                    start: 0,
+                                                                                                                                                                    end: 0,
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                        ),
+                                                                                                                                                    },
+                                                                                                                                                ),
+                                                                                                                                            ),
                                                                                                                                         },
                                                                                                                                     ),
                                                                                                                                 ],
@@ -1119,7 +1187,24 @@ Program: Program {
                                                                                                                                                     name: "v-for",
                                                                                                                                                 },
                                                                                                                                             ),
-                                                                                                                                            value: None,
+                                                                                                                                            value: Some(
+                                                                                                                                                ExpressionContainer(
+                                                                                                                                                    JSXExpressionContainer {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 193,
+                                                                                                                                                            end: 220,
+                                                                                                                                                        },
+                                                                                                                                                        expression: EmptyExpression(
+                                                                                                                                                            JSXEmptyExpression {
+                                                                                                                                                                span: Span {
+                                                                                                                                                                    start: 0,
+                                                                                                                                                                    end: 0,
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                        ),
+                                                                                                                                                    },
+                                                                                                                                                ),
+                                                                                                                                            ),
                                                                                                                                         },
                                                                                                                                     ),
                                                                                                                                 ],
@@ -1395,7 +1480,24 @@ Program: Program {
                                                                                                                                                     name: "v-for",
                                                                                                                                                 },
                                                                                                                                             ),
-                                                                                                                                            value: None,
+                                                                                                                                            value: Some(
+                                                                                                                                                ExpressionContainer(
+                                                                                                                                                    JSXExpressionContainer {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 236,
+                                                                                                                                                            end: 272,
+                                                                                                                                                        },
+                                                                                                                                                        expression: EmptyExpression(
+                                                                                                                                                            JSXEmptyExpression {
+                                                                                                                                                                span: Span {
+                                                                                                                                                                    start: 0,
+                                                                                                                                                                    end: 0,
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                        ),
+                                                                                                                                                    },
+                                                                                                                                                ),
+                                                                                                                                            ),
                                                                                                                                         },
                                                                                                                                     ),
                                                                                                                                 ],
@@ -1713,7 +1815,24 @@ Program: Program {
                                                                                                                                                     name: "v-for",
                                                                                                                                                 },
                                                                                                                                             ),
-                                                                                                                                            value: None,
+                                                                                                                                            value: Some(
+                                                                                                                                                ExpressionContainer(
+                                                                                                                                                    JSXExpressionContainer {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 288,
+                                                                                                                                                            end: 338,
+                                                                                                                                                        },
+                                                                                                                                                        expression: EmptyExpression(
+                                                                                                                                                            JSXEmptyExpression {
+                                                                                                                                                                span: Span {
+                                                                                                                                                                    start: 0,
+                                                                                                                                                                    end: 0,
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                        ),
+                                                                                                                                                    },
+                                                                                                                                                ),
+                                                                                                                                            ),
                                                                                                                                         },
                                                                                                                                     ),
                                                                                                                                 ],
@@ -1957,7 +2076,24 @@ Program: Program {
                                                                                                                                                     name: "v-for",
                                                                                                                                                 },
                                                                                                                                             ),
-                                                                                                                                            value: None,
+                                                                                                                                            value: Some(
+                                                                                                                                                ExpressionContainer(
+                                                                                                                                                    JSXExpressionContainer {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 354,
+                                                                                                                                                            end: 391,
+                                                                                                                                                        },
+                                                                                                                                                        expression: EmptyExpression(
+                                                                                                                                                            JSXEmptyExpression {
+                                                                                                                                                                span: Span {
+                                                                                                                                                                    start: 0,
+                                                                                                                                                                    end: 0,
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                        ),
+                                                                                                                                                    },
+                                                                                                                                                ),
+                                                                                                                                            ),
                                                                                                                                         },
                                                                                                                                     ),
                                                                                                                                 ],
@@ -2176,7 +2312,24 @@ Program: Program {
                                                                                                                                                     name: "v-for",
                                                                                                                                                 },
                                                                                                                                             ),
-                                                                                                                                            value: None,
+                                                                                                                                            value: Some(
+                                                                                                                                                ExpressionContainer(
+                                                                                                                                                    JSXExpressionContainer {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 407,
+                                                                                                                                                            end: 438,
+                                                                                                                                                        },
+                                                                                                                                                        expression: EmptyExpression(
+                                                                                                                                                            JSXEmptyExpression {
+                                                                                                                                                                span: Span {
+                                                                                                                                                                    start: 0,
+                                                                                                                                                                    end: 0,
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                        ),
+                                                                                                                                                    },
+                                                                                                                                                ),
+                                                                                                                                            ),
                                                                                                                                         },
                                                                                                                                     ),
                                                                                                                                 ],
@@ -2416,7 +2569,24 @@ Program: Program {
                                                                                                                                                     name: "v-for",
                                                                                                                                                 },
                                                                                                                                             ),
-                                                                                                                                            value: None,
+                                                                                                                                            value: Some(
+                                                                                                                                                ExpressionContainer(
+                                                                                                                                                    JSXExpressionContainer {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 454,
+                                                                                                                                                            end: 492,
+                                                                                                                                                        },
+                                                                                                                                                        expression: EmptyExpression(
+                                                                                                                                                            JSXEmptyExpression {
+                                                                                                                                                                span: Span {
+                                                                                                                                                                    start: 0,
+                                                                                                                                                                    end: 0,
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                        ),
+                                                                                                                                                    },
+                                                                                                                                                ),
+                                                                                                                                            ),
                                                                                                                                         },
                                                                                                                                     ),
                                                                                                                                 ],
@@ -2510,14 +2680,14 @@ Program: Program {
 }
 Errors: []
 JS: <><template>
-  {source((item) => <div v-for />)}
-  {source1((item1) => <div v-for />)}
-  {source2((item2, index2) => <div v-for />)}
-  {source3((item3 = "1", index3 = 99) => <div v-for />)}
-  {users4(({ id4, name4 }) => <div v-for />)}
-  {users5(({ id5, name5 }, index) => <div v-for />)}
-  {users6(({ id6 = 1, name6 = "Liang" }, index) => <div v-for />)}
-  {someObj7((key7, value7, index7) => <div v-for />)}
-  {someIter8(([item8, index8]) => <div v-for />)}
-  {someIter9(([item9 = "hi", index9]) => <div v-for />)}
+  {source((item) => <div v-for={} />)}
+  {source1((item1) => <div v-for={} />)}
+  {source2((item2, index2) => <div v-for={} />)}
+  {source3((item3 = "1", index3 = 99) => <div v-for={} />)}
+  {users4(({ id4, name4 }) => <div v-for={} />)}
+  {users5(({ id5, name5 }, index) => <div v-for={} />)}
+  {users6(({ id6 = 1, name6 = "Liang" }, index) => <div v-for={} />)}
+  {someObj7((key7, value7, index7) => <div v-for={} />)}
+  {someIter8(([item8, index8]) => <div v-for={} />)}
+  {someIter9(([item9 = "hi", index9]) => <div v-for={} />)}
 </template></>;
