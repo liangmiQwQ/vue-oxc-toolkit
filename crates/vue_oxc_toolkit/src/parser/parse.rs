@@ -37,15 +37,19 @@ impl SourceLocatonSpan for SourceLocation {
 }
 
 impl<'a> ParserImpl<'a> {
-  fn get_oxc_parser(
-    &self,
-    source_text: &'a str,
+  fn oxc_parse(
+    &mut self,
+    source: &str,
     source_type: SourceType,
-  ) -> oxc_parser::Parser<'a> {
-    // TODO: extend this function logic, add parsing, errors processing
-    // TODO: add comments support
-    // TODO: do not panic even if JS parsing panic
-    oxc_parser::Parser::new(self.allocator, source_text, source_type).with_options(self.options)
+    start: usize,
+  ) -> Option<oxc_parser::ParserReturn<'a>> {
+    let source_text = self.ast.atom(&self.pad_source(source, start));
+    let mut ret = oxc_parser::Parser::new(self.allocator, source_text.as_str(), source_type)
+      .with_options(self.options)
+      .parse();
+
+    self.errors.append(&mut ret.errors);
+    if ret.panicked { None } else { Some(ret) }
   }
 
   /// A workaround
@@ -150,18 +154,12 @@ impl<'a> ParserImpl<'a> {
               let span = child.get_location().span();
               let source = span.source_text(self.source_text);
 
-              let ret = self
-                .get_oxc_parser(
-                  self.ast.atom(&self.pad_source(source, span.start as usize)).as_str(),
-                  // SAFETY: lang is validated above to be "js" or "ts" based extensions which are valid for from_extension
-                  SourceType::from_extension(lang).unwrap(),
-                )
-                .parse();
-
-              self.errors.extend(ret.errors);
-              if ret.panicked {
-                return None;
-              }
+              let ret = self.oxc_parse(
+                source,
+                // SAFETY: lang is validated above to be "js" or "ts" based extensions which are valid for from_extension
+                SourceType::from_extension(lang).unwrap(),
+                span.start as usize,
+              )?;
 
               // Deal with modules record there
               let is_setup = find_prop(&node, "setup").is_some();
@@ -564,20 +562,7 @@ impl<'a> ParserImpl<'a> {
   }
 
   pub fn parse_expression(&mut self, source: &'a str, start: usize) -> Option<Expression<'a>> {
-    let ast = &self.ast;
-
-    let ret = self
-      .get_oxc_parser(
-        ast.atom(&self.pad_source(&format!("({source})"), start.saturating_sub(1))).as_str(),
-        self.source_type,
-      )
-      .parse();
-
-    self.errors.extend(ret.errors);
-
-    if ret.panicked {
-      return None;
-    }
+    let ret = self.oxc_parse(&format!("({source})"), self.source_type, start.saturating_sub(1))?;
 
     let mut program = ret.program;
 
