@@ -32,6 +32,7 @@ insta = "1.46.0"
 
 oxc_allocator = "0.110.0"
 oxc_ast = "0.110.0"
+oxc_ast_visit = "0.110.0"
 oxc_codegen = "0.110.0"
 oxc_diagnostics = "0.110.0"
 oxc_parser = "0.110.0"

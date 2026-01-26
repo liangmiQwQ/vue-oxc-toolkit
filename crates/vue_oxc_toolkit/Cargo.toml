@@ -23,6 +23,7 @@ vue-compiler-core = { workspace = true }
 
 [dev-dependencies]
 insta = { workspace = true }
+oxc_ast_visit = { workspace = true }
 oxc_codegen = { workspace = true }
 
 [lints]
