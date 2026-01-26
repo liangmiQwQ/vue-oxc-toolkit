@@ -42,14 +42,14 @@ impl<'a> ParserImpl<'a> {
     source: &str,
     source_type: SourceType,
     start: usize,
-  ) -> Option<oxc_parser::ParserReturn<'a>> {
+  ) -> Option<(ArenaVec<'a, Statement<'a>>, ModuleRecord<'a>)> {
     let source_text = self.ast.atom(&self.pad_source(source, start));
     let mut ret = oxc_parser::Parser::new(self.allocator, source_text.as_str(), source_type)
       .with_options(self.options)
       .parse();
 
     self.errors.append(&mut ret.errors);
-    if ret.panicked { None } else { Some(ret) }
+    if ret.panicked { None } else { Some((ret.program.body, ret.module_record)) }
   }
 
   /// A workaround
@@ -154,7 +154,7 @@ impl<'a> ParserImpl<'a> {
               let span = child.get_location().span();
               let source = span.source_text(self.source_text);
 
-              let ret = self.oxc_parse(
+              let (body, module_record) = self.oxc_parse(
                 source,
                 // SAFETY: lang is validated above to be "js" or "ts" based extensions which are valid for from_extension
                 SourceType::from_extension(lang).unwrap(),
@@ -166,12 +166,12 @@ impl<'a> ParserImpl<'a> {
 
               if is_setup {
                 // Only merge imports, as exports are not allowed in <script setup>
-                self.module_record.merge_imports(ret.module_record);
+                self.module_record.merge_imports(module_record);
               } else {
-                self.module_record.merge(ret.module_record);
+                self.module_record.merge(module_record);
               }
 
-              ret.program.body
+              body
             } else {
               self.ast.vec()
             };
@@ -562,11 +562,10 @@ impl<'a> ParserImpl<'a> {
   }
 
   pub fn parse_expression(&mut self, source: &'a str, start: usize) -> Option<Expression<'a>> {
-    let ret = self.oxc_parse(&format!("({source})"), self.source_type, start.saturating_sub(1))?;
+    let (mut body, _) =
+      self.oxc_parse(&format!("({source})"), self.source_type, start.saturating_sub(1))?;
 
-    let mut program = ret.program;
-
-    let Some(Statement::ExpressionStatement(stmt)) = program.body.get_mut(0) else {
+    let Some(Statement::ExpressionStatement(stmt)) = body.get_mut(0) else {
       // SAFETY: We always wrap the source in parentheses, so it should always be an expression statement
       // if it was valid partially. If it's invalid, the parser might return empty body if it fails early.
       // unreachable!()
