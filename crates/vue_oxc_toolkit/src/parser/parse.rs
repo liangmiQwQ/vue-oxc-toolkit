@@ -19,9 +19,9 @@ use vue_compiler_core::parser::{
 use vue_compiler_core::scanner::{ScanOption, Scanner};
 use vue_compiler_core::util::find_prop;
 
+use crate::parser::directive::v_for::VForWrapper;
 use crate::parser::error::OxcErrorHandler;
 use crate::parser::modules::Merge;
-use crate::parser::v_for::VForWrapper;
 
 use super::ParserImpl;
 use super::ParserImplReturn;
@@ -50,6 +50,7 @@ impl<'a> ParserImpl<'a> {
 
     self.errors.append(&mut ret.errors);
     if ret.panicked {
+      // TODO: do not panic for js parsing error
       None
     } else {
       self.comments.extend(&ret.program.comments[1..]);
@@ -346,6 +347,7 @@ impl<'a> ParserImpl<'a> {
   fn parse_attribute(&mut self, prop: ElemProp<'a>) -> Option<JSXAttributeItem<'a>> {
     let ast = self.ast;
     match prop {
+      // For normal attributes, like <div class="w-100" />
       ElemProp::Attr(attr) => {
         let attr_end = self.roffset(attr.location.end.offset) as u32;
         let attr_span = Span::new(attr.location.start.offset as u32, attr_end);
@@ -363,6 +365,7 @@ impl<'a> ParserImpl<'a> {
           },
         ))
       }
+      // Directive, starts with `v-`
       ElemProp::Dir(mut dir) => {
         let dir_start = dir.location.start.offset as u32;
         let dir_end = self.roffset(dir.location.end.offset) as u32;
