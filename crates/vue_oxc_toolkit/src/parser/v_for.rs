@@ -148,22 +148,20 @@ mod tests {
     results: Vec<String>,
   }
 
-  impl<'a, 'b> Visit<'b> for VForVisitor<'a> {
+  impl<'b> Visit<'b> for VForVisitor<'_> {
     fn visit_call_expression(&mut self, expr: &CallExpression<'b>) {
-      if let Expression::ParenthesizedExpression(p) = &expr.callee {
-        if let Expression::Identifier(id) = &p.expression {
-          if let Some(arg) = expr.arguments.get(0)
-            && let Some(Expression::ArrowFunctionExpression(arrow)) = arg.as_expression()
-          {
-            let data_origin = id.span.source_text(self.source_text);
-            let params = if arrow.params.span.is_empty() {
-              arrow.params.items[0].span.source_text(self.source_text)
-            } else {
-              arrow.params.span.source_text(self.source_text)
-            };
-            self.results.push(format!("data_origin: {}\nparam: {}\n", data_origin, params));
-          }
-        }
+      if let Expression::ParenthesizedExpression(p) = &expr.callee
+        && let Expression::Identifier(id) = &p.expression
+        && let Some(arg) = expr.arguments.first()
+        && let Some(Expression::ArrowFunctionExpression(arrow)) = arg.as_expression()
+      {
+        let data_origin = id.span.source_text(self.source_text);
+        let params = if arrow.params.span.is_empty() {
+          arrow.params.items[0].span.source_text(self.source_text)
+        } else {
+          arrow.params.span.source_text(self.source_text)
+        };
+        self.results.push(format!("data_origin: {data_origin}\nparam: {params}\n"));
       }
       oxc_ast_visit::walk::walk_call_expression(self, expr);
     }
