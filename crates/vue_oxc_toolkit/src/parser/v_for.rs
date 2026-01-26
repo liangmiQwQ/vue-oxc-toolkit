@@ -21,9 +21,7 @@ pub struct VForWrapper<'a, 'b> {
 
 impl<'a> ParserImpl<'a> {
   fn invalid_v_for_expression(&mut self, span: Span) -> Option<()> {
-    self
-      .errors
-      .push(OxcDiagnostic::error("Invalid v-for expression").with_label(span));
+    self.errors.push(OxcDiagnostic::error("Invalid v-for expression").with_label(span));
     None
   }
 
@@ -51,17 +49,9 @@ impl<'a> ParserImpl<'a> {
       let params = cap1.as_str();
       let (str, start, should_dummy_span) =
         if params.trim().starts_with('(') && params.trim().ends_with(')') {
-          (
-            format!("{params} => 0"),
-            expr.location.start.offset + cap1.start() + 1,
-            false,
-          )
+          (format!("{params} => 0"), expr.location.start.offset + cap1.start() + 1, false)
         } else {
-          (
-            format!("({params}) => 0"),
-            expr.location.start.offset + cap1.start(),
-            true,
-          )
+          (format!("({params}) => 0"), expr.location.start.offset + cap1.start(), true)
         };
 
       let mut expr = self.parse_expression(self.ast.atom(&str).as_str(), start)?;
@@ -88,58 +78,44 @@ impl<'a> ParserImpl<'a> {
 /// Wrap the JSX element with a function call, similar to jsx {items.map(items => <div key={item.id} />)} but with vue semantic.
 impl<'a, 'b> VForWrapper<'a, 'b> {
   pub const fn new(ast: &'a AstBuilder<'b>) -> Self {
-    Self {
-      ast,
-      data_origin: None,
-      params: None,
-    }
+    Self { ast, data_origin: None, params: None }
   }
 
   pub fn wrap(self, element: JSXElement<'b>) -> JSXChild<'b> {
     if self.include_v_for() {
-      let Self {
-        ast,
-        data_origin,
-        params,
-      } = self;
+      let Self { ast, data_origin, params } = self;
       let data_origin = data_origin.unwrap();
       let params = params.unwrap();
 
       ast.jsx_child_expression_container(
         SPAN,
-        JSXExpression::from(Expression::CallExpression(
-          ast.alloc_call_expression(
-            SPAN,
-            Expression::ParenthesizedExpression(ast.alloc(data_origin)),
-            NONE,
-            self
-              .ast
-              .vec1(Argument::from(Expression::ArrowFunctionExpression(
-                ast.alloc_arrow_function_expression(
+        JSXExpression::from(Expression::CallExpression(ast.alloc_call_expression(
+          SPAN,
+          Expression::ParenthesizedExpression(ast.alloc(data_origin)),
+          NONE,
+          self.ast.vec1(Argument::from(Expression::ArrowFunctionExpression(
+            ast.alloc_arrow_function_expression(
+              SPAN,
+              true,
+              false,
+              NONE,
+              params,
+              NONE,
+              ast.function_body(
+                SPAN,
+                ast.vec(),
+                ast.vec1(Statement::ExpressionStatement(ast.alloc_expression_statement(
                   SPAN,
-                  true,
-                  false,
-                  NONE,
-                  params,
-                  NONE,
-                  ast.function_body(
+                  Expression::ParenthesizedExpression(ast.alloc_parenthesized_expression(
                     SPAN,
-                    ast.vec(),
-                    ast.vec1(Statement::ExpressionStatement(
-                      ast.alloc_expression_statement(
-                        SPAN,
-                        Expression::ParenthesizedExpression(ast.alloc_parenthesized_expression(
-                          SPAN,
-                          Expression::JSXElement(self.ast.alloc(element)),
-                        )),
-                      ),
-                    )),
-                  ),
-                ),
-              ))),
-            false,
-          ),
-        )),
+                    Expression::JSXElement(self.ast.alloc(element)),
+                  )),
+                ))),
+              ),
+            ),
+          ))),
+          false,
+        ))),
       )
     } else {
       JSXChild::Element(self.ast.alloc(element))
@@ -185,9 +161,7 @@ mod tests {
             } else {
               arrow.params.span.source_text(self.source_text)
             };
-            self
-              .results
-              .push(format!("data_origin: {}\nparam: {}\n", data_origin, params));
+            self.results.push(format!("data_origin: {}\nparam: {}\n", data_origin, params));
           }
         }
       }
@@ -198,10 +172,7 @@ mod tests {
   macro_rules! test_v_for {
     ($file_path:expr) => {{
       $crate::test::run_test($file_path, "ast/v_for", |ret| {
-        let mut visitor = VForVisitor {
-          source_text: ret.program.source_text,
-          results: vec![],
-        };
+        let mut visitor = VForVisitor { source_text: ret.program.source_text, results: vec![] };
         visitor.visit_program(&ret.program);
         visitor.results.join("\n")
       });

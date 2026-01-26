@@ -96,10 +96,8 @@ impl<'a> ParserImpl<'a> {
   }
 
   fn get_root_children(&mut self) -> Option<ArenaVec<'a, JSXChild<'a>>> {
-    let parser = Parser::new(ParseOption {
-      whitespace: WhitespaceStrategy::Preserve,
-      ..Default::default()
-    });
+    let parser =
+      Parser::new(ParseOption { whitespace: WhitespaceStrategy::Preserve, ..Default::default() });
 
     // get ast from vue-compiler-core
     let scanner = Scanner::new(ScanOption::default());
@@ -141,9 +139,9 @@ impl<'a> ParserImpl<'a> {
             } else if lang.starts_with("ts") {
               SourceType::tsx()
             } else {
-              self.errors.push(OxcDiagnostic::error(format!(
-                "Unsupported script language: {lang}"
-              )));
+              self
+                .errors
+                .push(OxcDiagnostic::error(format!("Unsupported script language: {lang}")));
 
               return None;
             };
@@ -154,10 +152,7 @@ impl<'a> ParserImpl<'a> {
 
               let ret = self
                 .get_oxc_parser(
-                  self
-                    .ast
-                    .atom(&self.pad_source(source, span.start as usize))
-                    .as_str(),
+                  self.ast.atom(&self.pad_source(source, span.start as usize)).as_str(),
                   // SAFETY: lang is validated above to be "js" or "ts" based extensions which are valid for from_extension
                   SourceType::from_extension(lang).unwrap(),
                 )
@@ -446,11 +441,7 @@ impl<'a> ParserImpl<'a> {
               } else {
                 ast.jsx_attribute_name_identifier(
                   dir.head_loc.span(),
-                  self.ast.atom(&format!(
-                    "v-{}{}",
-                    dir.name,
-                    Self::parse_modifiers(&modifiers)
-                  )),
+                  self.ast.atom(&format!("v-{}{}", dir.name, Self::parse_modifiers(&modifiers))),
                 )
               }
             }
@@ -533,20 +524,12 @@ impl<'a> ParserImpl<'a> {
     ))
   }
   fn parse_modifiers(modifiers: &[&str]) -> String {
-    if modifiers.is_empty() {
-      String::new()
-    } else {
-      format!("_{}", modifiers.join("_"))
-    }
+    if modifiers.is_empty() { String::new() } else { format!("_{}", modifiers.join("_")) }
   }
 
   fn parse_text(&self, text: &TextNode<'a>) -> JSXChild<'a> {
-    let raw = self
-      .ast
-      .atom(&text.text.iter().map(|t| t.raw).collect::<String>());
-    self
-      .ast
-      .jsx_child_text(text.location.span(), raw, Some(raw))
+    let raw = self.ast.atom(&text.text.iter().map(|t| t.raw).collect::<String>());
+    self.ast.jsx_child_text(text.location.span(), raw, Some(raw))
   }
 
   fn parse_comment(&mut self, comment: &SourceNode<'a>) -> JSXChild<'a> {
@@ -569,18 +552,12 @@ impl<'a> ParserImpl<'a> {
 
   fn parse_interpolation(&mut self, introp: &SourceNode<'a>) -> Option<JSXChild<'a>> {
     let ast = self.ast;
-    let span = Span::new(
-      introp.location.start.offset as u32 + 1,
-      introp.location.end.offset as u32 - 1,
-    );
-    Some(
-      ast.jsx_child_expression_container(
-        span,
-        self
-          .parse_expression(introp.source, span.start as usize)?
-          .into(),
-      ),
-    )
+    let span =
+      Span::new(introp.location.start.offset as u32 + 1, introp.location.end.offset as u32 - 1);
+    Some(ast.jsx_child_expression_container(
+      span,
+      self.parse_expression(introp.source, span.start as usize)?.into(),
+    ))
   }
 
   pub fn parse_expression(&mut self, source: &'a str, start: usize) -> Option<Expression<'a>> {
@@ -588,9 +565,7 @@ impl<'a> ParserImpl<'a> {
 
     let ret = self
       .get_oxc_parser(
-        ast
-          .atom(&self.pad_source(&format!("({source})"), start.saturating_sub(1)))
-          .as_str(),
+        ast.atom(&self.pad_source(&format!("({source})"), start.saturating_sub(1))).as_str(),
         self.source_type,
       )
       .parse();
@@ -617,20 +592,11 @@ impl<'a> ParserImpl<'a> {
   }
 
   fn offset(&self, start: usize) -> usize {
-    start
-      + self.source_text[start..]
-        .chars()
-        .take_while(|c| c.is_whitespace())
-        .count()
+    start + self.source_text[start..].chars().take_while(|c| c.is_whitespace()).count()
   }
 
   fn roffset(&self, end: usize) -> usize {
-    end
-      - self.source_text[..end]
-        .chars()
-        .rev()
-        .take_while(|c| c.is_whitespace())
-        .count()
+    end - self.source_text[..end].chars().rev().take_while(|c| c.is_whitespace()).count()
   }
 }
 

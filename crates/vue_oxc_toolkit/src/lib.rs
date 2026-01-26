@@ -35,11 +35,7 @@ pub struct VueParserReturn<'a> {
 
 impl<'a> VueOxcParser<'a> {
   pub fn new(allocator: &'a Allocator, source_text: &'a str) -> Self {
-    Self {
-      allocator,
-      source_text,
-      options: ParseOptions::default(),
-    }
+    Self { allocator, source_text, options: ParseOptions::default() }
   }
 
   #[must_use]
@@ -52,12 +48,8 @@ impl<'a> VueOxcParser<'a> {
 impl<'a> VueOxcParser<'a> {
   #[must_use]
   pub fn parse(self) -> VueParserReturn<'a> {
-    let ParserImplReturn {
-      program,
-      errors,
-      fatal,
-      module_record,
-    } = ParserImpl::new(self.allocator, self.source_text, self.options).parse();
+    let ParserImplReturn { program, errors, fatal, module_record } =
+      ParserImpl::new(self.allocator, self.source_text, self.options).parse();
 
     if fatal {
       VueParserReturn {

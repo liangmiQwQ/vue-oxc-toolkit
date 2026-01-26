@@ -13,10 +13,7 @@ macro_rules! test_ast {
       use oxc_codegen::Codegen;
       let js = Codegen::new().build(&ret.program);
       assert_eq!(ret.fatal, $should_panic);
-      format!(
-        "Program: {:#?}\nErrors: {:#?}\nJS: {}",
-        ret.program, ret.errors, js.code
-      )
+      format!("Program: {:#?}\nErrors: {:#?}\nJS: {}", ret.program, ret.errors, js.code)
     });
   }};
 }
