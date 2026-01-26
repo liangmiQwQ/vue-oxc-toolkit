@@ -42,6 +42,9 @@ impl<'a> ParserImpl<'a> {
     source_text: &'a str,
     source_type: SourceType,
   ) -> oxc_parser::Parser<'a> {
+    // TODO: extend this function logic, add parsing, comments, errors processing
+    // TODO: add comments support
+    // TODO: do not panic even if JS parsing panic
     oxc_parser::Parser::new(self.allocator, source_text, source_type).with_options(self.options)
   }
 
