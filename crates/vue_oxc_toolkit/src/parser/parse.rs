@@ -49,7 +49,12 @@ impl<'a> ParserImpl<'a> {
       .parse();
 
     self.errors.append(&mut ret.errors);
-    if ret.panicked { None } else { Some((ret.program.body, ret.module_record)) }
+    if ret.panicked {
+      None
+    } else {
+      self.comments.extend(&ret.program.comments[1..]);
+      Some((ret.program.body, ret.module_record))
+    }
   }
 
   /// A workaround
@@ -595,6 +600,11 @@ mod tests {
   fn basic_vue() {
     test_ast!("basic.vue");
     test_ast!("typescript.vue");
+  }
+
+  #[test]
+  fn comments() {
+    test_ast!("comments.vue");
   }
 
   #[test]
