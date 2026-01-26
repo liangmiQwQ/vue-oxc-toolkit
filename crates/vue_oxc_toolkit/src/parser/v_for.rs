@@ -14,9 +14,9 @@ use vue_compiler_core::parser::Directive;
 use crate::parser::{ParserImpl, parse::SourceLocatonSpan};
 
 pub struct VForWrapper<'a, 'b> {
-  pub ast: &'a AstBuilder<'b>,
-  pub data_origin: Option<ParenthesizedExpression<'b>>,
-  pub params: Option<FormalParameters<'b>>,
+  ast: &'a AstBuilder<'b>,
+  data_origin: Option<ParenthesizedExpression<'b>>,
+  params: Option<FormalParameters<'b>>,
 }
 
 impl<'a> ParserImpl<'a> {
@@ -35,7 +35,7 @@ impl<'a> ParserImpl<'a> {
     if dir.has_empty_expr() {
       self.invalid_v_for_expression(dir.location.span())?;
     }
-    let expr = dir.expression.as_ref().unwrap();
+    let expr = dir.expression.as_ref().unwrap(); // SAFETY: Checked above
 
     // https://github.com/vuejs/core/blob/e1ccd9fde8f57fe7bd40fdf1345692ab3e6a1fa0/packages/compiler-core/src/utils.ts#L571
     let for_alias_regex = Regex::new(r"^([\s\S]*?)\s+(?:in|of)\s+(\S[\s\S]*)").unwrap();
@@ -67,6 +67,7 @@ impl<'a> ParserImpl<'a> {
       let mut expr = self.parse_expression(self.ast.atom(&str).as_str(), start)?;
 
       let Expression::ArrowFunctionExpression(expression) = &mut expr else {
+        // unreachable!();
         return None;
       };
 
@@ -84,6 +85,7 @@ impl<'a> ParserImpl<'a> {
   }
 }
 
+/// Wrap the JSX element with a function call, similar to jsx {items.map(items => <div key={item.id} />)} but with vue semantic.
 impl<'a, 'b> VForWrapper<'a, 'b> {
   pub const fn new(ast: &'a AstBuilder<'b>) -> Self {
     Self {
@@ -93,8 +95,8 @@ impl<'a, 'b> VForWrapper<'a, 'b> {
     }
   }
 
-  pub fn wrapper(self, element: JSXElement<'b>) -> JSXChild<'b> {
-    if self.inclulde_v_for() {
+  pub fn wrap(self, element: JSXElement<'b>) -> JSXChild<'b> {
+    if self.include_v_for() {
       let Self {
         ast,
         data_origin,
@@ -146,7 +148,7 @@ impl<'a, 'b> VForWrapper<'a, 'b> {
 }
 
 impl<'b> VForWrapper<'_, 'b> {
-  const fn inclulde_v_for(&self) -> bool {
+  const fn include_v_for(&self) -> bool {
     self.data_origin.is_some() && self.params.is_some()
   }
 

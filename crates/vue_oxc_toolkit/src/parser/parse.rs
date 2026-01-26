@@ -313,7 +313,7 @@ impl<'a> ParserImpl<'a> {
       None => self.parse_children(open_element_span.end, end_element_span.start, node.children)?,
     };
 
-    Some(v_for_wrapper.wrapper(ast.jsx_element(
+    Some(v_for_wrapper.wrap(ast.jsx_element(
       location_span,
       ast.jsx_opening_element(
         open_element_span,
