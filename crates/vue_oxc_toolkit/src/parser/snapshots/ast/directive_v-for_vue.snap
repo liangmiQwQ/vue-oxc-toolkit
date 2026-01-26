@@ -97,8 +97,8 @@ Program: Program {
                                                                             expression: Identifier(
                                                                                 IdentifierReference {
                                                                                     span: Span {
-                                                                                        start: 32,
-                                                                                        end: 38,
+                                                                                        start: 33,
+                                                                                        end: 39,
                                                                                     },
                                                                                     name: "source",
                                                                                     reference_id: Cell {
@@ -127,8 +127,8 @@ Program: Program {
                                                                                             [
                                                                                                 FormalParameter {
                                                                                                     span: Span {
-                                                                                                        start: 24,
-                                                                                                        end: 28,
+                                                                                                        start: 25,
+                                                                                                        end: 29,
                                                                                                     },
                                                                                                     decorators: Vec(
                                                                                                         [],
@@ -136,8 +136,8 @@ Program: Program {
                                                                                                     pattern: BindingIdentifier(
                                                                                                         BindingIdentifier {
                                                                                                             span: Span {
-                                                                                                                start: 24,
-                                                                                                                end: 28,
+                                                                                                                start: 25,
+                                                                                                                end: 29,
                                                                                                             },
                                                                                                             name: "item",
                                                                                                             symbol_id: Cell {
@@ -287,8 +287,8 @@ Program: Program {
                                                                             expression: Identifier(
                                                                                 IdentifierReference {
                                                                                     span: Span {
-                                                                                        start: 66,
-                                                                                        end: 73,
+                                                                                        start: 67,
+                                                                                        end: 74,
                                                                                     },
                                                                                     name: "source1",
                                                                                     reference_id: Cell {
@@ -317,8 +317,8 @@ Program: Program {
                                                                                             [
                                                                                                 FormalParameter {
                                                                                                     span: Span {
-                                                                                                        start: 57,
-                                                                                                        end: 62,
+                                                                                                        start: 58,
+                                                                                                        end: 63,
                                                                                                     },
                                                                                                     decorators: Vec(
                                                                                                         [],
@@ -326,8 +326,8 @@ Program: Program {
                                                                                                     pattern: BindingIdentifier(
                                                                                                         BindingIdentifier {
                                                                                                             span: Span {
-                                                                                                                start: 57,
-                                                                                                                end: 62,
+                                                                                                                start: 58,
+                                                                                                                end: 63,
                                                                                                             },
                                                                                                             name: "item1",
                                                                                                             symbol_id: Cell {
@@ -477,8 +477,8 @@ Program: Program {
                                                                             expression: Identifier(
                                                                                 IdentifierReference {
                                                                                     span: Span {
-                                                                                        start: 111,
-                                                                                        end: 118,
+                                                                                        start: 112,
+                                                                                        end: 119,
                                                                                     },
                                                                                     name: "source2",
                                                                                     reference_id: Cell {
@@ -500,15 +500,15 @@ Program: Program {
                                                                                     type_parameters: None,
                                                                                     params: FormalParameters {
                                                                                         span: Span {
-                                                                                            start: 92,
-                                                                                            end: 107,
+                                                                                            start: 93,
+                                                                                            end: 108,
                                                                                         },
                                                                                         items: Vec(
                                                                                             [
                                                                                                 FormalParameter {
                                                                                                     span: Span {
-                                                                                                        start: 93,
-                                                                                                        end: 98,
+                                                                                                        start: 94,
+                                                                                                        end: 99,
                                                                                                     },
                                                                                                     decorators: Vec(
                                                                                                         [],
@@ -516,8 +516,8 @@ Program: Program {
                                                                                                     pattern: BindingIdentifier(
                                                                                                         BindingIdentifier {
                                                                                                             span: Span {
-                                                                                                                start: 93,
-                                                                                                                end: 98,
+                                                                                                                start: 94,
+                                                                                                                end: 99,
                                                                                                             },
                                                                                                             name: "item2",
                                                                                                             symbol_id: Cell {
@@ -534,8 +534,8 @@ Program: Program {
                                                                                                 },
                                                                                                 FormalParameter {
                                                                                                     span: Span {
-                                                                                                        start: 100,
-                                                                                                        end: 106,
+                                                                                                        start: 101,
+                                                                                                        end: 107,
                                                                                                     },
                                                                                                     decorators: Vec(
                                                                                                         [],
@@ -543,8 +543,8 @@ Program: Program {
                                                                                                     pattern: BindingIdentifier(
                                                                                                         BindingIdentifier {
                                                                                                             span: Span {
-                                                                                                                start: 100,
-                                                                                                                end: 106,
+                                                                                                                start: 101,
+                                                                                                                end: 107,
                                                                                                             },
                                                                                                             name: "index2",
                                                                                                             symbol_id: Cell {
@@ -694,8 +694,8 @@ Program: Program {
                                                                             expression: Identifier(
                                                                                 IdentifierReference {
                                                                                     span: Span {
-                                                                                        start: 167,
-                                                                                        end: 174,
+                                                                                        start: 168,
+                                                                                        end: 175,
                                                                                     },
                                                                                     name: "source3",
                                                                                     reference_id: Cell {
@@ -717,15 +717,15 @@ Program: Program {
                                                                                     type_parameters: None,
                                                                                     params: FormalParameters {
                                                                                         span: Span {
-                                                                                            start: 137,
-                                                                                            end: 163,
+                                                                                            start: 138,
+                                                                                            end: 164,
                                                                                         },
                                                                                         items: Vec(
                                                                                             [
                                                                                                 FormalParameter {
                                                                                                     span: Span {
-                                                                                                        start: 138,
-                                                                                                        end: 149,
+                                                                                                        start: 139,
+                                                                                                        end: 150,
                                                                                                     },
                                                                                                     decorators: Vec(
                                                                                                         [],
@@ -733,8 +733,8 @@ Program: Program {
                                                                                                     pattern: BindingIdentifier(
                                                                                                         BindingIdentifier {
                                                                                                             span: Span {
-                                                                                                                start: 138,
-                                                                                                                end: 143,
+                                                                                                                start: 139,
+                                                                                                                end: 144,
                                                                                                             },
                                                                                                             name: "item3",
                                                                                                             symbol_id: Cell {
@@ -747,8 +747,8 @@ Program: Program {
                                                                                                         StringLiteral(
                                                                                                             StringLiteral {
                                                                                                                 span: Span {
-                                                                                                                    start: 146,
-                                                                                                                    end: 149,
+                                                                                                                    start: 147,
+                                                                                                                    end: 150,
                                                                                                                 },
                                                                                                                 value: "1",
                                                                                                                 raw: Some(
@@ -765,8 +765,8 @@ Program: Program {
                                                                                                 },
                                                                                                 FormalParameter {
                                                                                                     span: Span {
-                                                                                                        start: 151,
-                                                                                                        end: 162,
+                                                                                                        start: 152,
+                                                                                                        end: 163,
                                                                                                     },
                                                                                                     decorators: Vec(
                                                                                                         [],
@@ -774,8 +774,8 @@ Program: Program {
                                                                                                     pattern: BindingIdentifier(
                                                                                                         BindingIdentifier {
                                                                                                             span: Span {
-                                                                                                                start: 151,
-                                                                                                                end: 157,
+                                                                                                                start: 152,
+                                                                                                                end: 158,
                                                                                                             },
                                                                                                             name: "index3",
                                                                                                             symbol_id: Cell {
@@ -788,8 +788,8 @@ Program: Program {
                                                                                                         NumericLiteral(
                                                                                                             NumericLiteral {
                                                                                                                 span: Span {
-                                                                                                                    start: 160,
-                                                                                                                    end: 162,
+                                                                                                                    start: 161,
+                                                                                                                    end: 163,
                                                                                                                 },
                                                                                                                 value: 99.0,
                                                                                                                 raw: Some(
@@ -939,8 +939,8 @@ Program: Program {
                                                                             expression: Identifier(
                                                                                 IdentifierReference {
                                                                                     span: Span {
-                                                                                        start: 211,
-                                                                                        end: 217,
+                                                                                        start: 212,
+                                                                                        end: 218,
                                                                                     },
                                                                                     name: "users4",
                                                                                     reference_id: Cell {
@@ -969,8 +969,8 @@ Program: Program {
                                                                                             [
                                                                                                 FormalParameter {
                                                                                                     span: Span {
-                                                                                                        start: 193,
-                                                                                                        end: 207,
+                                                                                                        start: 194,
+                                                                                                        end: 208,
                                                                                                     },
                                                                                                     decorators: Vec(
                                                                                                         [],
@@ -978,21 +978,21 @@ Program: Program {
                                                                                                     pattern: ObjectPattern(
                                                                                                         ObjectPattern {
                                                                                                             span: Span {
-                                                                                                                start: 193,
-                                                                                                                end: 207,
+                                                                                                                start: 194,
+                                                                                                                end: 208,
                                                                                                             },
                                                                                                             properties: Vec(
                                                                                                                 [
                                                                                                                     BindingProperty {
                                                                                                                         span: Span {
-                                                                                                                            start: 195,
-                                                                                                                            end: 198,
+                                                                                                                            start: 196,
+                                                                                                                            end: 199,
                                                                                                                         },
                                                                                                                         key: StaticIdentifier(
                                                                                                                             IdentifierName {
                                                                                                                                 span: Span {
-                                                                                                                                    start: 195,
-                                                                                                                                    end: 198,
+                                                                                                                                    start: 196,
+                                                                                                                                    end: 199,
                                                                                                                                 },
                                                                                                                                 name: "id4",
                                                                                                                             },
@@ -1000,8 +1000,8 @@ Program: Program {
                                                                                                                         value: BindingIdentifier(
                                                                                                                             BindingIdentifier {
                                                                                                                                 span: Span {
-                                                                                                                                    start: 195,
-                                                                                                                                    end: 198,
+                                                                                                                                    start: 196,
+                                                                                                                                    end: 199,
                                                                                                                                 },
                                                                                                                                 name: "id4",
                                                                                                                                 symbol_id: Cell {
@@ -1014,14 +1014,14 @@ Program: Program {
                                                                                                                     },
                                                                                                                     BindingProperty {
                                                                                                                         span: Span {
-                                                                                                                            start: 200,
-                                                                                                                            end: 205,
+                                                                                                                            start: 201,
+                                                                                                                            end: 206,
                                                                                                                         },
                                                                                                                         key: StaticIdentifier(
                                                                                                                             IdentifierName {
                                                                                                                                 span: Span {
-                                                                                                                                    start: 200,
-                                                                                                                                    end: 205,
+                                                                                                                                    start: 201,
+                                                                                                                                    end: 206,
                                                                                                                                 },
                                                                                                                                 name: "name4",
                                                                                                                             },
@@ -1029,8 +1029,8 @@ Program: Program {
                                                                                                                         value: BindingIdentifier(
                                                                                                                             BindingIdentifier {
                                                                                                                                 span: Span {
-                                                                                                                                    start: 200,
-                                                                                                                                    end: 205,
+                                                                                                                                    start: 201,
+                                                                                                                                    end: 206,
                                                                                                                                 },
                                                                                                                                 name: "name4",
                                                                                                                                 symbol_id: Cell {
@@ -1188,8 +1188,8 @@ Program: Program {
                                                                             expression: Identifier(
                                                                                 IdentifierReference {
                                                                                     span: Span {
-                                                                                        start: 263,
-                                                                                        end: 269,
+                                                                                        start: 264,
+                                                                                        end: 270,
                                                                                     },
                                                                                     name: "users5",
                                                                                     reference_id: Cell {
@@ -1211,15 +1211,15 @@ Program: Program {
                                                                                     type_parameters: None,
                                                                                     params: FormalParameters {
                                                                                         span: Span {
-                                                                                            start: 236,
-                                                                                            end: 259,
+                                                                                            start: 237,
+                                                                                            end: 260,
                                                                                         },
                                                                                         items: Vec(
                                                                                             [
                                                                                                 FormalParameter {
                                                                                                     span: Span {
-                                                                                                        start: 237,
-                                                                                                        end: 251,
+                                                                                                        start: 238,
+                                                                                                        end: 252,
                                                                                                     },
                                                                                                     decorators: Vec(
                                                                                                         [],
@@ -1227,21 +1227,21 @@ Program: Program {
                                                                                                     pattern: ObjectPattern(
                                                                                                         ObjectPattern {
                                                                                                             span: Span {
-                                                                                                                start: 237,
-                                                                                                                end: 251,
+                                                                                                                start: 238,
+                                                                                                                end: 252,
                                                                                                             },
                                                                                                             properties: Vec(
                                                                                                                 [
                                                                                                                     BindingProperty {
                                                                                                                         span: Span {
-                                                                                                                            start: 239,
-                                                                                                                            end: 242,
+                                                                                                                            start: 240,
+                                                                                                                            end: 243,
                                                                                                                         },
                                                                                                                         key: StaticIdentifier(
                                                                                                                             IdentifierName {
                                                                                                                                 span: Span {
-                                                                                                                                    start: 239,
-                                                                                                                                    end: 242,
+                                                                                                                                    start: 240,
+                                                                                                                                    end: 243,
                                                                                                                                 },
                                                                                                                                 name: "id5",
                                                                                                                             },
@@ -1249,8 +1249,8 @@ Program: Program {
                                                                                                                         value: BindingIdentifier(
                                                                                                                             BindingIdentifier {
                                                                                                                                 span: Span {
-                                                                                                                                    start: 239,
-                                                                                                                                    end: 242,
+                                                                                                                                    start: 240,
+                                                                                                                                    end: 243,
                                                                                                                                 },
                                                                                                                                 name: "id5",
                                                                                                                                 symbol_id: Cell {
@@ -1263,14 +1263,14 @@ Program: Program {
                                                                                                                     },
                                                                                                                     BindingProperty {
                                                                                                                         span: Span {
-                                                                                                                            start: 244,
-                                                                                                                            end: 249,
+                                                                                                                            start: 245,
+                                                                                                                            end: 250,
                                                                                                                         },
                                                                                                                         key: StaticIdentifier(
                                                                                                                             IdentifierName {
                                                                                                                                 span: Span {
-                                                                                                                                    start: 244,
-                                                                                                                                    end: 249,
+                                                                                                                                    start: 245,
+                                                                                                                                    end: 250,
                                                                                                                                 },
                                                                                                                                 name: "name5",
                                                                                                                             },
@@ -1278,8 +1278,8 @@ Program: Program {
                                                                                                                         value: BindingIdentifier(
                                                                                                                             BindingIdentifier {
                                                                                                                                 span: Span {
-                                                                                                                                    start: 244,
-                                                                                                                                    end: 249,
+                                                                                                                                    start: 245,
+                                                                                                                                    end: 250,
                                                                                                                                 },
                                                                                                                                 name: "name5",
                                                                                                                                 symbol_id: Cell {
@@ -1304,8 +1304,8 @@ Program: Program {
                                                                                                 },
                                                                                                 FormalParameter {
                                                                                                     span: Span {
-                                                                                                        start: 253,
-                                                                                                        end: 258,
+                                                                                                        start: 254,
+                                                                                                        end: 259,
                                                                                                     },
                                                                                                     decorators: Vec(
                                                                                                         [],
@@ -1313,8 +1313,8 @@ Program: Program {
                                                                                                     pattern: BindingIdentifier(
                                                                                                         BindingIdentifier {
                                                                                                             span: Span {
-                                                                                                                start: 253,
-                                                                                                                end: 258,
+                                                                                                                start: 254,
+                                                                                                                end: 259,
                                                                                                             },
                                                                                                             name: "index",
                                                                                                             symbol_id: Cell {
@@ -1464,8 +1464,8 @@ Program: Program {
                                                                             expression: Identifier(
                                                                                 IdentifierReference {
                                                                                     span: Span {
-                                                                                        start: 329,
-                                                                                        end: 335,
+                                                                                        start: 330,
+                                                                                        end: 336,
                                                                                     },
                                                                                     name: "users6",
                                                                                     reference_id: Cell {
@@ -1487,15 +1487,15 @@ Program: Program {
                                                                                     type_parameters: None,
                                                                                     params: FormalParameters {
                                                                                         span: Span {
-                                                                                            start: 288,
-                                                                                            end: 325,
+                                                                                            start: 289,
+                                                                                            end: 326,
                                                                                         },
                                                                                         items: Vec(
                                                                                             [
                                                                                                 FormalParameter {
                                                                                                     span: Span {
-                                                                                                        start: 289,
-                                                                                                        end: 317,
+                                                                                                        start: 290,
+                                                                                                        end: 318,
                                                                                                     },
                                                                                                     decorators: Vec(
                                                                                                         [],
@@ -1503,21 +1503,21 @@ Program: Program {
                                                                                                     pattern: ObjectPattern(
                                                                                                         ObjectPattern {
                                                                                                             span: Span {
-                                                                                                                start: 289,
-                                                                                                                end: 317,
+                                                                                                                start: 290,
+                                                                                                                end: 318,
                                                                                                             },
                                                                                                             properties: Vec(
                                                                                                                 [
                                                                                                                     BindingProperty {
                                                                                                                         span: Span {
-                                                                                                                            start: 291,
-                                                                                                                            end: 298,
+                                                                                                                            start: 292,
+                                                                                                                            end: 299,
                                                                                                                         },
                                                                                                                         key: StaticIdentifier(
                                                                                                                             IdentifierName {
                                                                                                                                 span: Span {
-                                                                                                                                    start: 291,
-                                                                                                                                    end: 294,
+                                                                                                                                    start: 292,
+                                                                                                                                    end: 295,
                                                                                                                                 },
                                                                                                                                 name: "id6",
                                                                                                                             },
@@ -1525,14 +1525,14 @@ Program: Program {
                                                                                                                         value: AssignmentPattern(
                                                                                                                             AssignmentPattern {
                                                                                                                                 span: Span {
-                                                                                                                                    start: 291,
-                                                                                                                                    end: 298,
+                                                                                                                                    start: 292,
+                                                                                                                                    end: 299,
                                                                                                                                 },
                                                                                                                                 left: BindingIdentifier(
                                                                                                                                     BindingIdentifier {
                                                                                                                                         span: Span {
-                                                                                                                                            start: 291,
-                                                                                                                                            end: 294,
+                                                                                                                                            start: 292,
+                                                                                                                                            end: 295,
                                                                                                                                         },
                                                                                                                                         name: "id6",
                                                                                                                                         symbol_id: Cell {
@@ -1543,8 +1543,8 @@ Program: Program {
                                                                                                                                 right: NumericLiteral(
                                                                                                                                     NumericLiteral {
                                                                                                                                         span: Span {
-                                                                                                                                            start: 297,
-                                                                                                                                            end: 298,
+                                                                                                                                            start: 298,
+                                                                                                                                            end: 299,
                                                                                                                                         },
                                                                                                                                         value: 1.0,
                                                                                                                                         raw: Some(
@@ -1560,14 +1560,14 @@ Program: Program {
                                                                                                                     },
                                                                                                                     BindingProperty {
                                                                                                                         span: Span {
-                                                                                                                            start: 300,
-                                                                                                                            end: 315,
+                                                                                                                            start: 301,
+                                                                                                                            end: 316,
                                                                                                                         },
                                                                                                                         key: StaticIdentifier(
                                                                                                                             IdentifierName {
                                                                                                                                 span: Span {
-                                                                                                                                    start: 300,
-                                                                                                                                    end: 305,
+                                                                                                                                    start: 301,
+                                                                                                                                    end: 306,
                                                                                                                                 },
                                                                                                                                 name: "name6",
                                                                                                                             },
@@ -1575,14 +1575,14 @@ Program: Program {
                                                                                                                         value: AssignmentPattern(
                                                                                                                             AssignmentPattern {
                                                                                                                                 span: Span {
-                                                                                                                                    start: 300,
-                                                                                                                                    end: 315,
+                                                                                                                                    start: 301,
+                                                                                                                                    end: 316,
                                                                                                                                 },
                                                                                                                                 left: BindingIdentifier(
                                                                                                                                     BindingIdentifier {
                                                                                                                                         span: Span {
-                                                                                                                                            start: 300,
-                                                                                                                                            end: 305,
+                                                                                                                                            start: 301,
+                                                                                                                                            end: 306,
                                                                                                                                         },
                                                                                                                                         name: "name6",
                                                                                                                                         symbol_id: Cell {
@@ -1593,8 +1593,8 @@ Program: Program {
                                                                                                                                 right: StringLiteral(
                                                                                                                                     StringLiteral {
                                                                                                                                         span: Span {
-                                                                                                                                            start: 308,
-                                                                                                                                            end: 315,
+                                                                                                                                            start: 309,
+                                                                                                                                            end: 316,
                                                                                                                                         },
                                                                                                                                         value: "Liang",
                                                                                                                                         raw: Some(
@@ -1622,8 +1622,8 @@ Program: Program {
                                                                                                 },
                                                                                                 FormalParameter {
                                                                                                     span: Span {
-                                                                                                        start: 319,
-                                                                                                        end: 324,
+                                                                                                        start: 320,
+                                                                                                        end: 325,
                                                                                                     },
                                                                                                     decorators: Vec(
                                                                                                         [],
@@ -1631,8 +1631,8 @@ Program: Program {
                                                                                                     pattern: BindingIdentifier(
                                                                                                         BindingIdentifier {
                                                                                                             span: Span {
-                                                                                                                start: 319,
-                                                                                                                end: 324,
+                                                                                                                start: 320,
+                                                                                                                end: 325,
                                                                                                             },
                                                                                                             name: "index",
                                                                                                             symbol_id: Cell {
@@ -1782,8 +1782,8 @@ Program: Program {
                                                                             expression: Identifier(
                                                                                 IdentifierReference {
                                                                                     span: Span {
-                                                                                        start: 380,
-                                                                                        end: 388,
+                                                                                        start: 381,
+                                                                                        end: 389,
                                                                                     },
                                                                                     name: "someObj7",
                                                                                     reference_id: Cell {
@@ -1805,15 +1805,15 @@ Program: Program {
                                                                                     type_parameters: None,
                                                                                     params: FormalParameters {
                                                                                         span: Span {
-                                                                                            start: 354,
-                                                                                            end: 376,
+                                                                                            start: 355,
+                                                                                            end: 377,
                                                                                         },
                                                                                         items: Vec(
                                                                                             [
                                                                                                 FormalParameter {
                                                                                                     span: Span {
-                                                                                                        start: 355,
-                                                                                                        end: 359,
+                                                                                                        start: 356,
+                                                                                                        end: 360,
                                                                                                     },
                                                                                                     decorators: Vec(
                                                                                                         [],
@@ -1821,8 +1821,8 @@ Program: Program {
                                                                                                     pattern: BindingIdentifier(
                                                                                                         BindingIdentifier {
                                                                                                             span: Span {
-                                                                                                                start: 355,
-                                                                                                                end: 359,
+                                                                                                                start: 356,
+                                                                                                                end: 360,
                                                                                                             },
                                                                                                             name: "key7",
                                                                                                             symbol_id: Cell {
@@ -1839,8 +1839,8 @@ Program: Program {
                                                                                                 },
                                                                                                 FormalParameter {
                                                                                                     span: Span {
-                                                                                                        start: 361,
-                                                                                                        end: 367,
+                                                                                                        start: 362,
+                                                                                                        end: 368,
                                                                                                     },
                                                                                                     decorators: Vec(
                                                                                                         [],
@@ -1848,8 +1848,8 @@ Program: Program {
                                                                                                     pattern: BindingIdentifier(
                                                                                                         BindingIdentifier {
                                                                                                             span: Span {
-                                                                                                                start: 361,
-                                                                                                                end: 367,
+                                                                                                                start: 362,
+                                                                                                                end: 368,
                                                                                                             },
                                                                                                             name: "value7",
                                                                                                             symbol_id: Cell {
@@ -1866,8 +1866,8 @@ Program: Program {
                                                                                                 },
                                                                                                 FormalParameter {
                                                                                                     span: Span {
-                                                                                                        start: 369,
-                                                                                                        end: 375,
+                                                                                                        start: 370,
+                                                                                                        end: 376,
                                                                                                     },
                                                                                                     decorators: Vec(
                                                                                                         [],
@@ -1875,8 +1875,8 @@ Program: Program {
                                                                                                     pattern: BindingIdentifier(
                                                                                                         BindingIdentifier {
                                                                                                             span: Span {
-                                                                                                                start: 369,
-                                                                                                                end: 375,
+                                                                                                                start: 370,
+                                                                                                                end: 376,
                                                                                                             },
                                                                                                             name: "index7",
                                                                                                             symbol_id: Cell {
@@ -2026,8 +2026,8 @@ Program: Program {
                                                                             expression: Identifier(
                                                                                 IdentifierReference {
                                                                                     span: Span {
-                                                                                        start: 426,
-                                                                                        end: 435,
+                                                                                        start: 427,
+                                                                                        end: 436,
                                                                                     },
                                                                                     name: "someIter8",
                                                                                     reference_id: Cell {
@@ -2056,8 +2056,8 @@ Program: Program {
                                                                                             [
                                                                                                 FormalParameter {
                                                                                                     span: Span {
-                                                                                                        start: 407,
-                                                                                                        end: 422,
+                                                                                                        start: 408,
+                                                                                                        end: 423,
                                                                                                     },
                                                                                                     decorators: Vec(
                                                                                                         [],
@@ -2065,8 +2065,8 @@ Program: Program {
                                                                                                     pattern: ArrayPattern(
                                                                                                         ArrayPattern {
                                                                                                             span: Span {
-                                                                                                                start: 407,
-                                                                                                                end: 422,
+                                                                                                                start: 408,
+                                                                                                                end: 423,
                                                                                                             },
                                                                                                             elements: Vec(
                                                                                                                 [
@@ -2074,8 +2074,8 @@ Program: Program {
                                                                                                                         BindingIdentifier(
                                                                                                                             BindingIdentifier {
                                                                                                                                 span: Span {
-                                                                                                                                    start: 408,
-                                                                                                                                    end: 413,
+                                                                                                                                    start: 409,
+                                                                                                                                    end: 414,
                                                                                                                                 },
                                                                                                                                 name: "item8",
                                                                                                                                 symbol_id: Cell {
@@ -2088,8 +2088,8 @@ Program: Program {
                                                                                                                         BindingIdentifier(
                                                                                                                             BindingIdentifier {
                                                                                                                                 span: Span {
-                                                                                                                                    start: 415,
-                                                                                                                                    end: 421,
+                                                                                                                                    start: 416,
+                                                                                                                                    end: 422,
                                                                                                                                 },
                                                                                                                                 name: "index8",
                                                                                                                                 symbol_id: Cell {
@@ -2245,8 +2245,8 @@ Program: Program {
                                                                             expression: Identifier(
                                                                                 IdentifierReference {
                                                                                     span: Span {
-                                                                                        start: 480,
-                                                                                        end: 489,
+                                                                                        start: 481,
+                                                                                        end: 490,
                                                                                     },
                                                                                     name: "someIter9",
                                                                                     reference_id: Cell {
@@ -2275,8 +2275,8 @@ Program: Program {
                                                                                             [
                                                                                                 FormalParameter {
                                                                                                     span: Span {
-                                                                                                        start: 454,
-                                                                                                        end: 476,
+                                                                                                        start: 455,
+                                                                                                        end: 477,
                                                                                                     },
                                                                                                     decorators: Vec(
                                                                                                         [],
@@ -2284,8 +2284,8 @@ Program: Program {
                                                                                                     pattern: ArrayPattern(
                                                                                                         ArrayPattern {
                                                                                                             span: Span {
-                                                                                                                start: 454,
-                                                                                                                end: 476,
+                                                                                                                start: 455,
+                                                                                                                end: 477,
                                                                                                             },
                                                                                                             elements: Vec(
                                                                                                                 [
@@ -2293,14 +2293,14 @@ Program: Program {
                                                                                                                         AssignmentPattern(
                                                                                                                             AssignmentPattern {
                                                                                                                                 span: Span {
-                                                                                                                                    start: 455,
-                                                                                                                                    end: 467,
+                                                                                                                                    start: 456,
+                                                                                                                                    end: 468,
                                                                                                                                 },
                                                                                                                                 left: BindingIdentifier(
                                                                                                                                     BindingIdentifier {
                                                                                                                                         span: Span {
-                                                                                                                                            start: 455,
-                                                                                                                                            end: 460,
+                                                                                                                                            start: 456,
+                                                                                                                                            end: 461,
                                                                                                                                         },
                                                                                                                                         name: "item9",
                                                                                                                                         symbol_id: Cell {
@@ -2311,8 +2311,8 @@ Program: Program {
                                                                                                                                 right: StringLiteral(
                                                                                                                                     StringLiteral {
                                                                                                                                         span: Span {
-                                                                                                                                            start: 463,
-                                                                                                                                            end: 467,
+                                                                                                                                            start: 464,
+                                                                                                                                            end: 468,
                                                                                                                                         },
                                                                                                                                         value: "hi",
                                                                                                                                         raw: Some(
@@ -2328,8 +2328,8 @@ Program: Program {
                                                                                                                         BindingIdentifier(
                                                                                                                             BindingIdentifier {
                                                                                                                                 span: Span {
-                                                                                                                                    start: 469,
-                                                                                                                                    end: 475,
+                                                                                                                                    start: 470,
+                                                                                                                                    end: 476,
                                                                                                                                 },
                                                                                                                                 name: "index9",
                                                                                                                                 symbol_id: Cell {
