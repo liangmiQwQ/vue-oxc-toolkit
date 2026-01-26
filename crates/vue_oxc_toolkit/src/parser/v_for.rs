@@ -37,6 +37,7 @@ impl<'a> ParserImpl<'a> {
     }
     let expr = dir.expression.as_ref().unwrap();
 
+    // https://github.com/vuejs/core/blob/e1ccd9fde8f57fe7bd40fdf1345692ab3e6a1fa0/packages/compiler-core/src/utils.ts#L571
     let for_alias_regex = Regex::new(r"^([\s\S]*?)\s+(?:in|of)\s+(\S[\s\S]*)").unwrap();
     if let Some(caps) = for_alias_regex.captures(expr.content.raw)
       && let Some(cap1) = caps.get(1)
@@ -50,13 +51,17 @@ impl<'a> ParserImpl<'a> {
       let params = cap1.as_str();
       let (str, start, should_dummy_span) =
         if params.trim().starts_with('(') && params.trim().ends_with(')') {
-          let str = format!("{params} => 0");
-          let start = expr.location.start.offset + cap1.start();
-          (str, start, false)
+          (
+            format!("{params} => 0"),
+            expr.location.start.offset + cap1.start() + 1,
+            false,
+          )
         } else {
-          let str = format!("({params}) => 0");
-          let start = expr.location.start.offset + cap1.start() - 1;
-          (str, start, true)
+          (
+            format!("({params}) => 0"),
+            expr.location.start.offset + cap1.start(),
+            true,
+          )
         };
 
       let mut expr = self.parse_expression(self.ast.atom(&str).as_str(), start)?;
