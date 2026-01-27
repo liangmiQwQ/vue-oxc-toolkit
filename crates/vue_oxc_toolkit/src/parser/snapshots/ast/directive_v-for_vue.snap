@@ -209,13 +209,26 @@ Program: Program {
                                                                                                                                                 start: 18,
                                                                                                                                                 end: 40,
                                                                                                                                             },
-                                                                                                                                            name: Identifier(
-                                                                                                                                                JSXIdentifier {
+                                                                                                                                            name: NamespacedName(
+                                                                                                                                                JSXNamespacedName {
                                                                                                                                                     span: Span {
                                                                                                                                                         start: 18,
                                                                                                                                                         end: 23,
                                                                                                                                                     },
-                                                                                                                                                    name: "v-for",
+                                                                                                                                                    namespace: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 18,
+                                                                                                                                                            end: 23,
+                                                                                                                                                        },
+                                                                                                                                                        name: "v-for",
+                                                                                                                                                    },
+                                                                                                                                                    name: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 0,
+                                                                                                                                                            end: 0,
+                                                                                                                                                        },
+                                                                                                                                                        name: "",
+                                                                                                                                                    },
                                                                                                                                                 },
                                                                                                                                             ),
                                                                                                                                             value: Some(
@@ -416,13 +429,26 @@ Program: Program {
                                                                                                                                                 start: 51,
                                                                                                                                                 end: 75,
                                                                                                                                             },
-                                                                                                                                            name: Identifier(
-                                                                                                                                                JSXIdentifier {
+                                                                                                                                            name: NamespacedName(
+                                                                                                                                                JSXNamespacedName {
                                                                                                                                                     span: Span {
                                                                                                                                                         start: 51,
                                                                                                                                                         end: 56,
                                                                                                                                                     },
-                                                                                                                                                    name: "v-for",
+                                                                                                                                                    namespace: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 51,
+                                                                                                                                                            end: 56,
+                                                                                                                                                        },
+                                                                                                                                                        name: "v-for",
+                                                                                                                                                    },
+                                                                                                                                                    name: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 0,
+                                                                                                                                                            end: 0,
+                                                                                                                                                        },
+                                                                                                                                                        name: "",
+                                                                                                                                                    },
                                                                                                                                                 },
                                                                                                                                             ),
                                                                                                                                             value: Some(
@@ -650,13 +676,26 @@ Program: Program {
                                                                                                                                                 start: 86,
                                                                                                                                                 end: 120,
                                                                                                                                             },
-                                                                                                                                            name: Identifier(
-                                                                                                                                                JSXIdentifier {
+                                                                                                                                            name: NamespacedName(
+                                                                                                                                                JSXNamespacedName {
                                                                                                                                                     span: Span {
                                                                                                                                                         start: 86,
                                                                                                                                                         end: 91,
                                                                                                                                                     },
-                                                                                                                                                    name: "v-for",
+                                                                                                                                                    namespace: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 86,
+                                                                                                                                                            end: 91,
+                                                                                                                                                        },
+                                                                                                                                                        name: "v-for",
+                                                                                                                                                    },
+                                                                                                                                                    name: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 0,
+                                                                                                                                                            end: 0,
+                                                                                                                                                        },
+                                                                                                                                                        name: "",
+                                                                                                                                                    },
                                                                                                                                                 },
                                                                                                                                             ),
                                                                                                                                             value: Some(
@@ -912,13 +951,26 @@ Program: Program {
                                                                                                                                                 start: 131,
                                                                                                                                                 end: 176,
                                                                                                                                             },
-                                                                                                                                            name: Identifier(
-                                                                                                                                                JSXIdentifier {
+                                                                                                                                            name: NamespacedName(
+                                                                                                                                                JSXNamespacedName {
                                                                                                                                                     span: Span {
                                                                                                                                                         start: 131,
                                                                                                                                                         end: 136,
                                                                                                                                                     },
-                                                                                                                                                    name: "v-for",
+                                                                                                                                                    namespace: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 131,
+                                                                                                                                                            end: 136,
+                                                                                                                                                        },
+                                                                                                                                                        name: "v-for",
+                                                                                                                                                    },
+                                                                                                                                                    name: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 0,
+                                                                                                                                                            end: 0,
+                                                                                                                                                        },
+                                                                                                                                                        name: "",
+                                                                                                                                                    },
                                                                                                                                                 },
                                                                                                                                             ),
                                                                                                                                             value: Some(
@@ -1178,13 +1230,26 @@ Program: Program {
                                                                                                                                                 start: 187,
                                                                                                                                                 end: 219,
                                                                                                                                             },
-                                                                                                                                            name: Identifier(
-                                                                                                                                                JSXIdentifier {
+                                                                                                                                            name: NamespacedName(
+                                                                                                                                                JSXNamespacedName {
                                                                                                                                                     span: Span {
                                                                                                                                                         start: 187,
                                                                                                                                                         end: 192,
                                                                                                                                                     },
-                                                                                                                                                    name: "v-for",
+                                                                                                                                                    namespace: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 187,
+                                                                                                                                                            end: 192,
+                                                                                                                                                        },
+                                                                                                                                                        name: "v-for",
+                                                                                                                                                    },
+                                                                                                                                                    name: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 0,
+                                                                                                                                                            end: 0,
+                                                                                                                                                        },
+                                                                                                                                                        name: "",
+                                                                                                                                                    },
                                                                                                                                                 },
                                                                                                                                             ),
                                                                                                                                             value: Some(
@@ -1471,13 +1536,26 @@ Program: Program {
                                                                                                                                                 start: 230,
                                                                                                                                                 end: 271,
                                                                                                                                             },
-                                                                                                                                            name: Identifier(
-                                                                                                                                                JSXIdentifier {
+                                                                                                                                            name: NamespacedName(
+                                                                                                                                                JSXNamespacedName {
                                                                                                                                                     span: Span {
                                                                                                                                                         start: 230,
                                                                                                                                                         end: 235,
                                                                                                                                                     },
-                                                                                                                                                    name: "v-for",
+                                                                                                                                                    namespace: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 230,
+                                                                                                                                                            end: 235,
+                                                                                                                                                        },
+                                                                                                                                                        name: "v-for",
+                                                                                                                                                    },
+                                                                                                                                                    name: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 0,
+                                                                                                                                                            end: 0,
+                                                                                                                                                        },
+                                                                                                                                                        name: "",
+                                                                                                                                                    },
                                                                                                                                                 },
                                                                                                                                             ),
                                                                                                                                             value: Some(
@@ -1806,13 +1884,26 @@ Program: Program {
                                                                                                                                                 start: 282,
                                                                                                                                                 end: 337,
                                                                                                                                             },
-                                                                                                                                            name: Identifier(
-                                                                                                                                                JSXIdentifier {
+                                                                                                                                            name: NamespacedName(
+                                                                                                                                                JSXNamespacedName {
                                                                                                                                                     span: Span {
                                                                                                                                                         start: 282,
                                                                                                                                                         end: 287,
                                                                                                                                                     },
-                                                                                                                                                    name: "v-for",
+                                                                                                                                                    namespace: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 282,
+                                                                                                                                                            end: 287,
+                                                                                                                                                        },
+                                                                                                                                                        name: "v-for",
+                                                                                                                                                    },
+                                                                                                                                                    name: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 0,
+                                                                                                                                                            end: 0,
+                                                                                                                                                        },
+                                                                                                                                                        name: "",
+                                                                                                                                                    },
                                                                                                                                                 },
                                                                                                                                             ),
                                                                                                                                             value: Some(
@@ -2067,13 +2158,26 @@ Program: Program {
                                                                                                                                                 start: 348,
                                                                                                                                                 end: 390,
                                                                                                                                             },
-                                                                                                                                            name: Identifier(
-                                                                                                                                                JSXIdentifier {
+                                                                                                                                            name: NamespacedName(
+                                                                                                                                                JSXNamespacedName {
                                                                                                                                                     span: Span {
                                                                                                                                                         start: 348,
                                                                                                                                                         end: 353,
                                                                                                                                                     },
-                                                                                                                                                    name: "v-for",
+                                                                                                                                                    namespace: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 348,
+                                                                                                                                                            end: 353,
+                                                                                                                                                        },
+                                                                                                                                                        name: "v-for",
+                                                                                                                                                    },
+                                                                                                                                                    name: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 0,
+                                                                                                                                                            end: 0,
+                                                                                                                                                        },
+                                                                                                                                                        name: "",
+                                                                                                                                                    },
                                                                                                                                                 },
                                                                                                                                             ),
                                                                                                                                             value: Some(
@@ -2303,13 +2407,26 @@ Program: Program {
                                                                                                                                                 start: 401,
                                                                                                                                                 end: 437,
                                                                                                                                             },
-                                                                                                                                            name: Identifier(
-                                                                                                                                                JSXIdentifier {
+                                                                                                                                            name: NamespacedName(
+                                                                                                                                                JSXNamespacedName {
                                                                                                                                                     span: Span {
                                                                                                                                                         start: 401,
                                                                                                                                                         end: 406,
                                                                                                                                                     },
-                                                                                                                                                    name: "v-for",
+                                                                                                                                                    namespace: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 401,
+                                                                                                                                                            end: 406,
+                                                                                                                                                        },
+                                                                                                                                                        name: "v-for",
+                                                                                                                                                    },
+                                                                                                                                                    name: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 0,
+                                                                                                                                                            end: 0,
+                                                                                                                                                        },
+                                                                                                                                                        name: "",
+                                                                                                                                                    },
                                                                                                                                                 },
                                                                                                                                             ),
                                                                                                                                             value: Some(
@@ -2560,13 +2677,26 @@ Program: Program {
                                                                                                                                                 start: 448,
                                                                                                                                                 end: 491,
                                                                                                                                             },
-                                                                                                                                            name: Identifier(
-                                                                                                                                                JSXIdentifier {
+                                                                                                                                            name: NamespacedName(
+                                                                                                                                                JSXNamespacedName {
                                                                                                                                                     span: Span {
                                                                                                                                                         start: 448,
                                                                                                                                                         end: 453,
                                                                                                                                                     },
-                                                                                                                                                    name: "v-for",
+                                                                                                                                                    namespace: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 448,
+                                                                                                                                                            end: 453,
+                                                                                                                                                        },
+                                                                                                                                                        name: "v-for",
+                                                                                                                                                    },
+                                                                                                                                                    name: JSXIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 0,
+                                                                                                                                                            end: 0,
+                                                                                                                                                        },
+                                                                                                                                                        name: "",
+                                                                                                                                                    },
                                                                                                                                                 },
                                                                                                                                             ),
                                                                                                                                             value: Some(
@@ -2680,14 +2810,14 @@ Program: Program {
 }
 Errors: []
 JS: <><template>
-  {source((item) => <div v-for={} />)}
-  {source1((item1) => <div v-for={} />)}
-  {source2((item2, index2) => <div v-for={} />)}
-  {source3((item3 = "1", index3 = 99) => <div v-for={} />)}
-  {users4(({ id4, name4 }) => <div v-for={} />)}
-  {users5(({ id5, name5 }, index) => <div v-for={} />)}
-  {users6(({ id6 = 1, name6 = "Liang" }, index) => <div v-for={} />)}
-  {someObj7((key7, value7, index7) => <div v-for={} />)}
-  {someIter8(([item8, index8]) => <div v-for={} />)}
-  {someIter9(([item9 = "hi", index9]) => <div v-for={} />)}
+  {source((item) => <div v-for:={} />)}
+  {source1((item1) => <div v-for:={} />)}
+  {source2((item2, index2) => <div v-for:={} />)}
+  {source3((item3 = "1", index3 = 99) => <div v-for:={} />)}
+  {users4(({ id4, name4 }) => <div v-for:={} />)}
+  {users5(({ id5, name5 }, index) => <div v-for:={} />)}
+  {users6(({ id6 = 1, name6 = "Liang" }, index) => <div v-for:={} />)}
+  {someObj7((key7, value7, index7) => <div v-for:={} />)}
+  {someIter8(([item8, index8]) => <div v-for:={} />)}
+  {someIter9(([item9 = "hi", index9]) => <div v-for:={} />)}
 </template></>;

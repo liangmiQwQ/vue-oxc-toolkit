@@ -184,13 +184,26 @@ Program: Program {
                                                                                     start: 18,
                                                                                     end: 53,
                                                                                 },
-                                                                                name: Identifier(
-                                                                                    JSXIdentifier {
+                                                                                name: NamespacedName(
+                                                                                    JSXNamespacedName {
                                                                                         span: Span {
-                                                                                            start: 19,
+                                                                                            start: 18,
                                                                                             end: 22,
                                                                                         },
-                                                                                        name: "key",
+                                                                                        namespace: JSXIdentifier {
+                                                                                            span: Span {
+                                                                                                start: 18,
+                                                                                                end: 19,
+                                                                                            },
+                                                                                            name: "v-bind",
+                                                                                        },
+                                                                                        name: JSXIdentifier {
+                                                                                            span: Span {
+                                                                                                start: 19,
+                                                                                                end: 22,
+                                                                                            },
+                                                                                            name: "key",
+                                                                                        },
                                                                                     },
                                                                                 ),
                                                                                 value: Some(
@@ -614,7 +627,7 @@ Program: Program {
 }
 Errors: []
 JS: <><template>
-  <div key={1}>{}</div>
+  <div v-bind:key={1}>{}</div>
 </template>
 
 <script lang="ts">{() => {}}</script>
