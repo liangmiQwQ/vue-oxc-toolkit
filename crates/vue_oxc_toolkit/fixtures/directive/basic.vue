@@ -3,5 +3,6 @@
   <div :[some]="2" />
   <Some #default="{ a }" />
   <input v-model="text" />
+  <Some v-bind:some.none="1" />
   <!-- <div v-bind:["some".concat("2")]="5" /> -->
 </template>
