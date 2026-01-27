@@ -5,25 +5,11 @@ expression: result
 Program: Program {
     span: Span {
         start: 0,
-        end: 210,
+        end: 159,
     },
-    source_text: "<template>\n  <div :class=\"'w-100'\" />\n  <div :[some]=\"2\" />\n  <Some #default=\"{ a }\" />\n  <input v-model=\"text\" />\n  <Some v-bind:some.none=\"1\" />\n  <!-- <div v-bind:[\"some\".concat(\"2\")]=\"5\" /> -->\n</template>\n",
+    source_text: "<template>\n  <div :class=\"'w-100'\" />\n  <div :[some]=\"2\" />\n  <Some #default=\"{ a }\" />\n  <input v-model=\"text\" />\n  <Some v-bind:some.none=\"1\" />\n</template>\n",
     comments: Vec(
-        [
-            Comment {
-                span: Span {
-                    start: 150,
-                    end: 196,
-                },
-                attached_to: 0,
-                kind: SingleLineBlock,
-                position: Trailing,
-                newlines: CommentNewlines(
-                    0x0,
-                ),
-                content: None,
-            },
-        ],
+        [],
     ),
     hashbang: None,
     directives: Vec(
@@ -55,7 +41,7 @@ Program: Program {
                                         JSXElement {
                                             span: Span {
                                                 start: 0,
-                                                end: 209,
+                                                end: 158,
                                             },
                                             opening_element: JSXOpeningElement {
                                                 span: Span {
@@ -597,27 +583,11 @@ Program: Program {
                                                         JSXText {
                                                             span: Span {
                                                                 start: 146,
-                                                                end: 149,
+                                                                end: 147,
                                                             },
-                                                            value: "\n  ",
+                                                            value: "\n",
                                                             raw: Some(
-                                                                "\n  ",
-                                                            ),
-                                                        },
-                                                    ),
-                                                    ExpressionContainer(
-                                                        JSXExpressionContainer {
-                                                            span: Span {
-                                                                start: 149,
-                                                                end: 197,
-                                                            },
-                                                            expression: EmptyExpression(
-                                                                JSXEmptyExpression {
-                                                                    span: Span {
-                                                                        start: 150,
-                                                                        end: 196,
-                                                                    },
-                                                                },
+                                                                "\n",
                                                             ),
                                                         },
                                                     ),
@@ -626,14 +596,14 @@ Program: Program {
                                             closing_element: Some(
                                                 JSXClosingElement {
                                                     span: Span {
-                                                        start: 198,
-                                                        end: 209,
+                                                        start: 147,
+                                                        end: 158,
                                                     },
                                                     name: Identifier(
                                                         JSXIdentifier {
                                                             span: Span {
-                                                                start: 200,
-                                                                end: 208,
+                                                                start: 149,
+                                                                end: 157,
                                                             },
                                                             name: "template",
                                                         },
@@ -672,4 +642,4 @@ JS: <><template>
   <Some v-slot:default={} />
   <input v-model:={text} />
   <Some v-bind:some.none={1} />
-  {}</template></>;
+</template></>;
