@@ -35,6 +35,28 @@ impl SourceLocatonSpan for SourceLocation {
   }
 }
 
+macro_rules! is_void_tag {
+  ($name:ident) => {
+    matches!(
+      $name,
+      "area"
+        | "base"
+        | "br"
+        | "col"
+        | "embed"
+        | "hr"
+        | "img"
+        | "input"
+        | "link"
+        | "meta"
+        | "param"
+        | "source"
+        | "track"
+        | "wbr"
+    )
+  };
+}
+
 impl<'a> ParserImpl<'a> {
   fn oxc_parse(
     &mut self,
@@ -105,8 +127,11 @@ impl<'a> ParserImpl<'a> {
   }
 
   fn get_root_children(&mut self) -> Option<ArenaVec<'a, JSXChild<'a>>> {
-    let parser =
-      Parser::new(ParseOption { whitespace: WhitespaceStrategy::Preserve, ..Default::default() });
+    let parser = Parser::new(ParseOption {
+      whitespace: WhitespaceStrategy::Preserve,
+      is_void_tag: |name| is_void_tag!(name),
+      ..Default::default()
+    });
 
     // get ast from vue-compiler-core
     let scanner = Scanner::new(ScanOption::default());
@@ -283,12 +308,13 @@ impl<'a> ParserImpl<'a> {
     };
 
     let location_span = node.location.span();
+    let tag_name = node.tag_name;
     let end_element_span = {
-      if location_span.source_text(self.source_text).ends_with("/>") {
+      if location_span.source_text(self.source_text).ends_with("/>") || is_void_tag!(tag_name) {
         node.location.span()
       } else {
         let end = node.location.end.offset;
-        let start = self.roffset(end).saturating_sub(node.tag_name.len() + 3) as u32;
+        let start = self.roffset(end).saturating_sub(tag_name.len() + 3) as u32;
         Span::new(start, end as u32)
       }
     };
@@ -510,6 +536,7 @@ mod tests {
   fn basic_vue() {
     test_ast!("basic.vue");
     test_ast!("typescript.vue");
+    test_ast!("void.vue");
   }
 
   #[test]
