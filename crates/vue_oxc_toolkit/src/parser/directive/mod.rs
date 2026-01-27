@@ -60,3 +60,13 @@ impl<'a> ParserImpl<'a> {
     )
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use crate::test_ast;
+
+  #[test]
+  fn test_parse_directive_name() {
+    test_ast!("directive/basic.vue");
+  }
+}
