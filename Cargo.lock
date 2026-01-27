@@ -1092,6 +1092,7 @@ name = "vue_oxc_toolkit"
 version = "0.2.0"
 dependencies = [
  "insta",
+ "memchr",
  "oxc_allocator",
  "oxc_ast",
  "oxc_ast_visit",

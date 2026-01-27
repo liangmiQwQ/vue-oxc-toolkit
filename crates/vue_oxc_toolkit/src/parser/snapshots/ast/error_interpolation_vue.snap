@@ -1,5 +1,5 @@
 ---
-source: crates/vue_oxc_toolkit/src/parser/parse.rs
+source: crates/vue_oxc_toolkit/src/test.rs
 expression: result
 ---
 Program: Program {

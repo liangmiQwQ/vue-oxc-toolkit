@@ -1,6 +1,5 @@
 use std::cell::RefCell;
 use std::collections::HashSet;
-use std::mem;
 
 use oxc_allocator::{self, Dummy, TakeIn, Vec as ArenaVec};
 use oxc_ast::ast::{
@@ -9,7 +8,7 @@ use oxc_ast::ast::{
 };
 use oxc_ast::{Comment, CommentKind, NONE};
 use oxc_diagnostics::OxcDiagnostic;
-use oxc_span::{Atom, SPAN, SourceType, Span};
+use oxc_span::{SPAN, SourceType, Span};
 use oxc_syntax::module_record::ModuleRecord;
 use vue_compiler_core::SourceLocation;
 use vue_compiler_core::parser::{
@@ -19,9 +18,9 @@ use vue_compiler_core::parser::{
 use vue_compiler_core::scanner::{ScanOption, Scanner};
 use vue_compiler_core::util::find_prop;
 
+use crate::parser::directive::v_for::VForWrapper;
 use crate::parser::error::OxcErrorHandler;
 use crate::parser::modules::Merge;
-use crate::parser::v_for::VForWrapper;
 
 use super::ParserImpl;
 use super::ParserImplReturn;
@@ -50,6 +49,7 @@ impl<'a> ParserImpl<'a> {
 
     self.errors.append(&mut ret.errors);
     if ret.panicked {
+      // TODO: do not panic for js parsing error
       None
     } else {
       self.comments.extend(&ret.program.comments[1..]);
@@ -346,6 +346,7 @@ impl<'a> ParserImpl<'a> {
   fn parse_attribute(&mut self, prop: ElemProp<'a>) -> Option<JSXAttributeItem<'a>> {
     let ast = self.ast;
     match prop {
+      // For normal attributes, like <div class="w-100" />
       ElemProp::Attr(attr) => {
         let attr_end = self.roffset(attr.location.end.offset) as u32;
         let attr_span = Span::new(attr.location.start.offset as u32, attr_end);
@@ -363,92 +364,15 @@ impl<'a> ParserImpl<'a> {
           },
         ))
       }
-      ElemProp::Dir(mut dir) => {
+      // Directive, starts with `v-`
+      ElemProp::Dir(dir) => {
         let dir_start = dir.location.start.offset as u32;
         let dir_end = self.roffset(dir.location.end.offset) as u32;
-        let head_name = dir.head_loc.span().source_text(self.source_text);
-        let modifiers = mem::take(&mut dir.modifiers);
         Some(ast.jsx_attribute_item_attribute(
-          // TODO: Remove the code below, keep the original props as oxc use string to save prop name (for linting use)
           Span::new(dir_start, dir_end),
-          match dir.name {
-            "bind" => {
-              if let Some(argument) = &dir.argument {
-                if let DirectiveArg::Dynamic(_) = argument {
-                  // :[foo]="bar"
-                  ast.jsx_attribute_name_identifier(
-                    Span::new(dir_start, dir_start + 1),
-                    ast.atom(&format!("v-bind{}", Self::parse_modifiers(&modifiers))),
-                  )
-                } else if head_name.starts_with(':') {
-                  // :foo="bar"
-                  ast.jsx_attribute_name_identifier(
-                    Span::new(dir_start + 1, dir.head_loc.end.offset as u32),
-                    // SAFETY: dir.argument must be Some(DirectiveArg) for :foo shorthand
-                    self.parse_argument(dir.argument.as_ref().unwrap(), &modifiers),
-                  )
-                } else {
-                  // v-bind:foo="bar"
-                  ast.jsx_attribute_name_namespaced_name(
-                    dir.head_loc.span(),
-                    ast.jsx_identifier(Span::new(dir_start, dir_start + 6), ast.atom("v-bind")),
-                    ast.jsx_identifier(
-                      Span::new(dir_start + 7, dir.head_loc.end.offset as u32),
-                      // SAFETY: dir.argument must be Some(DirectiveArg) for v-bind:foo
-                      self.parse_argument(dir.argument.as_ref().unwrap(), &modifiers),
-                    ),
-                  )
-                }
-              } else {
-                // v-bind="obj"
-                ast.jsx_attribute_name_identifier(
-                  dir.head_loc.span(),
-                  ast.atom(&format!("v-bind{}", Self::parse_modifiers(&modifiers))),
-                )
-              }
-            }
-            _ => {
-              if let Some(argument) = &dir.argument {
-                let namespace_end = if head_name.starts_with("v-") {
-                  dir_start + 2 + dir.name.len() as u32
-                } else {
-                  dir_start + 1
-                };
-                match argument {
-                  DirectiveArg::Static(arg) => ast.jsx_attribute_name_namespaced_name(
-                    dir.head_loc.span(),
-                    ast.jsx_identifier(
-                      Span::new(dir_start, namespace_end),
-                      ast.atom(&format!("v-{}", dir.name)),
-                    ),
-                    ast.jsx_identifier(
-                      if head_name.starts_with("v-") {
-                        Span::new(namespace_end + 1, namespace_end + 1 + arg.len() as u32)
-                      } else {
-                        Span::new(namespace_end, namespace_end + arg.len() as u32)
-                      },
-                      // SAFETY: dir.argument is checked to be Some(DirectiveArg::Static(arg)) in this match arm
-                      self.parse_argument(dir.argument.as_ref().unwrap(), &modifiers),
-                    ),
-                  ),
-                  DirectiveArg::Dynamic(_) => ast.jsx_attribute_name_identifier(
-                    Span::new(dir_start, dir_start + 1),
-                    ast.atom(&format!(
-                      "v-{}{}",
-                      dir.name,
-                      // SAFETY: dir.argument is checked to be Some(DirectiveArg::Dynamic(_)) in this match arm
-                      self.parse_argument(dir.argument.as_ref().unwrap(), &modifiers)
-                    )),
-                  ),
-                }
-              } else {
-                ast.jsx_attribute_name_identifier(
-                  dir.head_loc.span(),
-                  self.ast.atom(&format!("v-{}{}", dir.name, Self::parse_modifiers(&modifiers))),
-                )
-              }
-            }
-          },
+          // Attribute Name
+          self.parse_directive_name(&dir)?,
+          // Attribute Value
           if let Some(expr) = &dir.expression {
             if matches!(dir.name, "for" | "slot") {
               Some(ast.jsx_attribute_value_expression_container(
@@ -517,20 +441,6 @@ impl<'a> ParserImpl<'a> {
     } else {
       Some(expression)
     }
-  }
-
-  fn parse_argument(&self, argument: &DirectiveArg, modifiers: &[&'a str]) -> Atom<'a> {
-    self.ast.atom(&format!(
-      "{}{}",
-      match argument {
-        DirectiveArg::Static(arg) => arg,
-        DirectiveArg::Dynamic(_) => "",
-      },
-      Self::parse_modifiers(modifiers)
-    ))
-  }
-  fn parse_modifiers(modifiers: &[&str]) -> String {
-    if modifiers.is_empty() { String::new() } else { format!("_{}", modifiers.join("_")) }
   }
 
   fn parse_text(&self, text: &TextNode<'a>) -> JSXChild<'a> {
