@@ -324,15 +324,7 @@ impl<'a> ParserImpl<'a> {
     let mut v_slot_wrapper = VSlotWrapper::new(&ast);
     let mut attributes = ast.vec();
     for prop in node.properties {
-      if let ElemProp::Dir(dir) = &prop {
-        if dir.name == "for" {
-          self.analyze_v_for(dir, &mut v_for_wrapper)?;
-        } else if dir.name == "slot" {
-          self.analyze_v_slot(dir, &mut v_slot_wrapper)?;
-        }
-      }
-
-      attributes.push(self.parse_attribute(prop)?);
+      attributes.push(self.parse_attribute(prop, &mut v_for_wrapper, &mut v_slot_wrapper)?);
     }
 
     let children = match children {
@@ -376,7 +368,12 @@ impl<'a> ParserImpl<'a> {
     )))
   }
 
-  fn parse_attribute(&mut self, prop: ElemProp<'a>) -> Option<JSXAttributeItem<'a>> {
+  fn parse_attribute(
+    &mut self,
+    prop: ElemProp<'a>,
+    v_for_wrapper: &mut VForWrapper<'_, 'a>,
+    v_slot_wrapper: &mut VSlotWrapper<'_, 'a>,
+  ) -> Option<JSXAttributeItem<'a>> {
     let ast = self.ast;
     match prop {
       // For normal attributes, like <div class="w-100" />
@@ -411,8 +408,12 @@ impl<'a> ParserImpl<'a> {
 
             Some(ast.jsx_attribute_value_expression_container(
               span,
-              if matches!(dir.name, "for" | "slot") {
-                // Use placeholder for v-for and v-slot
+              // Use placeholder for v-for and v-slot
+              if dir.name == "for" {
+                self.analyze_v_for(&dir, v_for_wrapper)?;
+                JSXExpression::EmptyExpression(ast.jsx_empty_expression(SPAN))
+              } else if dir.name == "slot" {
+                self.analyze_v_slot(&dir, v_slot_wrapper)?;
                 JSXExpression::EmptyExpression(ast.jsx_empty_expression(SPAN))
               } else {
                 // For possible dynamic arguments
