@@ -89,33 +89,31 @@ impl<'a, 'b> VForWrapper<'a, 'b> {
 
       ast.jsx_child_expression_container(
         SPAN,
-        JSXExpression::from(Expression::CallExpression(ast.alloc_call_expression(
+        JSXExpression::CallExpression(ast.alloc_call_expression(
           SPAN,
           Expression::ParenthesizedExpression(ast.alloc(data_origin)),
           NONE,
-          self.ast.vec1(Argument::from(Expression::ArrowFunctionExpression(
-            ast.alloc_arrow_function_expression(
+          self.ast.vec1(Argument::ArrowFunctionExpression(ast.alloc_arrow_function_expression(
+            SPAN,
+            true,
+            false,
+            NONE,
+            params,
+            NONE,
+            ast.function_body(
               SPAN,
-              true,
-              false,
-              NONE,
-              params,
-              NONE,
-              ast.function_body(
+              ast.vec(),
+              ast.vec1(Statement::ExpressionStatement(ast.alloc_expression_statement(
                 SPAN,
-                ast.vec(),
-                ast.vec1(Statement::ExpressionStatement(ast.alloc_expression_statement(
+                Expression::ParenthesizedExpression(ast.alloc_parenthesized_expression(
                   SPAN,
-                  Expression::ParenthesizedExpression(ast.alloc_parenthesized_expression(
-                    SPAN,
-                    Expression::JSXElement(self.ast.alloc(element)),
-                  )),
-                ))),
-              ),
+                  Expression::JSXElement(self.ast.alloc(element)),
+                )),
+              ))),
             ),
           ))),
           false,
-        ))),
+        )),
       )
     } else {
       JSXChild::Element(self.ast.alloc(element))
