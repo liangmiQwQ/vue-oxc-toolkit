@@ -19,6 +19,7 @@ use vue_compiler_core::scanner::{ScanOption, Scanner};
 use vue_compiler_core::util::find_prop;
 
 use crate::parser::directive::v_for::VForWrapper;
+use crate::parser::directive::v_slot::VSlotWrapper;
 use crate::parser::error::OxcErrorHandler;
 use crate::parser::modules::Merge;
 
@@ -320,12 +321,15 @@ impl<'a> ParserImpl<'a> {
     };
 
     let mut v_for_wrapper = VForWrapper::new(&ast);
+    let mut v_slot_wrapper = VSlotWrapper::new(&ast);
     let mut attributes = ast.vec();
     for prop in node.properties {
-      if let ElemProp::Dir(dir) = &prop
-        && dir.name == "for"
-      {
-        self.analyze_v_for(dir, &mut v_for_wrapper)?;
+      if let ElemProp::Dir(dir) = &prop {
+        if dir.name == "for" {
+          self.analyze_v_for(dir, &mut v_for_wrapper)?;
+        } else if dir.name == "slot" {
+          self.analyze_v_slot(dir, &mut v_slot_wrapper)?;
+        }
       }
 
       attributes.push(self.parse_attribute(prop)?);
@@ -333,8 +337,11 @@ impl<'a> ParserImpl<'a> {
 
     let children = match children {
       Some(children) => children,
-      // TODO: Handle v-slot wrapper there
-      None => self.parse_children(open_element_span.end, end_element_span.start, node.children)?,
+      None => v_slot_wrapper.wrap(self.parse_children(
+        open_element_span.end,
+        end_element_span.start,
+        node.children,
+      )?),
     };
 
     Some(v_for_wrapper.wrap(ast.jsx_element(
