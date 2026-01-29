@@ -400,20 +400,19 @@ impl<'a> ParserImpl<'a> {
           self.parse_directive_name(&dir)?,
           // Attribute Value
           if let Some(expr) = &dir.expression {
-            if matches!(dir.name, "for" | "slot") {
-              Some(ast.jsx_attribute_value_expression_container(
-                expr.location.span(),
-                JSXExpression::EmptyExpression(ast.jsx_empty_expression(SPAN)),
-              ))
-            } else {
-              let expression =
-                self.parse_expression(expr.content.raw, expr.location.start.offset)?;
+            let span = Span::new(expr.location.start.offset as u32 + 1, dir_end - 1);
 
-              Some(ast.jsx_attribute_value_expression_container(
-                Span::new(expr.location.start.offset as u32 + 1, dir_end - 1),
-                self.parse_dynamic_argument(&dir, expression)?.into(),
-              ))
-            }
+            Some(ast.jsx_attribute_value_expression_container(
+              span,
+              if matches!(dir.name, "for" | "slot") {
+                // Use placeholder for v-for and v-slot
+                JSXExpression::EmptyExpression(ast.jsx_empty_expression(SPAN))
+              } else {
+                // For possible dynamic arguments
+                let expr = self.parse_expression(expr.content.raw, expr.location.start.offset)?;
+                self.parse_dynamic_argument(&dir, expr)?.into()
+              },
+            ))
           } else if let Some(argument) = &dir.argument
             && let DirectiveArg::Dynamic(_) = argument
           {
