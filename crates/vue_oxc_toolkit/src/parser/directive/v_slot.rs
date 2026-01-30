@@ -33,6 +33,7 @@ impl<'a> ParserImpl<'a> {
     let key_span = name_space.name.span;
     if key_span.is_empty() {
       // Generate a dummy one
+      wrapper.set_is_computed(false);
       wrapper.set_key(self.ast.property_key_static_identifier(SPAN, "default"));
     } else {
       // Parse with a object expression wrapper
