@@ -400,15 +400,17 @@ impl<'a> ParserImpl<'a> {
         let dir_end = self.roffset(dir.location.end.offset) as u32;
 
         let dir_name = self.parse_directive_name(&dir)?;
+        // Analyze v-slot and v-for, no matter whether there is an expression
+        if dir.name == "slot" {
+          self.analyze_v_slot(&dir, v_slot_wrapper, &dir_name)?;
+        } else if dir.name == "for" {
+          self.analyze_v_for(&dir, v_for_wrapper)?;
+        }
         let attribute_value = if let Some(expr) = &dir.expression {
           Some(ast.jsx_attribute_value_expression_container(
             Span::new(expr.location.start.offset as u32 + 1, dir_end - 1),
             // Use placeholder for v-for and v-slot
-            if dir.name == "for" {
-              self.analyze_v_for(&dir, v_for_wrapper)?;
-              JSXExpression::EmptyExpression(ast.jsx_empty_expression(SPAN))
-            } else if dir.name == "slot" {
-              self.analyze_v_slot(&dir, v_slot_wrapper, &dir_name)?;
+            if matches!(dir.name, "for" | "slot") {
               JSXExpression::EmptyExpression(ast.jsx_empty_expression(SPAN))
             } else {
               // For possible dynamic arguments
