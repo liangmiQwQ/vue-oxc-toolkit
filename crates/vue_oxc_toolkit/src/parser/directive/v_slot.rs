@@ -1,9 +1,9 @@
-use oxc_allocator::Vec;
+use oxc_allocator::{TakeIn, Vec};
 use oxc_ast::{
   AstBuilder, NONE,
   ast::{
-    Expression, FormalParameters, FunctionType, JSXChild, JSXExpression, PropertyKey, PropertyKind,
-    Statement,
+    Expression, FormalParameterKind, FormalParameters, FunctionType, JSXAttributeName, JSXChild,
+    JSXExpression, ObjectPropertyKind, PropertyKey, PropertyKind, Statement,
   },
 };
 use oxc_span::SPAN;
@@ -23,8 +23,57 @@ impl<'a> ParserImpl<'a> {
     &mut self,
     dir: &Directive<'a>,
     wrapper: &mut VSlotWrapper<'_, 'a>,
+    dir_name: &JSXAttributeName<'a>,
   ) -> Option<()> {
-    todo!()
+    // --- Process Key ---
+    let JSXAttributeName::NamespacedName(name_space) = dir_name else {
+      // unreachable!()
+      return None;
+    };
+    let key_span = name_space.name.span;
+    if key_span.is_empty() {
+      // Generate a dummy one
+      wrapper.set_key(self.ast.property_key_static_identifier(SPAN, "default"));
+    } else {
+      // Parse with a object expression wrapper
+      let str = key_span.source_text(self.source_text);
+      let Expression::ObjectExpression(mut object_expression) = self.parse_expression(
+        self.ast.atom(&format!("{{{str}: 0}}")).as_str(),
+        key_span.start as usize - 2,
+      )?
+      else {
+        // unreachable!()
+        return None;
+      };
+      // SAFETY: must get wrapped
+      let ObjectPropertyKind::ObjectProperty(object_property) =
+        object_expression.properties.first_mut().unwrap()
+      else {
+        // unreachable!()
+        return None;
+      };
+      if let PropertyKey::StaticIdentifier(_) = object_property.key {
+        wrapper.set_is_computed(false);
+      } else {
+        wrapper.set_is_computed(true);
+      }
+      wrapper.set_key(object_property.key.take_in(self.allocator));
+    }
+
+    // --- Process Params ---
+    if dir.has_empty_expr() {
+      wrapper.set_params(self.ast.formal_parameters(
+        SPAN,
+        FormalParameterKind::ArrowFormalParameters,
+        self.ast.vec(),
+        NONE,
+      ));
+    } else {
+      let expr = dir.expression.as_ref().unwrap();
+      todo!();
+    }
+
+    Some(())
   }
 }
 
@@ -87,7 +136,7 @@ impl<'a, 'b> VSlotWrapper<'a, 'b> {
 
 impl<'b> VSlotWrapper<'_, 'b> {
   const fn include_v_slot(&self) -> bool {
-    self.key.is_some() || self.params.is_some() || self.is_computed.is_some()
+    self.key.is_some() && self.params.is_some() && self.is_computed.is_some()
   }
 
   const fn set_key(&mut self, key: PropertyKey<'b>) {
@@ -100,5 +149,15 @@ impl<'b> VSlotWrapper<'_, 'b> {
 
   const fn set_is_computed(&mut self, is_computed: bool) {
     self.is_computed = Some(is_computed);
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use crate::test_ast;
+
+  #[test]
+  fn v_slot() {
+    test_ast!("directive/v-slot.vue");
   }
 }
