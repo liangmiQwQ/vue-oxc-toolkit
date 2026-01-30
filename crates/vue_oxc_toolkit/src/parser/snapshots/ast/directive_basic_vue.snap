@@ -381,7 +381,179 @@ Program: Program {
                                                                 ),
                                                             },
                                                             children: Vec(
-                                                                [],
+                                                                [
+                                                                    ExpressionContainer(
+                                                                        JSXExpressionContainer {
+                                                                            span: Span {
+                                                                                start: 0,
+                                                                                end: 0,
+                                                                            },
+                                                                            expression: ObjectExpression(
+                                                                                ObjectExpression {
+                                                                                    span: Span {
+                                                                                        start: 0,
+                                                                                        end: 0,
+                                                                                    },
+                                                                                    properties: Vec(
+                                                                                        [
+                                                                                            ObjectProperty(
+                                                                                                ObjectProperty {
+                                                                                                    span: Span {
+                                                                                                        start: 0,
+                                                                                                        end: 0,
+                                                                                                    },
+                                                                                                    key: StaticIdentifier(
+                                                                                                        IdentifierName {
+                                                                                                            span: Span {
+                                                                                                                start: 68,
+                                                                                                                end: 75,
+                                                                                                            },
+                                                                                                            name: "default",
+                                                                                                        },
+                                                                                                    ),
+                                                                                                    value: ArrowFunctionExpression(
+                                                                                                        ArrowFunctionExpression {
+                                                                                                            span: Span {
+                                                                                                                start: 0,
+                                                                                                                end: 0,
+                                                                                                            },
+                                                                                                            type_parameters: None,
+                                                                                                            params: FormalParameters {
+                                                                                                                span: Span {
+                                                                                                                    start: 77,
+                                                                                                                    end: 84,
+                                                                                                                },
+                                                                                                                items: Vec(
+                                                                                                                    [
+                                                                                                                        FormalParameter {
+                                                                                                                            span: Span {
+                                                                                                                                start: 78,
+                                                                                                                                end: 83,
+                                                                                                                            },
+                                                                                                                            decorators: Vec(
+                                                                                                                                [],
+                                                                                                                            ),
+                                                                                                                            pattern: ObjectPattern(
+                                                                                                                                ObjectPattern {
+                                                                                                                                    span: Span {
+                                                                                                                                        start: 78,
+                                                                                                                                        end: 83,
+                                                                                                                                    },
+                                                                                                                                    properties: Vec(
+                                                                                                                                        [
+                                                                                                                                            BindingProperty {
+                                                                                                                                                span: Span {
+                                                                                                                                                    start: 80,
+                                                                                                                                                    end: 81,
+                                                                                                                                                },
+                                                                                                                                                key: StaticIdentifier(
+                                                                                                                                                    IdentifierName {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 80,
+                                                                                                                                                            end: 81,
+                                                                                                                                                        },
+                                                                                                                                                        name: "a",
+                                                                                                                                                    },
+                                                                                                                                                ),
+                                                                                                                                                value: BindingIdentifier(
+                                                                                                                                                    BindingIdentifier {
+                                                                                                                                                        span: Span {
+                                                                                                                                                            start: 80,
+                                                                                                                                                            end: 81,
+                                                                                                                                                        },
+                                                                                                                                                        name: "a",
+                                                                                                                                                        symbol_id: Cell {
+                                                                                                                                                            value: None,
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                ),
+                                                                                                                                                shorthand: true,
+                                                                                                                                                computed: false,
+                                                                                                                                            },
+                                                                                                                                        ],
+                                                                                                                                    ),
+                                                                                                                                    rest: None,
+                                                                                                                                },
+                                                                                                                            ),
+                                                                                                                            type_annotation: None,
+                                                                                                                            initializer: None,
+                                                                                                                            optional: false,
+                                                                                                                            accessibility: None,
+                                                                                                                            readonly: false,
+                                                                                                                            override: false,
+                                                                                                                        },
+                                                                                                                    ],
+                                                                                                                ),
+                                                                                                                rest: None,
+                                                                                                                kind: ArrowFormalParameters,
+                                                                                                            },
+                                                                                                            return_type: None,
+                                                                                                            body: FunctionBody {
+                                                                                                                span: Span {
+                                                                                                                    start: 0,
+                                                                                                                    end: 0,
+                                                                                                                },
+                                                                                                                directives: Vec(
+                                                                                                                    [],
+                                                                                                                ),
+                                                                                                                statements: Vec(
+                                                                                                                    [
+                                                                                                                        ExpressionStatement(
+                                                                                                                            ExpressionStatement {
+                                                                                                                                span: Span {
+                                                                                                                                    start: 0,
+                                                                                                                                    end: 0,
+                                                                                                                                },
+                                                                                                                                expression: JSXFragment(
+                                                                                                                                    JSXFragment {
+                                                                                                                                        span: Span {
+                                                                                                                                            start: 0,
+                                                                                                                                            end: 0,
+                                                                                                                                        },
+                                                                                                                                        opening_fragment: JSXOpeningFragment {
+                                                                                                                                            span: Span {
+                                                                                                                                                start: 0,
+                                                                                                                                                end: 0,
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                        children: Vec(
+                                                                                                                                            [],
+                                                                                                                                        ),
+                                                                                                                                        closing_fragment: JSXClosingFragment {
+                                                                                                                                            span: Span {
+                                                                                                                                                start: 0,
+                                                                                                                                                end: 0,
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                ),
+                                                                                                                            },
+                                                                                                                        ),
+                                                                                                                    ],
+                                                                                                                ),
+                                                                                                            },
+                                                                                                            scope_id: Cell {
+                                                                                                                value: None,
+                                                                                                            },
+                                                                                                            expression: true,
+                                                                                                            async: false,
+                                                                                                            pure: false,
+                                                                                                            pife: false,
+                                                                                                        },
+                                                                                                    ),
+                                                                                                    kind: Init,
+                                                                                                    method: false,
+                                                                                                    shorthand: false,
+                                                                                                    computed: false,
+                                                                                                },
+                                                                                            ),
+                                                                                        ],
+                                                                                    ),
+                                                                                },
+                                                                            ),
+                                                                        },
+                                                                    ),
+                                                                ],
                                                             ),
                                                             closing_element: None,
                                                         },
@@ -639,7 +811,7 @@ Errors: []
 JS: <><template>
   <div v-bind:class={"w-100"} />
   <div v-bind:[some]={{ [some]: 2 }} />
-  <Some v-slot:default={} />
+  <Some v-slot:default={} />{{ default: ({ a }) => <></> }}
   <input v-model:={text} />
   <Some v-bind:some.none={1} />
 </template></>;
