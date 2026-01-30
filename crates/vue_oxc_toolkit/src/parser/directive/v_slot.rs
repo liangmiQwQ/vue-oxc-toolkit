@@ -2,8 +2,8 @@ use oxc_allocator::{TakeIn, Vec};
 use oxc_ast::{
   AstBuilder, NONE,
   ast::{
-    Expression, FormalParameterKind, FormalParameters, FunctionType, JSXAttributeName, JSXChild,
-    JSXExpression, ObjectPropertyKind, PropertyKey, PropertyKind, Statement,
+    Expression, FormalParameterKind, FormalParameters, JSXAttributeName, JSXChild, JSXExpression,
+    ObjectPropertyKind, PropertyKey, PropertyKind, Statement,
   },
 };
 use oxc_span::SPAN;
@@ -61,6 +61,8 @@ impl<'a> ParserImpl<'a> {
     }
 
     // --- Process Params ---
+    // As vue use arrow function to wrap the slot content, we use it as well to prevent some edge cases
+    // https://play.vuejs.org/#eNp9kD1PwzAQhv+KdXNJB5iigASoAwyAgNFLlBxpir/kO4dIkf87tquGDsBmvc9z9utb4Na5agoINTSM2qmW8UYaIZp7q52YLkhZrvfY9uivJSxCI1E7oIgSiifEchbGMrrNs4k22/VK2ABTZ83HOFQHsia9t2RXQpfcUaF/djxaQxJqUUhmrVL267Fk7ANuTnm3x+7zl/xAc84kvHgk9BNKWBm3fkA+4t3bE87pvEJt+6CS/Q98RbIq5I5H7S6YPtU+80rbB+2s59EM77SbGQ2dPpWLZjMWX0Jael7TX1//qXtZXZU5aSLEbzFYjTA=
     if dir.has_empty_expr() {
       wrapper.set_params(self.ast.formal_parameters(
         SPAN,
@@ -70,7 +72,14 @@ impl<'a> ParserImpl<'a> {
       ));
     } else {
       let expr = dir.expression.as_ref().unwrap();
-      todo!();
+      let params = format!("({}) => 0", expr.content.raw);
+      let Expression::ArrowFunctionExpression(mut arrow_function_expression) = self
+        .parse_expression(self.ast.atom(params.as_str()).as_str(), expr.location.start.offset)?
+      else {
+        // unreachable!()
+        return None;
+      };
+      wrapper.set_params(arrow_function_expression.params.take_in(self.allocator));
     }
 
     Some(())
