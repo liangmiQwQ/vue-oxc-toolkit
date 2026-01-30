@@ -97,32 +97,28 @@ impl<'a, 'b> VSlotWrapper<'a, 'b> {
             SPAN,
             PropertyKind::Init,
             key,
-            Expression::FunctionExpression(ast.alloc_function(
+            Expression::ArrowFunctionExpression(ast.alloc_arrow_function_expression(
               SPAN,
-              FunctionType::FunctionExpression,
-              None,
+              true,
               false,
-              false,
-              false,
-              NONE,
               NONE,
               params,
               NONE,
-              Some(ast.alloc_function_body(
+              ast.alloc_function_body(
                 SPAN,
                 ast.vec(),
-                ast.vec1(Statement::ReturnStatement(ast.alloc_return_statement(
+                ast.vec1(Statement::ExpressionStatement(ast.alloc_expression_statement(
                   SPAN,
-                  Some(Expression::JSXFragment(ast.alloc_jsx_fragment(
+                  Expression::JSXFragment(ast.alloc_jsx_fragment(
                     SPAN,
                     ast.jsx_opening_fragment(SPAN),
                     children,
                     ast.jsx_closing_fragment(SPAN),
-                  ))),
+                  )),
                 ))),
-              )),
+              ),
             )),
-            true,
+            false,
             false,
             is_computed,
           )),
