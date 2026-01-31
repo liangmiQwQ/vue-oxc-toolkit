@@ -908,7 +908,7 @@ Program: Program {
                                                             opening_element: JSXOpeningElement {
                                                                 span: Span {
                                                                     start: 136,
-                                                                    end: 150,
+                                                                    end: 151,
                                                                 },
                                                                 name: Identifier(
                                                                     JSXIdentifier {
@@ -2668,8 +2668,8 @@ Slice: "<Comp v-slot />";
 Span: (136, 151); 
 Type: JSXElement; 
 
-Slice: "<Comp v-slot /"; 
-Span: (136, 150); 
+Slice: "<Comp v-slot />"; 
+Span: (136, 151); 
 Type: JSXOpeningElement; 
 
 Slice: "Comp"; 

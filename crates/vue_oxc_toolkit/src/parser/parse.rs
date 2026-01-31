@@ -297,14 +297,17 @@ impl<'a> ParserImpl<'a> {
 
     let open_element_span = {
       let start = node.location.start.offset;
-      let end = if let Some(prop) = node.properties.last() {
-        self.offset(match prop {
+      let tag_name_end = if let Some(prop) = node.properties.last() {
+        match prop {
           ElemProp::Attr(prop) => prop.location.end.offset,
           ElemProp::Dir(prop) => prop.location.end.offset,
-        })
+        }
       } else {
-        start + 1 + node.tag_name.len()
-      } + 1;
+        start + 1 /* < */ + node.tag_name.len()
+      };
+      let end = memchr::memchr(b'>', &self.source_text.as_bytes()[tag_name_end..])
+        .map(|i| tag_name_end + i + 1)
+        .unwrap(); // SAFETY: The tag must be closed. Or parser will treat it as panicked.
       Span::new(start as u32, end as u32)
     };
 
@@ -529,10 +532,6 @@ impl<'a> ParserImpl<'a> {
     Some(expression.expression.take_in(self.allocator))
   }
 
-  fn offset(&self, start: usize) -> usize {
-    start + self.source_text[start..].chars().take_while(|c| c.is_whitespace()).count()
-  }
-
   fn roffset(&self, end: usize) -> usize {
     end - self.source_text[..end].chars().rev().take_while(|c| c.is_whitespace()).count()
   }
@@ -547,6 +546,7 @@ mod tests {
     test_ast!("basic.vue");
     test_ast!("typescript.vue");
     test_ast!("void.vue");
+    test_ast!("tags.vue");
   }
 
   #[test]
