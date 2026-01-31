@@ -40,7 +40,7 @@ impl<'a> ParserImpl<'a> {
       let str = key_span.source_text(self.source_text);
       let Expression::ObjectExpression(mut object_expression) = self.parse_expression(
         self.ast.atom(&format!("{{{str}: 0}}")).as_str(),
-        key_span.start as usize - 2,
+        key_span.start as usize - 1,
       )?
       else {
         // unreachable!()

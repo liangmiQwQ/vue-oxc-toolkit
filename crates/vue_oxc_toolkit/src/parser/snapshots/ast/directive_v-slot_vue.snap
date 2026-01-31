@@ -455,8 +455,8 @@ Program: Program {
                                                                                                     key: StaticIdentifier(
                                                                                                         IdentifierName {
                                                                                                             span: Span {
-                                                                                                                start: 51,
-                                                                                                                end: 57,
+                                                                                                                start: 52,
+                                                                                                                end: 58,
                                                                                                             },
                                                                                                             name: "header",
                                                                                                         },
@@ -763,8 +763,8 @@ Program: Program {
                                                                                                     key: StaticIdentifier(
                                                                                                         IdentifierName {
                                                                                                             span: Span {
-                                                                                                                start: 116,
-                                                                                                                end: 119,
+                                                                                                                start: 117,
+                                                                                                                end: 120,
                                                                                                             },
                                                                                                             name: "abc",
                                                                                                         },
@@ -1187,8 +1187,8 @@ Program: Program {
                                                                                                     key: StaticIdentifier(
                                                                                                         IdentifierName {
                                                                                                             span: Span {
-                                                                                                                start: 166,
-                                                                                                                end: 172,
+                                                                                                                start: 167,
+                                                                                                                end: 173,
                                                                                                             },
                                                                                                             name: "header",
                                                                                                         },
@@ -1837,8 +1837,8 @@ Program: Program {
                                                                                                     key: Identifier(
                                                                                                         IdentifierReference {
                                                                                                             span: Span {
-                                                                                                                start: 291,
-                                                                                                                end: 294,
+                                                                                                                start: 292,
+                                                                                                                end: 295,
                                                                                                             },
                                                                                                             name: "key",
                                                                                                             reference_id: Cell {
@@ -2165,8 +2165,8 @@ Program: Program {
                                                                                                     key: StaticIdentifier(
                                                                                                         IdentifierName {
                                                                                                             span: Span {
-                                                                                                                start: 354,
-                                                                                                                end: 360,
+                                                                                                                start: 355,
+                                                                                                                end: 361,
                                                                                                             },
                                                                                                             name: "header",
                                                                                                         },
@@ -2560,8 +2560,8 @@ Slice: "{ message }";
 Span: (60, 71); 
 Type: JSXExpressionContainer; 
 
-Slice: "#heade"; 
-Span: (51, 57); 
+Slice: "header"; 
+Span: (52, 58); 
 Type: IdentifierName; 
 
 Slice: "\"{ message }\""; 
@@ -2644,8 +2644,8 @@ Slice: "abc";
 Span: (117, 120); 
 Type: JSXIdentifier; 
 
-Slice: ":ab"; 
-Span: (116, 119); 
+Slice: "abc"; 
+Span: (117, 120); 
 Type: IdentifierName; 
 
 Slice: " abc "; 
@@ -2724,8 +2724,8 @@ Slice: "{ message }";
 Span: (175, 186); 
 Type: JSXExpressionContainer; 
 
-Slice: ":heade"; 
-Span: (166, 172); 
+Slice: "header"; 
+Span: (167, 173); 
 Type: IdentifierName; 
 
 Slice: "\"{ message }\""; 
@@ -2892,8 +2892,8 @@ Slice: "{ message }";
 Span: (298, 309); 
 Type: JSXExpressionContainer; 
 
-Slice: "[ke"; 
-Span: (291, 294); 
+Slice: "key"; 
+Span: (292, 295); 
 Type: IdentifierReference; 
 
 Slice: "\"{ message }\""; 
@@ -2980,8 +2980,8 @@ Slice: "user";
 Span: (363, 367); 
 Type: JSXExpressionContainer; 
 
-Slice: ":heade"; 
-Span: (354, 360); 
+Slice: "header"; 
+Span: (355, 361); 
 Type: IdentifierName; 
 
 Slice: "\"user\""; 

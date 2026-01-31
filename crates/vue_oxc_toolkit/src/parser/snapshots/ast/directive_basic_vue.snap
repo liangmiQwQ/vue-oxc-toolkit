@@ -405,8 +405,8 @@ Program: Program {
                                                                                                     key: StaticIdentifier(
                                                                                                         IdentifierName {
                                                                                                             span: Span {
-                                                                                                                start: 68,
-                                                                                                                end: 75,
+                                                                                                                start: 69,
+                                                                                                                end: 76,
                                                                                                             },
                                                                                                             name: "default",
                                                                                                         },
@@ -953,8 +953,8 @@ Slice: "{ a }";
 Span: (78, 83); 
 Type: JSXExpressionContainer; 
 
-Slice: "#defaul"; 
-Span: (68, 75); 
+Slice: "default"; 
+Span: (69, 76); 
 Type: IdentifierName; 
 
 Slice: "\"{ a }\""; 
