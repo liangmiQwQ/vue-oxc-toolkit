@@ -19,6 +19,7 @@ use vue_compiler_core::scanner::{ScanOption, Scanner};
 use vue_compiler_core::util::find_prop;
 
 use crate::parser::directive::v_for::VForWrapper;
+use crate::parser::directive::v_slot::VSlotWrapper;
 use crate::parser::error::OxcErrorHandler;
 use crate::parser::modules::Merge;
 
@@ -320,21 +321,19 @@ impl<'a> ParserImpl<'a> {
     };
 
     let mut v_for_wrapper = VForWrapper::new(&ast);
+    let mut v_slot_wrapper = VSlotWrapper::new(&ast);
     let mut attributes = ast.vec();
     for prop in node.properties {
-      if let ElemProp::Dir(dir) = &prop
-        && dir.name == "for"
-      {
-        self.analyze_v_for(dir, &mut v_for_wrapper)?;
-      }
-
-      attributes.push(self.parse_attribute(prop)?);
+      attributes.push(self.parse_attribute(prop, &mut v_for_wrapper, &mut v_slot_wrapper)?);
     }
 
     let children = match children {
       Some(children) => children,
-      // TODO: Handle v-slot wrapper there
-      None => self.parse_children(open_element_span.end, end_element_span.start, node.children)?,
+      None => v_slot_wrapper.wrap(self.parse_children(
+        open_element_span.end,
+        end_element_span.start,
+        node.children,
+      )?),
     };
 
     Some(v_for_wrapper.wrap(ast.jsx_element(
@@ -369,7 +368,12 @@ impl<'a> ParserImpl<'a> {
     )))
   }
 
-  fn parse_attribute(&mut self, prop: ElemProp<'a>) -> Option<JSXAttributeItem<'a>> {
+  fn parse_attribute(
+    &mut self,
+    prop: ElemProp<'a>,
+    v_for_wrapper: &mut VForWrapper<'_, 'a>,
+    v_slot_wrapper: &mut VSlotWrapper<'_, 'a>,
+  ) -> Option<JSXAttributeItem<'a>> {
     let ast = self.ast;
     match prop {
       // For normal attributes, like <div class="w-100" />
@@ -394,41 +398,44 @@ impl<'a> ParserImpl<'a> {
       ElemProp::Dir(dir) => {
         let dir_start = dir.location.start.offset as u32;
         let dir_end = self.roffset(dir.location.end.offset) as u32;
+
+        let dir_name = self.parse_directive_name(&dir)?;
+        // Analyze v-slot and v-for, no matter whether there is an expression
+        if dir.name == "slot" {
+          self.analyze_v_slot(&dir, v_slot_wrapper, &dir_name)?;
+        } else if dir.name == "for" {
+          self.analyze_v_for(&dir, v_for_wrapper)?;
+        }
+        let attribute_value = if let Some(expr) = &dir.expression {
+          Some(ast.jsx_attribute_value_expression_container(
+            Span::new(expr.location.start.offset as u32 + 1, dir_end - 1),
+            // Use placeholder for v-for and v-slot
+            if matches!(dir.name, "for" | "slot") {
+              JSXExpression::EmptyExpression(ast.jsx_empty_expression(SPAN))
+            } else {
+              // For possible dynamic arguments
+              let expr = self.parse_expression(expr.content.raw, expr.location.start.offset)?;
+              self.parse_dynamic_argument(&dir, expr)?.into()
+            },
+          ))
+        } else if let Some(argument) = &dir.argument
+          && let DirectiveArg::Dynamic(_) = argument
+        {
+          // v-slot:[name]
+          Some(ast.jsx_attribute_value_expression_container(
+            SPAN,
+            self.parse_dynamic_argument(&dir, ast.expression_identifier(SPAN, "undefined"))?.into(),
+          ))
+        } else {
+          None
+        };
+
         Some(ast.jsx_attribute_item_attribute(
           Span::new(dir_start, dir_end),
           // Attribute Name
-          self.parse_directive_name(&dir)?,
+          dir_name,
           // Attribute Value
-          if let Some(expr) = &dir.expression {
-            if matches!(dir.name, "for" | "slot") {
-              Some(ast.jsx_attribute_value_expression_container(
-                expr.location.span(),
-                JSXExpression::EmptyExpression(ast.jsx_empty_expression(SPAN)),
-              ))
-            } else {
-              let expression =
-                self.parse_expression(expr.content.raw, expr.location.start.offset)?;
-
-              Some(ast.jsx_attribute_value_expression_container(
-                Span::new(expr.location.start.offset as u32 + 1, dir_end - 1),
-                self.parse_dynamic_argument(&dir, expression)?.into(),
-              ))
-            }
-          } else if let Some(argument) = &dir.argument
-            && let DirectiveArg::Dynamic(_) = argument
-          {
-            // v-slot:[name]
-            Some(
-              ast.jsx_attribute_value_expression_container(
-                SPAN,
-                self
-                  .parse_dynamic_argument(&dir, ast.expression_identifier(SPAN, "undefined"))?
-                  .into(),
-              ),
-            )
-          } else {
-            None
-          },
+          attribute_value,
         ))
       }
     }

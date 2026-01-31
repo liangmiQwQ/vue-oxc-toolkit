@@ -43,6 +43,7 @@ const fn is_warn(error: &CompilationError) -> bool {
       | CompilationErrorKind::IncorrectlyOpenedComment
       | CompilationErrorKind::AbruptClosingOfEmptyComment
       | CompilationErrorKind::MissingWhitespaceBetweenAttributes
+      | CompilationErrorKind::MissingDirectiveArg
   )
 }
 

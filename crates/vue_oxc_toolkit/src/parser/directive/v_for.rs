@@ -89,33 +89,31 @@ impl<'a, 'b> VForWrapper<'a, 'b> {
 
       ast.jsx_child_expression_container(
         SPAN,
-        JSXExpression::from(Expression::CallExpression(ast.alloc_call_expression(
+        JSXExpression::CallExpression(ast.alloc_call_expression(
           SPAN,
           Expression::ParenthesizedExpression(ast.alloc(data_origin)),
           NONE,
-          self.ast.vec1(Argument::from(Expression::ArrowFunctionExpression(
-            ast.alloc_arrow_function_expression(
+          self.ast.vec1(Argument::ArrowFunctionExpression(ast.alloc_arrow_function_expression(
+            SPAN,
+            true,
+            false,
+            NONE,
+            params,
+            NONE,
+            ast.function_body(
               SPAN,
-              true,
-              false,
-              NONE,
-              params,
-              NONE,
-              ast.function_body(
+              ast.vec(),
+              ast.vec1(Statement::ExpressionStatement(ast.alloc_expression_statement(
                 SPAN,
-                ast.vec(),
-                ast.vec1(Statement::ExpressionStatement(ast.alloc_expression_statement(
+                Expression::ParenthesizedExpression(ast.alloc_parenthesized_expression(
                   SPAN,
-                  Expression::ParenthesizedExpression(ast.alloc_parenthesized_expression(
-                    SPAN,
-                    Expression::JSXElement(self.ast.alloc(element)),
-                  )),
-                ))),
-              ),
+                  Expression::JSXElement(self.ast.alloc(element)),
+                )),
+              ))),
             ),
           ))),
           false,
-        ))),
+        )),
       )
     } else {
       JSXChild::Element(self.ast.alloc(element))
@@ -140,47 +138,10 @@ impl<'b> VForWrapper<'_, 'b> {
 #[cfg(test)]
 mod tests {
   use crate::test_ast;
-  use oxc_ast::ast::{CallExpression, Expression};
-  use oxc_ast_visit::Visit;
-
-  struct VForVisitor<'a> {
-    source_text: &'a str,
-    results: Vec<String>,
-  }
-
-  impl<'b> Visit<'b> for VForVisitor<'_> {
-    fn visit_call_expression(&mut self, expr: &CallExpression<'b>) {
-      if let Expression::ParenthesizedExpression(p) = &expr.callee
-        && let Expression::Identifier(id) = &p.expression
-        && let Some(arg) = expr.arguments.first()
-        && let Some(Expression::ArrowFunctionExpression(arrow)) = arg.as_expression()
-      {
-        let data_origin = id.span.source_text(self.source_text);
-        let params = if arrow.params.span.is_empty() {
-          arrow.params.items[0].span.source_text(self.source_text)
-        } else {
-          arrow.params.span.source_text(self.source_text)
-        };
-        self.results.push(format!("data_origin: {data_origin}\nparam: {params}\n"));
-      }
-      oxc_ast_visit::walk::walk_call_expression(self, expr);
-    }
-  }
-
-  macro_rules! test_v_for {
-    ($file_path:expr) => {{
-      $crate::test::run_test($file_path, "ast/v_for", |ret| {
-        let mut visitor = VForVisitor { source_text: ret.program.source_text, results: vec![] };
-        visitor.visit_program(&ret.program);
-        visitor.results.join("\n")
-      });
-    }};
-  }
 
   #[test]
   fn v_for() {
     test_ast!("directive/v-for.vue");
-    test_v_for!("directive/v-for.vue");
   }
 
   #[test]

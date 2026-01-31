@@ -1,7 +1,10 @@
 use crate::parser::ParserImpl;
 pub use crate::parser::ParserImplReturn;
 use oxc_allocator::Allocator;
+use oxc_ast::ast::Program;
+use oxc_ast_visit::Visit;
 use oxc_parser::ParseOptions;
+use oxc_span::{GetSpan, Span};
 
 #[macro_export]
 macro_rules! test_ast {
@@ -12,8 +15,13 @@ macro_rules! test_ast {
     $crate::test::run_test($file_path, "ast", |ret| {
       use oxc_codegen::Codegen;
       let js = Codegen::new().build(&ret.program);
+      let source_text = $crate::test::read_file($file_path);
+      let node_locations = $crate::test::format_node_locations(&ret.program, &source_text);
       assert_eq!(ret.fatal, $should_panic);
-      format!("Program: {:#?}\nErrors: {:#?}\nJS: {}", ret.program, ret.errors, js.code)
+      format!(
+        "Program: {:#?}\nErrors: {:#?}\nJS: {}\n{}",
+        ret.program, ret.errors, js.code, node_locations
+      )
     });
   }};
 }
@@ -49,4 +57,59 @@ where
 
 pub fn read_file(file_path: &str) -> String {
   std::fs::read_to_string(format!("fixtures/{file_path}")).expect("Failed to read test file")
+}
+
+fn format_string_slice(s: &str) -> String {
+  if s.len() <= 80 {
+    s.to_string()
+  } else {
+    let chars: Vec<char> = s.chars().collect();
+    let start: String = chars.iter().take(40).collect();
+    let end: String = chars.iter().rev().take(40).rev().collect();
+    format!("{start}..[OMIT]..{end}")
+  }
+}
+
+struct NodeLocationCollector<'a> {
+  source_text: &'a str,
+  locations: Vec<(Span, String, String)>,
+}
+
+impl<'a> NodeLocationCollector<'a> {
+  fn new(source_text: &'a str) -> Self {
+    Self { source_text, locations: Vec::new() }
+  }
+
+  fn add_span(&mut self, span: Span, kind: String) {
+    let start = span.start as usize;
+    let end = span.end as usize;
+    if !span.is_empty() {
+      let slice = &self.source_text[start..end];
+      let formatted_slice = format_string_slice(slice);
+      let kind = match memchr::memchr(b'(', kind.as_bytes()) {
+        Some(index) => kind[..index].to_owned(),
+        None => kind,
+      };
+      self.locations.push((span, formatted_slice, kind));
+    }
+  }
+}
+
+impl<'a> Visit<'a> for NodeLocationCollector<'a> {
+  fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
+    self.add_span(kind.span(), format!("{:?}", kind));
+  }
+}
+
+pub fn format_node_locations(program: &Program, source_text: &str) -> String {
+  let mut collector = NodeLocationCollector::new(source_text);
+  collector.visit_program(program);
+
+  let mut result = String::from("Node Locations:\n");
+  for (span, slice, kind) in collector.locations {
+    let start = span.start;
+    let end = span.end;
+    result.push_str(&format!("Slice: {:?}; \nSpan: ({start}, {end}); \nType: {kind}; \n\n", slice));
+  }
+  result
 }

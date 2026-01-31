@@ -536,3 +536,144 @@ JS: <><template>
 }}</script>
 
 </>;
+
+Node Locations:
+Slice: "<template>\n  <div></div>\n</template>\n\n<s..[OMIT].. 1, c = 1 };\n</script>\n\n<style></style>\n"; 
+Span: (0, 118); 
+Type: Program; 
+
+Slice: "<template>\n  <div></div>\n</template>"; 
+Span: (0, 36); 
+Type: JSXElement; 
+
+Slice: "<template>"; 
+Span: (0, 10); 
+Type: JSXOpeningElement; 
+
+Slice: "template"; 
+Span: (1, 9); 
+Type: JSXIdentifier; 
+
+Slice: "\n  "; 
+Span: (10, 13); 
+Type: JSXText; 
+
+Slice: "<div></div>"; 
+Span: (13, 24); 
+Type: JSXElement; 
+
+Slice: "<div>"; 
+Span: (13, 18); 
+Type: JSXOpeningElement; 
+
+Slice: "div"; 
+Span: (14, 17); 
+Type: JSXIdentifier; 
+
+Slice: "</div>"; 
+Span: (18, 24); 
+Type: JSXClosingElement; 
+
+Slice: "div"; 
+Span: (20, 23); 
+Type: JSXIdentifier; 
+
+Slice: "\n"; 
+Span: (24, 25); 
+Type: JSXText; 
+
+Slice: "</template>"; 
+Span: (25, 36); 
+Type: JSXClosingElement; 
+
+Slice: "template"; 
+Span: (27, 35); 
+Type: JSXIdentifier; 
+
+Slice: "\n\n"; 
+Span: (36, 38); 
+Type: JSXText; 
+
+Slice: "<script lang=\"ts\" setup>\nconst a = { b = 1, c = 1 };\n</script>"; 
+Span: (38, 100); 
+Type: JSXElement; 
+
+Slice: "<script lang=\"ts\" setup>"; 
+Span: (38, 62); 
+Type: JSXOpeningElement; 
+
+Slice: "script"; 
+Span: (39, 45); 
+Type: JSXIdentifier; 
+
+Slice: "lang=\"ts\""; 
+Span: (46, 55); 
+Type: JSXAttribute; 
+
+Slice: "lang"; 
+Span: (46, 50); 
+Type: JSXIdentifier; 
+
+Slice: "ts"; 
+Span: (52, 54); 
+Type: StringLiteral; 
+
+Slice: "setup"; 
+Span: (56, 61); 
+Type: JSXAttribute; 
+
+Slice: "setup"; 
+Span: (56, 61); 
+Type: JSXIdentifier; 
+
+Slice: "const a = { b = 1, c = 1 };"; 
+Span: (63, 90); 
+Type: VariableDeclaration; 
+
+Slice: "a = { b = 1, c = 1 }"; 
+Span: (69, 89); 
+Type: VariableDeclarator; 
+
+Slice: "a"; 
+Span: (69, 70); 
+Type: BindingIdentifier; 
+
+Slice: "{ b = 1, c = 1 }"; 
+Span: (73, 89); 
+Type: ObjectExpression; 
+
+Slice: "b = 1"; 
+Span: (75, 80); 
+Type: ObjectProperty; 
+
+Slice: "b"; 
+Span: (75, 76); 
+Type: IdentifierName; 
+
+Slice: "b"; 
+Span: (75, 76); 
+Type: IdentifierReference; 
+
+Slice: "c = 1"; 
+Span: (82, 87); 
+Type: ObjectProperty; 
+
+Slice: "c"; 
+Span: (82, 83); 
+Type: IdentifierName; 
+
+Slice: "c"; 
+Span: (82, 83); 
+Type: IdentifierReference; 
+
+Slice: "</script>"; 
+Span: (91, 100); 
+Type: JSXClosingElement; 
+
+Slice: "script"; 
+Span: (93, 99); 
+Type: JSXIdentifier; 
+
+Slice: "\n\n"; 
+Span: (100, 102); 
+Type: JSXText;

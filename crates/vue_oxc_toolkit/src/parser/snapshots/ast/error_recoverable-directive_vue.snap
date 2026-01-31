@@ -590,3 +590,168 @@ JS: <><template>
 <script lang="ts" setup>{() => {}}</script>
 
 </>;
+
+Node Locations:
+Slice: "<template>\n  <div :key=\"() => { return {..[OMIT]..g=\"ts\" setup></script>\n\n<style></style>\n"; 
+Span: (0, 129); 
+Type: Program; 
+
+Slice: "<template>\n  <div :key=\"() => { return { a =1, b = 1 } }\"></div>\n</template>"; 
+Span: (0, 76); 
+Type: JSXElement; 
+
+Slice: "<template>"; 
+Span: (0, 10); 
+Type: JSXOpeningElement; 
+
+Slice: "template"; 
+Span: (1, 9); 
+Type: JSXIdentifier; 
+
+Slice: "\n  "; 
+Span: (10, 13); 
+Type: JSXText; 
+
+Slice: "<div :key=\"() => { return { a =1, b = 1 } }\"></div>"; 
+Span: (13, 64); 
+Type: JSXElement; 
+
+Slice: "<div :key=\"() => { return { a =1, b = 1 } }\">"; 
+Span: (13, 58); 
+Type: JSXOpeningElement; 
+
+Slice: "div"; 
+Span: (14, 17); 
+Type: JSXIdentifier; 
+
+Slice: ":key=\"() => { return { a =1, b = 1 } }\""; 
+Span: (18, 57); 
+Type: JSXAttribute; 
+
+Slice: ":key"; 
+Span: (18, 22); 
+Type: JSXNamespacedName; 
+
+Slice: ":"; 
+Span: (18, 19); 
+Type: JSXIdentifier; 
+
+Slice: "key"; 
+Span: (19, 22); 
+Type: JSXIdentifier; 
+
+Slice: "() => { return { a =1, b = 1 } }"; 
+Span: (24, 56); 
+Type: JSXExpressionContainer; 
+
+Slice: "\"() => { return { a =1, b = 1 } "; 
+Span: (23, 55); 
+Type: ArrowFunctionExpression; 
+
+Slice: "\"("; 
+Span: (23, 25); 
+Type: FormalParameters; 
+
+Slice: " { return { a =1, b = 1 } "; 
+Span: (29, 55); 
+Type: FunctionBody; 
+
+Slice: " return { a =1, b = 1 "; 
+Span: (31, 53); 
+Type: ReturnStatement; 
+
+Slice: " { a =1, b = 1 "; 
+Span: (38, 53); 
+Type: ObjectExpression; 
+
+Slice: " a ="; 
+Span: (40, 44); 
+Type: ObjectProperty; 
+
+Slice: " "; 
+Span: (40, 41); 
+Type: IdentifierName; 
+
+Slice: " "; 
+Span: (40, 41); 
+Type: IdentifierReference; 
+
+Slice: " b = "; 
+Span: (46, 51); 
+Type: ObjectProperty; 
+
+Slice: " "; 
+Span: (46, 47); 
+Type: IdentifierName; 
+
+Slice: " "; 
+Span: (46, 47); 
+Type: IdentifierReference; 
+
+Slice: "</div>"; 
+Span: (58, 64); 
+Type: JSXClosingElement; 
+
+Slice: "div"; 
+Span: (60, 63); 
+Type: JSXIdentifier; 
+
+Slice: "\n"; 
+Span: (64, 65); 
+Type: JSXText; 
+
+Slice: "</template>"; 
+Span: (65, 76); 
+Type: JSXClosingElement; 
+
+Slice: "template"; 
+Span: (67, 75); 
+Type: JSXIdentifier; 
+
+Slice: "\n\n"; 
+Span: (76, 78); 
+Type: JSXText; 
+
+Slice: "<script lang=\"ts\" setup></script>"; 
+Span: (78, 111); 
+Type: JSXElement; 
+
+Slice: "<script lang=\"ts\" setup>"; 
+Span: (78, 102); 
+Type: JSXOpeningElement; 
+
+Slice: "script"; 
+Span: (79, 85); 
+Type: JSXIdentifier; 
+
+Slice: "lang=\"ts\""; 
+Span: (86, 95); 
+Type: JSXAttribute; 
+
+Slice: "lang"; 
+Span: (86, 90); 
+Type: JSXIdentifier; 
+
+Slice: "ts"; 
+Span: (92, 94); 
+Type: StringLiteral; 
+
+Slice: "setup"; 
+Span: (96, 101); 
+Type: JSXAttribute; 
+
+Slice: "setup"; 
+Span: (96, 101); 
+Type: JSXIdentifier; 
+
+Slice: "</script>"; 
+Span: (102, 111); 
+Type: JSXClosingElement; 
+
+Slice: "script"; 
+Span: (104, 110); 
+Type: JSXIdentifier; 
+
+Slice: "\n\n"; 
+Span: (111, 113); 
+Type: JSXText;

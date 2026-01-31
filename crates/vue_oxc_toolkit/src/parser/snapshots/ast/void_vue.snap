@@ -283,3 +283,80 @@ JS: <><template>
   <input />
   <img /></img>
 </template></>;
+
+Node Locations:
+Slice: "<template>\n  <br>\n  <input />\n  <img></img>\n</template>\n"; 
+Span: (0, 56); 
+Type: Program; 
+
+Slice: "<template>\n  <br>\n  <input />\n  <img></img>\n</template>"; 
+Span: (0, 55); 
+Type: JSXElement; 
+
+Slice: "<template>"; 
+Span: (0, 10); 
+Type: JSXOpeningElement; 
+
+Slice: "template"; 
+Span: (1, 9); 
+Type: JSXIdentifier; 
+
+Slice: "\n  "; 
+Span: (10, 13); 
+Type: JSXText; 
+
+Slice: "<br>"; 
+Span: (13, 17); 
+Type: JSXElement; 
+
+Slice: "<br>"; 
+Span: (13, 17); 
+Type: JSXOpeningElement; 
+
+Slice: "br"; 
+Span: (14, 16); 
+Type: JSXIdentifier; 
+
+Slice: "\n  "; 
+Span: (17, 20); 
+Type: JSXText; 
+
+Slice: "<input />"; 
+Span: (20, 29); 
+Type: JSXElement; 
+
+Slice: "<input "; 
+Span: (20, 27); 
+Type: JSXOpeningElement; 
+
+Slice: "input"; 
+Span: (21, 26); 
+Type: JSXIdentifier; 
+
+Slice: "\n  "; 
+Span: (29, 32); 
+Type: JSXText; 
+
+Slice: "<img>"; 
+Span: (32, 37); 
+Type: JSXElement; 
+
+Slice: "<img>"; 
+Span: (32, 37); 
+Type: JSXOpeningElement; 
+
+Slice: "img"; 
+Span: (33, 36); 
+Type: JSXIdentifier; 
+
+Slice: "</img>\n"; 
+Span: (37, 44); 
+Type: JSXText; 
+
+Slice: "</template>"; 
+Span: (44, 55); 
+Type: JSXClosingElement; 
+
+Slice: "template"; 
+Span: (46, 54); 
+Type: JSXIdentifier;

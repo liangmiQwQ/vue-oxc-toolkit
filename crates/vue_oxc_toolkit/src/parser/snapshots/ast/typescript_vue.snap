@@ -592,3 +592,192 @@ JS: <><script lang="ts" setup>{() => {
   <div>{a.msg}</div>
   <div> I think 1 < 2, isn't it? </div>
 </template></>;
+
+Node Locations:
+Slice: "<script lang=\"ts\" setup>\nconst a = someF..[OMIT]..ink 1 < 2, isn't it? </div>\n</template>\n"; 
+Span: (0, 161); 
+Type: Program; 
+
+Slice: "<script lang=\"ts\" setup>\nconst a = someFunction<{ msg: 1 }>()\n</script>"; 
+Span: (0, 71); 
+Type: JSXElement; 
+
+Slice: "<script lang=\"ts\" setup>"; 
+Span: (0, 24); 
+Type: JSXOpeningElement; 
+
+Slice: "script"; 
+Span: (1, 7); 
+Type: JSXIdentifier; 
+
+Slice: "lang=\"ts\""; 
+Span: (8, 17); 
+Type: JSXAttribute; 
+
+Slice: "lang"; 
+Span: (8, 12); 
+Type: JSXIdentifier; 
+
+Slice: "ts"; 
+Span: (14, 16); 
+Type: StringLiteral; 
+
+Slice: "setup"; 
+Span: (18, 23); 
+Type: JSXAttribute; 
+
+Slice: "setup"; 
+Span: (18, 23); 
+Type: JSXIdentifier; 
+
+Slice: "const a = someFunction<{ msg: 1 }>()"; 
+Span: (25, 61); 
+Type: VariableDeclaration; 
+
+Slice: "a = someFunction<{ msg: 1 }>()"; 
+Span: (31, 61); 
+Type: VariableDeclarator; 
+
+Slice: "a"; 
+Span: (31, 32); 
+Type: BindingIdentifier; 
+
+Slice: "someFunction<{ msg: 1 }>()"; 
+Span: (35, 61); 
+Type: CallExpression; 
+
+Slice: "someFunction"; 
+Span: (35, 47); 
+Type: IdentifierReference; 
+
+Slice: "<{ msg: 1 }>"; 
+Span: (47, 59); 
+Type: TSTypeParameterInstantiation; 
+
+Slice: "{ msg: 1 }"; 
+Span: (48, 58); 
+Type: TSTypeLiteral; 
+
+Slice: "msg: 1"; 
+Span: (50, 56); 
+Type: TSPropertySignature; 
+
+Slice: "msg"; 
+Span: (50, 53); 
+Type: IdentifierName; 
+
+Slice: ": 1"; 
+Span: (53, 56); 
+Type: TSTypeAnnotation; 
+
+Slice: "1"; 
+Span: (55, 56); 
+Type: TSLiteralType; 
+
+Slice: "1"; 
+Span: (55, 56); 
+Type: NumericLiteral; 
+
+Slice: "</script>"; 
+Span: (62, 71); 
+Type: JSXClosingElement; 
+
+Slice: "script"; 
+Span: (64, 70); 
+Type: JSXIdentifier; 
+
+Slice: "\n\n"; 
+Span: (71, 73); 
+Type: JSXText; 
+
+Slice: "<template>\n  <div>{{ a.msg }}</div>\n  <d..[OMIT]..hink 1 < 2, isn't it? </div>\n</template>"; 
+Span: (73, 160); 
+Type: JSXElement; 
+
+Slice: "<template>"; 
+Span: (73, 83); 
+Type: JSXOpeningElement; 
+
+Slice: "template"; 
+Span: (74, 82); 
+Type: JSXIdentifier; 
+
+Slice: "\n  "; 
+Span: (83, 86); 
+Type: JSXText; 
+
+Slice: "<div>{{ a.msg }}</div>"; 
+Span: (86, 108); 
+Type: JSXElement; 
+
+Slice: "<div>"; 
+Span: (86, 91); 
+Type: JSXOpeningElement; 
+
+Slice: "div"; 
+Span: (87, 90); 
+Type: JSXIdentifier; 
+
+Slice: "{ a.msg }"; 
+Span: (92, 101); 
+Type: JSXExpressionContainer; 
+
+Slice: " a.ms"; 
+Span: (93, 98); 
+Type: StaticMemberExpression; 
+
+Slice: " "; 
+Span: (93, 94); 
+Type: IdentifierReference; 
+
+Slice: ".ms"; 
+Span: (95, 98); 
+Type: IdentifierName; 
+
+Slice: "</div>"; 
+Span: (102, 108); 
+Type: JSXClosingElement; 
+
+Slice: "div"; 
+Span: (104, 107); 
+Type: JSXIdentifier; 
+
+Slice: "\n  "; 
+Span: (108, 111); 
+Type: JSXText; 
+
+Slice: "<div> I think 1 < 2, isn't it? </div>"; 
+Span: (111, 148); 
+Type: JSXElement; 
+
+Slice: "<div>"; 
+Span: (111, 116); 
+Type: JSXOpeningElement; 
+
+Slice: "div"; 
+Span: (112, 115); 
+Type: JSXIdentifier; 
+
+Slice: " I think 1 < 2, isn't it? "; 
+Span: (116, 142); 
+Type: JSXText; 
+
+Slice: "</div>"; 
+Span: (142, 148); 
+Type: JSXClosingElement; 
+
+Slice: "div"; 
+Span: (144, 147); 
+Type: JSXIdentifier; 
+
+Slice: "\n"; 
+Span: (148, 149); 
+Type: JSXText; 
+
+Slice: "</template>"; 
+Span: (149, 160); 
+Type: JSXClosingElement; 
+
+Slice: "template"; 
+Span: (151, 159); 
+Type: JSXIdentifier;

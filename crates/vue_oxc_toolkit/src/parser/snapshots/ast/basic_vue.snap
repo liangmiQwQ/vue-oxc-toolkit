@@ -456,3 +456,136 @@ JS: <><template>
 }}</script>
 
 </>;
+
+Node Locations:
+Slice: "<template>\n  <div>\n    {{ count }}\n  </d..[OMIT]..t count = 1;\n</script>\n\n<style></style>\n"; 
+Span: (0, 126); 
+Type: Program; 
+
+Slice: "<template>\n  <div>\n    {{ count }}\n  </div>\n</template>"; 
+Span: (0, 55); 
+Type: JSXElement; 
+
+Slice: "<template>"; 
+Span: (0, 10); 
+Type: JSXOpeningElement; 
+
+Slice: "template"; 
+Span: (1, 9); 
+Type: JSXIdentifier; 
+
+Slice: "\n  "; 
+Span: (10, 13); 
+Type: JSXText; 
+
+Slice: "<div>\n    {{ count }}\n  </div>"; 
+Span: (13, 43); 
+Type: JSXElement; 
+
+Slice: "<div>"; 
+Span: (13, 18); 
+Type: JSXOpeningElement; 
+
+Slice: "div"; 
+Span: (14, 17); 
+Type: JSXIdentifier; 
+
+Slice: "\n    "; 
+Span: (18, 23); 
+Type: JSXText; 
+
+Slice: "{ count }"; 
+Span: (24, 33); 
+Type: JSXExpressionContainer; 
+
+Slice: " coun"; 
+Span: (25, 30); 
+Type: IdentifierReference; 
+
+Slice: "\n  "; 
+Span: (34, 37); 
+Type: JSXText; 
+
+Slice: "</div>"; 
+Span: (37, 43); 
+Type: JSXClosingElement; 
+
+Slice: "div"; 
+Span: (39, 42); 
+Type: JSXIdentifier; 
+
+Slice: "\n"; 
+Span: (43, 44); 
+Type: JSXText; 
+
+Slice: "</template>"; 
+Span: (44, 55); 
+Type: JSXClosingElement; 
+
+Slice: "template"; 
+Span: (46, 54); 
+Type: JSXIdentifier; 
+
+Slice: "\n\n"; 
+Span: (55, 57); 
+Type: JSXText; 
+
+Slice: "<script lang=\"js\" setup>\nconst count = 1;\n</script>"; 
+Span: (57, 108); 
+Type: JSXElement; 
+
+Slice: "<script lang=\"js\" setup>"; 
+Span: (57, 81); 
+Type: JSXOpeningElement; 
+
+Slice: "script"; 
+Span: (58, 64); 
+Type: JSXIdentifier; 
+
+Slice: "lang=\"js\""; 
+Span: (65, 74); 
+Type: JSXAttribute; 
+
+Slice: "lang"; 
+Span: (65, 69); 
+Type: JSXIdentifier; 
+
+Slice: "js"; 
+Span: (71, 73); 
+Type: StringLiteral; 
+
+Slice: "setup"; 
+Span: (75, 80); 
+Type: JSXAttribute; 
+
+Slice: "setup"; 
+Span: (75, 80); 
+Type: JSXIdentifier; 
+
+Slice: "const count = 1;"; 
+Span: (82, 98); 
+Type: VariableDeclaration; 
+
+Slice: "count = 1"; 
+Span: (88, 97); 
+Type: VariableDeclarator; 
+
+Slice: "count"; 
+Span: (88, 93); 
+Type: BindingIdentifier; 
+
+Slice: "1"; 
+Span: (96, 97); 
+Type: NumericLiteral; 
+
+Slice: "</script>"; 
+Span: (99, 108); 
+Type: JSXClosingElement; 
+
+Slice: "script"; 
+Span: (101, 107); 
+Type: JSXIdentifier; 
+
+Slice: "\n\n"; 
+Span: (108, 110); 
+Type: JSXText;
