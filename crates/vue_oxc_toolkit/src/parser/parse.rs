@@ -496,10 +496,7 @@ impl<'a> ParserImpl<'a> {
         CommentKind::SingleLineBlock
       },
     ));
-    ast.jsx_child_expression_container(
-      span,
-      ast.jsx_expression_empty_expression(Span::new(span.start + 1, span.end - 1)),
-    )
+    ast.jsx_child_expression_container(span, ast.jsx_expression_empty_expression(SPAN))
   }
 
   fn parse_interpolation(&mut self, introp: &SourceNode<'a>) -> Option<JSXChild<'a>> {

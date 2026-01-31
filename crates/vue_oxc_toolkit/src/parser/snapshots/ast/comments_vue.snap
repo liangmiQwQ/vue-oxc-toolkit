@@ -245,8 +245,8 @@ Program: Program {
                                                                             expression: EmptyExpression(
                                                                                 JSXEmptyExpression {
                                                                                     span: Span {
-                                                                                        start: 60,
-                                                                                        end: 79,
+                                                                                        start: 0,
+                                                                                        end: 0,
                                                                                     },
                                                                                 },
                                                                             ),
@@ -694,10 +694,6 @@ Type: NumericLiteral;
 Slice: "<!-- Good Morning -->"; 
 Span: (59, 80); 
 Type: JSXExpressionContainer; 
-
-Slice: "!-- Good Morning --"; 
-Span: (60, 79); 
-Type: JSXEmptyExpression; 
 
 Slice: "</div>"; 
 Span: (83, 89); 
