@@ -815,3 +815,256 @@ JS: <><template>
   <input v-model:={text} />
   <Some v-bind:some.none={1} />
 </template></>;
+
+Node Locations:
+Slice: "<template>\n  <div :class=\"'w-100'\" />\n  ..[OMIT]..ome v-bind:some.none=\"1\" />\n</template>\n"; 
+Span: (0, 159); 
+Type: Program; 
+
+Slice: "<template>\n  <div :class=\"'w-100'\" />\n  ..[OMIT]..Some v-bind:some.none=\"1\" />\n</template>"; 
+Span: (0, 158); 
+Type: JSXElement; 
+
+Slice: "<template>"; 
+Span: (0, 10); 
+Type: JSXOpeningElement; 
+
+Slice: "template"; 
+Span: (1, 9); 
+Type: JSXIdentifier; 
+
+Slice: "\n  "; 
+Span: (10, 13); 
+Type: JSXText; 
+
+Slice: "<div :class=\"'w-100'\" />"; 
+Span: (13, 37); 
+Type: JSXElement; 
+
+Slice: "<div :class=\"'w-100'\" /"; 
+Span: (13, 36); 
+Type: JSXOpeningElement; 
+
+Slice: "div"; 
+Span: (14, 17); 
+Type: JSXIdentifier; 
+
+Slice: ":class=\"'w-100'\""; 
+Span: (18, 34); 
+Type: JSXAttribute; 
+
+Slice: ":class"; 
+Span: (18, 24); 
+Type: JSXNamespacedName; 
+
+Slice: ":"; 
+Span: (18, 19); 
+Type: JSXIdentifier; 
+
+Slice: "class"; 
+Span: (19, 24); 
+Type: JSXIdentifier; 
+
+Slice: "'w-100'"; 
+Span: (26, 33); 
+Type: JSXExpressionContainer; 
+
+Slice: "\"'w-100"; 
+Span: (25, 32); 
+Type: StringLiteral; 
+
+Slice: "\n  "; 
+Span: (37, 40); 
+Type: JSXText; 
+
+Slice: "<div :[some]=\"2\" />"; 
+Span: (40, 59); 
+Type: JSXElement; 
+
+Slice: "<div :[some]=\"2\" /"; 
+Span: (40, 58); 
+Type: JSXOpeningElement; 
+
+Slice: "div"; 
+Span: (41, 44); 
+Type: JSXIdentifier; 
+
+Slice: ":[some]=\"2\""; 
+Span: (45, 56); 
+Type: JSXAttribute; 
+
+Slice: ":[some]"; 
+Span: (45, 52); 
+Type: JSXNamespacedName; 
+
+Slice: ":"; 
+Span: (45, 46); 
+Type: JSXIdentifier; 
+
+Slice: "[some]"; 
+Span: (46, 52); 
+Type: JSXIdentifier; 
+
+Slice: "2"; 
+Span: (54, 55); 
+Type: JSXExpressionContainer; 
+
+Slice: "[som"; 
+Span: (46, 50); 
+Type: IdentifierReference; 
+
+Slice: "\""; 
+Span: (53, 54); 
+Type: NumericLiteral; 
+
+Slice: "\n  "; 
+Span: (59, 62); 
+Type: JSXText; 
+
+Slice: "<Some #default=\"{ a }\" />"; 
+Span: (62, 87); 
+Type: JSXElement; 
+
+Slice: "<Some #default=\"{ a }\" /"; 
+Span: (62, 86); 
+Type: JSXOpeningElement; 
+
+Slice: "Some"; 
+Span: (63, 67); 
+Type: JSXIdentifier; 
+
+Slice: "#default=\"{ a }\""; 
+Span: (68, 84); 
+Type: JSXAttribute; 
+
+Slice: "#default"; 
+Span: (68, 76); 
+Type: JSXNamespacedName; 
+
+Slice: "#"; 
+Span: (68, 69); 
+Type: JSXIdentifier; 
+
+Slice: "default"; 
+Span: (69, 76); 
+Type: JSXIdentifier; 
+
+Slice: "{ a }"; 
+Span: (78, 83); 
+Type: JSXExpressionContainer; 
+
+Slice: "#defaul"; 
+Span: (68, 75); 
+Type: IdentifierName; 
+
+Slice: "\"{ a }\""; 
+Span: (77, 84); 
+Type: FormalParameters; 
+
+Slice: "{ a }"; 
+Span: (78, 83); 
+Type: FormalParameter; 
+
+Slice: "{ a }"; 
+Span: (78, 83); 
+Type: ObjectPattern; 
+
+Slice: "a"; 
+Span: (80, 81); 
+Type: BindingProperty; 
+
+Slice: "a"; 
+Span: (80, 81); 
+Type: IdentifierName; 
+
+Slice: "a"; 
+Span: (80, 81); 
+Type: BindingIdentifier; 
+
+Slice: "\n  "; 
+Span: (87, 90); 
+Type: JSXText; 
+
+Slice: "<input v-model=\"text\" />"; 
+Span: (90, 114); 
+Type: JSXElement; 
+
+Slice: "<input v-model=\"text\" /"; 
+Span: (90, 113); 
+Type: JSXOpeningElement; 
+
+Slice: "input"; 
+Span: (91, 96); 
+Type: JSXIdentifier; 
+
+Slice: "v-model=\"text\""; 
+Span: (97, 111); 
+Type: JSXAttribute; 
+
+Slice: "v-model"; 
+Span: (97, 104); 
+Type: JSXNamespacedName; 
+
+Slice: "v-model"; 
+Span: (97, 104); 
+Type: JSXIdentifier; 
+
+Slice: "text"; 
+Span: (106, 110); 
+Type: JSXExpressionContainer; 
+
+Slice: "\"tex"; 
+Span: (105, 109); 
+Type: IdentifierReference; 
+
+Slice: "\n  "; 
+Span: (114, 117); 
+Type: JSXText; 
+
+Slice: "<Some v-bind:some.none=\"1\" />"; 
+Span: (117, 146); 
+Type: JSXElement; 
+
+Slice: "<Some v-bind:some.none=\"1\" /"; 
+Span: (117, 145); 
+Type: JSXOpeningElement; 
+
+Slice: "Some"; 
+Span: (118, 122); 
+Type: JSXIdentifier; 
+
+Slice: "v-bind:some.none=\"1\""; 
+Span: (123, 143); 
+Type: JSXAttribute; 
+
+Slice: "v-bind:some.none"; 
+Span: (123, 139); 
+Type: JSXNamespacedName; 
+
+Slice: "v-bind"; 
+Span: (123, 129); 
+Type: JSXIdentifier; 
+
+Slice: "some.none"; 
+Span: (130, 139); 
+Type: JSXIdentifier; 
+
+Slice: "1"; 
+Span: (141, 142); 
+Type: JSXExpressionContainer; 
+
+Slice: "\""; 
+Span: (140, 141); 
+Type: NumericLiteral; 
+
+Slice: "\n"; 
+Span: (146, 147); 
+Type: JSXText; 
+
+Slice: "</template>"; 
+Span: (147, 158); 
+Type: JSXClosingElement; 
+
+Slice: "template"; 
+Span: (149, 157); 
+Type: JSXIdentifier;

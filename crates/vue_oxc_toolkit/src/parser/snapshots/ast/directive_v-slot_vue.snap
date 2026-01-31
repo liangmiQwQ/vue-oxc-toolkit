@@ -2442,3 +2442,600 @@ JS: <><template>
     {user.name}
   </> }}</Comp>
 </template></>;
+
+Node Locations:
+Slice: "<template>\n  <Comp #=\"{ message }\"></Com..[OMIT]..  {{ user.name }}\n  </Comp>\n</template>\n"; 
+Span: (0, 412); 
+Type: Program; 
+
+Slice: "<template>\n  <Comp #=\"{ message }\"></Com..[OMIT]..   {{ user.name }}\n  </Comp>\n</template>"; 
+Span: (0, 411); 
+Type: JSXElement; 
+
+Slice: "<template>"; 
+Span: (0, 10); 
+Type: JSXOpeningElement; 
+
+Slice: "template"; 
+Span: (1, 9); 
+Type: JSXIdentifier; 
+
+Slice: "\n  "; 
+Span: (10, 13); 
+Type: JSXText; 
+
+Slice: "<Comp #=\"{ message }\"></Comp>"; 
+Span: (13, 42); 
+Type: JSXElement; 
+
+Slice: "<Comp #=\"{ message }\">"; 
+Span: (13, 35); 
+Type: JSXOpeningElement; 
+
+Slice: "Comp"; 
+Span: (14, 18); 
+Type: JSXIdentifier; 
+
+Slice: "#=\"{ message }\""; 
+Span: (19, 34); 
+Type: JSXAttribute; 
+
+Slice: "#"; 
+Span: (19, 20); 
+Type: JSXNamespacedName; 
+
+Slice: "#"; 
+Span: (19, 20); 
+Type: JSXIdentifier; 
+
+Slice: "{ message }"; 
+Span: (22, 33); 
+Type: JSXExpressionContainer; 
+
+Slice: "\"{ message }\""; 
+Span: (21, 34); 
+Type: FormalParameters; 
+
+Slice: "{ message }"; 
+Span: (22, 33); 
+Type: FormalParameter; 
+
+Slice: "{ message }"; 
+Span: (22, 33); 
+Type: ObjectPattern; 
+
+Slice: "message"; 
+Span: (24, 31); 
+Type: BindingProperty; 
+
+Slice: "message"; 
+Span: (24, 31); 
+Type: IdentifierName; 
+
+Slice: "message"; 
+Span: (24, 31); 
+Type: BindingIdentifier; 
+
+Slice: "</Comp>"; 
+Span: (35, 42); 
+Type: JSXClosingElement; 
+
+Slice: "Comp"; 
+Span: (37, 41); 
+Type: JSXIdentifier; 
+
+Slice: "\n  "; 
+Span: (42, 45); 
+Type: JSXText; 
+
+Slice: "<Comp #header=\"{ message }\">\n    {{ message }}\n  </Comp>"; 
+Span: (45, 101); 
+Type: JSXElement; 
+
+Slice: "<Comp #header=\"{ message }\">"; 
+Span: (45, 73); 
+Type: JSXOpeningElement; 
+
+Slice: "Comp"; 
+Span: (46, 50); 
+Type: JSXIdentifier; 
+
+Slice: "#header=\"{ message }\""; 
+Span: (51, 72); 
+Type: JSXAttribute; 
+
+Slice: "#header"; 
+Span: (51, 58); 
+Type: JSXNamespacedName; 
+
+Slice: "#"; 
+Span: (51, 52); 
+Type: JSXIdentifier; 
+
+Slice: "header"; 
+Span: (52, 58); 
+Type: JSXIdentifier; 
+
+Slice: "{ message }"; 
+Span: (60, 71); 
+Type: JSXExpressionContainer; 
+
+Slice: "#heade"; 
+Span: (51, 57); 
+Type: IdentifierName; 
+
+Slice: "\"{ message }\""; 
+Span: (59, 72); 
+Type: FormalParameters; 
+
+Slice: "{ message }"; 
+Span: (60, 71); 
+Type: FormalParameter; 
+
+Slice: "{ message }"; 
+Span: (60, 71); 
+Type: ObjectPattern; 
+
+Slice: "message"; 
+Span: (62, 69); 
+Type: BindingProperty; 
+
+Slice: "message"; 
+Span: (62, 69); 
+Type: IdentifierName; 
+
+Slice: "message"; 
+Span: (62, 69); 
+Type: BindingIdentifier; 
+
+Slice: "\n    "; 
+Span: (73, 78); 
+Type: JSXText; 
+
+Slice: "{ message }"; 
+Span: (79, 90); 
+Type: JSXExpressionContainer; 
+
+Slice: " messag"; 
+Span: (80, 87); 
+Type: IdentifierReference; 
+
+Slice: "\n  "; 
+Span: (91, 94); 
+Type: JSXText; 
+
+Slice: "</Comp>"; 
+Span: (94, 101); 
+Type: JSXClosingElement; 
+
+Slice: "Comp"; 
+Span: (96, 100); 
+Type: JSXIdentifier; 
+
+Slice: "\n  "; 
+Span: (101, 104); 
+Type: JSXText; 
+
+Slice: "<Comp v-slot:abc> abc </Comp>"; 
+Span: (104, 133); 
+Type: JSXElement; 
+
+Slice: "<Comp v-slot:abc>"; 
+Span: (104, 121); 
+Type: JSXOpeningElement; 
+
+Slice: "Comp"; 
+Span: (105, 109); 
+Type: JSXIdentifier; 
+
+Slice: "v-slot:abc"; 
+Span: (110, 120); 
+Type: JSXAttribute; 
+
+Slice: "v-slot:abc"; 
+Span: (110, 120); 
+Type: JSXNamespacedName; 
+
+Slice: "v-slot"; 
+Span: (110, 116); 
+Type: JSXIdentifier; 
+
+Slice: "abc"; 
+Span: (117, 120); 
+Type: JSXIdentifier; 
+
+Slice: ":ab"; 
+Span: (116, 119); 
+Type: IdentifierName; 
+
+Slice: " abc "; 
+Span: (121, 126); 
+Type: JSXText; 
+
+Slice: "</Comp>"; 
+Span: (126, 133); 
+Type: JSXClosingElement; 
+
+Slice: "Comp"; 
+Span: (128, 132); 
+Type: JSXIdentifier; 
+
+Slice: "\n  "; 
+Span: (133, 136); 
+Type: JSXText; 
+
+Slice: "<Comp v-slot />"; 
+Span: (136, 151); 
+Type: JSXElement; 
+
+Slice: "<Comp v-slot /"; 
+Span: (136, 150); 
+Type: JSXOpeningElement; 
+
+Slice: "Comp"; 
+Span: (137, 141); 
+Type: JSXIdentifier; 
+
+Slice: "v-slot"; 
+Span: (142, 148); 
+Type: JSXAttribute; 
+
+Slice: "v-slot"; 
+Span: (142, 148); 
+Type: JSXNamespacedName; 
+
+Slice: "v-slot"; 
+Span: (142, 148); 
+Type: JSXIdentifier; 
+
+Slice: "\n  "; 
+Span: (151, 154); 
+Type: JSXText; 
+
+Slice: "<Comp v-slot:header=\"{ message }\">\n    {{ message }}\n  </Comp>"; 
+Span: (154, 216); 
+Type: JSXElement; 
+
+Slice: "<Comp v-slot:header=\"{ message }\">"; 
+Span: (154, 188); 
+Type: JSXOpeningElement; 
+
+Slice: "Comp"; 
+Span: (155, 159); 
+Type: JSXIdentifier; 
+
+Slice: "v-slot:header=\"{ message }\""; 
+Span: (160, 187); 
+Type: JSXAttribute; 
+
+Slice: "v-slot:header"; 
+Span: (160, 173); 
+Type: JSXNamespacedName; 
+
+Slice: "v-slot"; 
+Span: (160, 166); 
+Type: JSXIdentifier; 
+
+Slice: "header"; 
+Span: (167, 173); 
+Type: JSXIdentifier; 
+
+Slice: "{ message }"; 
+Span: (175, 186); 
+Type: JSXExpressionContainer; 
+
+Slice: ":heade"; 
+Span: (166, 172); 
+Type: IdentifierName; 
+
+Slice: "\"{ message }\""; 
+Span: (174, 187); 
+Type: FormalParameters; 
+
+Slice: "{ message }"; 
+Span: (175, 186); 
+Type: FormalParameter; 
+
+Slice: "{ message }"; 
+Span: (175, 186); 
+Type: ObjectPattern; 
+
+Slice: "message"; 
+Span: (177, 184); 
+Type: BindingProperty; 
+
+Slice: "message"; 
+Span: (177, 184); 
+Type: IdentifierName; 
+
+Slice: "message"; 
+Span: (177, 184); 
+Type: BindingIdentifier; 
+
+Slice: "\n    "; 
+Span: (188, 193); 
+Type: JSXText; 
+
+Slice: "{ message }"; 
+Span: (194, 205); 
+Type: JSXExpressionContainer; 
+
+Slice: " messag"; 
+Span: (195, 202); 
+Type: IdentifierReference; 
+
+Slice: "\n  "; 
+Span: (206, 209); 
+Type: JSXText; 
+
+Slice: "</Comp>"; 
+Span: (209, 216); 
+Type: JSXClosingElement; 
+
+Slice: "Comp"; 
+Span: (211, 215); 
+Type: JSXIdentifier; 
+
+Slice: "\n  "; 
+Span: (216, 219); 
+Type: JSXText; 
+
+Slice: "<Comp v-slot:=\"{ message }\">\n    {{ message }}\n  </Comp>"; 
+Span: (219, 275); 
+Type: JSXElement; 
+
+Slice: "<Comp v-slot:=\"{ message }\">"; 
+Span: (219, 247); 
+Type: JSXOpeningElement; 
+
+Slice: "Comp"; 
+Span: (220, 224); 
+Type: JSXIdentifier; 
+
+Slice: "v-slot:=\"{ message }\""; 
+Span: (225, 246); 
+Type: JSXAttribute; 
+
+Slice: "v-slot:"; 
+Span: (225, 232); 
+Type: JSXNamespacedName; 
+
+Slice: "v-slot"; 
+Span: (225, 231); 
+Type: JSXIdentifier; 
+
+Slice: "{ message }"; 
+Span: (234, 245); 
+Type: JSXExpressionContainer; 
+
+Slice: "\"{ message }\""; 
+Span: (233, 246); 
+Type: FormalParameters; 
+
+Slice: "{ message }"; 
+Span: (234, 245); 
+Type: FormalParameter; 
+
+Slice: "{ message }"; 
+Span: (234, 245); 
+Type: ObjectPattern; 
+
+Slice: "message"; 
+Span: (236, 243); 
+Type: BindingProperty; 
+
+Slice: "message"; 
+Span: (236, 243); 
+Type: IdentifierName; 
+
+Slice: "message"; 
+Span: (236, 243); 
+Type: BindingIdentifier; 
+
+Slice: "\n    "; 
+Span: (247, 252); 
+Type: JSXText; 
+
+Slice: "{ message }"; 
+Span: (253, 264); 
+Type: JSXExpressionContainer; 
+
+Slice: " messag"; 
+Span: (254, 261); 
+Type: IdentifierReference; 
+
+Slice: "\n  "; 
+Span: (265, 268); 
+Type: JSXText; 
+
+Slice: "</Comp>"; 
+Span: (268, 275); 
+Type: JSXClosingElement; 
+
+Slice: "Comp"; 
+Span: (270, 274); 
+Type: JSXIdentifier; 
+
+Slice: "\n  "; 
+Span: (275, 278); 
+Type: JSXText; 
+
+Slice: "<Comp v-slot:[key]=\"{ message }\">\n    {{ message }}\n  </Comp>"; 
+Span: (278, 339); 
+Type: JSXElement; 
+
+Slice: "<Comp v-slot:[key]=\"{ message }\">"; 
+Span: (278, 311); 
+Type: JSXOpeningElement; 
+
+Slice: "Comp"; 
+Span: (279, 283); 
+Type: JSXIdentifier; 
+
+Slice: "v-slot:[key]=\"{ message }\""; 
+Span: (284, 310); 
+Type: JSXAttribute; 
+
+Slice: "v-slot:[key]"; 
+Span: (284, 296); 
+Type: JSXNamespacedName; 
+
+Slice: "v-slot"; 
+Span: (284, 290); 
+Type: JSXIdentifier; 
+
+Slice: "[key]"; 
+Span: (291, 296); 
+Type: JSXIdentifier; 
+
+Slice: "{ message }"; 
+Span: (298, 309); 
+Type: JSXExpressionContainer; 
+
+Slice: "[ke"; 
+Span: (291, 294); 
+Type: IdentifierReference; 
+
+Slice: "\"{ message }\""; 
+Span: (297, 310); 
+Type: FormalParameters; 
+
+Slice: "{ message }"; 
+Span: (298, 309); 
+Type: FormalParameter; 
+
+Slice: "{ message }"; 
+Span: (298, 309); 
+Type: ObjectPattern; 
+
+Slice: "message"; 
+Span: (300, 307); 
+Type: BindingProperty; 
+
+Slice: "message"; 
+Span: (300, 307); 
+Type: IdentifierName; 
+
+Slice: "message"; 
+Span: (300, 307); 
+Type: BindingIdentifier; 
+
+Slice: "\n    "; 
+Span: (311, 316); 
+Type: JSXText; 
+
+Slice: "{ message }"; 
+Span: (317, 328); 
+Type: JSXExpressionContainer; 
+
+Slice: " messag"; 
+Span: (318, 325); 
+Type: IdentifierReference; 
+
+Slice: "\n  "; 
+Span: (329, 332); 
+Type: JSXText; 
+
+Slice: "</Comp>"; 
+Span: (332, 339); 
+Type: JSXClosingElement; 
+
+Slice: "Comp"; 
+Span: (334, 338); 
+Type: JSXIdentifier; 
+
+Slice: "\n  "; 
+Span: (339, 342); 
+Type: JSXText; 
+
+Slice: "<Comp v-slot:header=\"user\">\n    {{ user.name }}\n  </Comp>"; 
+Span: (342, 399); 
+Type: JSXElement; 
+
+Slice: "<Comp v-slot:header=\"user\">"; 
+Span: (342, 369); 
+Type: JSXOpeningElement; 
+
+Slice: "Comp"; 
+Span: (343, 347); 
+Type: JSXIdentifier; 
+
+Slice: "v-slot:header=\"user\""; 
+Span: (348, 368); 
+Type: JSXAttribute; 
+
+Slice: "v-slot:header"; 
+Span: (348, 361); 
+Type: JSXNamespacedName; 
+
+Slice: "v-slot"; 
+Span: (348, 354); 
+Type: JSXIdentifier; 
+
+Slice: "header"; 
+Span: (355, 361); 
+Type: JSXIdentifier; 
+
+Slice: "user"; 
+Span: (363, 367); 
+Type: JSXExpressionContainer; 
+
+Slice: ":heade"; 
+Span: (354, 360); 
+Type: IdentifierName; 
+
+Slice: "\"user\""; 
+Span: (362, 368); 
+Type: FormalParameters; 
+
+Slice: "user"; 
+Span: (363, 367); 
+Type: FormalParameter; 
+
+Slice: "user"; 
+Span: (363, 367); 
+Type: BindingIdentifier; 
+
+Slice: "\n    "; 
+Span: (369, 374); 
+Type: JSXText; 
+
+Slice: "{ user.name }"; 
+Span: (375, 388); 
+Type: JSXExpressionContainer; 
+
+Slice: " user.nam"; 
+Span: (376, 385); 
+Type: StaticMemberExpression; 
+
+Slice: " use"; 
+Span: (376, 380); 
+Type: IdentifierReference; 
+
+Slice: ".nam"; 
+Span: (381, 385); 
+Type: IdentifierName; 
+
+Slice: "\n  "; 
+Span: (389, 392); 
+Type: JSXText; 
+
+Slice: "</Comp>"; 
+Span: (392, 399); 
+Type: JSXClosingElement; 
+
+Slice: "Comp"; 
+Span: (394, 398); 
+Type: JSXIdentifier; 
+
+Slice: "\n"; 
+Span: (399, 400); 
+Type: JSXText; 
+
+Slice: "</template>"; 
+Span: (400, 411); 
+Type: JSXClosingElement; 
+
+Slice: "template"; 
+Span: (402, 410); 
+Type: JSXIdentifier;

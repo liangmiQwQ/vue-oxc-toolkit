@@ -2821,3 +2821,660 @@ JS: <><template>
   {someIter8(([item8, index8]) => <div v-for:={} />)}
   {someIter9(([item9 = "hi", index9]) => <div v-for:={} />)}
 </template></>;
+
+Node Locations:
+Slice: "<template>\n  <div v-for=\"item in source\"..[OMIT]..', index9] in someIter9\" />\n</template>\n"; 
+Span: (0, 507); 
+Type: Program; 
+
+Slice: "<template>\n  <div v-for=\"item in source\"..[OMIT]..i', index9] in someIter9\" />\n</template>"; 
+Span: (0, 506); 
+Type: JSXElement; 
+
+Slice: "<template>"; 
+Span: (0, 10); 
+Type: JSXOpeningElement; 
+
+Slice: "template"; 
+Span: (1, 9); 
+Type: JSXIdentifier; 
+
+Slice: "\n  "; 
+Span: (10, 13); 
+Type: JSXText; 
+
+Slice: "source"; 
+Span: (33, 39); 
+Type: IdentifierReference; 
+
+Slice: "item"; 
+Span: (25, 29); 
+Type: FormalParameter; 
+
+Slice: "item"; 
+Span: (25, 29); 
+Type: BindingIdentifier; 
+
+Slice: "<div v-for=\"item in source\" />"; 
+Span: (13, 43); 
+Type: JSXElement; 
+
+Slice: "<div v-for=\"item in source\" /"; 
+Span: (13, 42); 
+Type: JSXOpeningElement; 
+
+Slice: "div"; 
+Span: (14, 17); 
+Type: JSXIdentifier; 
+
+Slice: "v-for=\"item in source\""; 
+Span: (18, 40); 
+Type: JSXAttribute; 
+
+Slice: "v-for"; 
+Span: (18, 23); 
+Type: JSXNamespacedName; 
+
+Slice: "v-for"; 
+Span: (18, 23); 
+Type: JSXIdentifier; 
+
+Slice: "item in source"; 
+Span: (25, 39); 
+Type: JSXExpressionContainer; 
+
+Slice: "\n  "; 
+Span: (43, 46); 
+Type: JSXText; 
+
+Slice: "source1"; 
+Span: (67, 74); 
+Type: IdentifierReference; 
+
+Slice: "item1"; 
+Span: (58, 63); 
+Type: FormalParameter; 
+
+Slice: "item1"; 
+Span: (58, 63); 
+Type: BindingIdentifier; 
+
+Slice: "<div v-for=\"item1 of source1\" />"; 
+Span: (46, 78); 
+Type: JSXElement; 
+
+Slice: "<div v-for=\"item1 of source1\" /"; 
+Span: (46, 77); 
+Type: JSXOpeningElement; 
+
+Slice: "div"; 
+Span: (47, 50); 
+Type: JSXIdentifier; 
+
+Slice: "v-for=\"item1 of source1\""; 
+Span: (51, 75); 
+Type: JSXAttribute; 
+
+Slice: "v-for"; 
+Span: (51, 56); 
+Type: JSXNamespacedName; 
+
+Slice: "v-for"; 
+Span: (51, 56); 
+Type: JSXIdentifier; 
+
+Slice: "item1 of source1"; 
+Span: (58, 74); 
+Type: JSXExpressionContainer; 
+
+Slice: "\n  "; 
+Span: (78, 81); 
+Type: JSXText; 
+
+Slice: "source2"; 
+Span: (112, 119); 
+Type: IdentifierReference; 
+
+Slice: "(item2, index2)"; 
+Span: (93, 108); 
+Type: FormalParameters; 
+
+Slice: "item2"; 
+Span: (94, 99); 
+Type: FormalParameter; 
+
+Slice: "item2"; 
+Span: (94, 99); 
+Type: BindingIdentifier; 
+
+Slice: "index2"; 
+Span: (101, 107); 
+Type: FormalParameter; 
+
+Slice: "index2"; 
+Span: (101, 107); 
+Type: BindingIdentifier; 
+
+Slice: "<div v-for=\"(item2, index2) in source2\" />"; 
+Span: (81, 123); 
+Type: JSXElement; 
+
+Slice: "<div v-for=\"(item2, index2) in source2\" /"; 
+Span: (81, 122); 
+Type: JSXOpeningElement; 
+
+Slice: "div"; 
+Span: (82, 85); 
+Type: JSXIdentifier; 
+
+Slice: "v-for=\"(item2, index2) in source2\""; 
+Span: (86, 120); 
+Type: JSXAttribute; 
+
+Slice: "v-for"; 
+Span: (86, 91); 
+Type: JSXNamespacedName; 
+
+Slice: "v-for"; 
+Span: (86, 91); 
+Type: JSXIdentifier; 
+
+Slice: "(item2, index2) in source2"; 
+Span: (93, 119); 
+Type: JSXExpressionContainer; 
+
+Slice: "\n  "; 
+Span: (123, 126); 
+Type: JSXText; 
+
+Slice: "source3"; 
+Span: (168, 175); 
+Type: IdentifierReference; 
+
+Slice: "(item3 = '1', index3 = 99)"; 
+Span: (138, 164); 
+Type: FormalParameters; 
+
+Slice: "item3 = '1'"; 
+Span: (139, 150); 
+Type: FormalParameter; 
+
+Slice: "item3"; 
+Span: (139, 144); 
+Type: BindingIdentifier; 
+
+Slice: "'1'"; 
+Span: (147, 150); 
+Type: StringLiteral; 
+
+Slice: "index3 = 99"; 
+Span: (152, 163); 
+Type: FormalParameter; 
+
+Slice: "index3"; 
+Span: (152, 158); 
+Type: BindingIdentifier; 
+
+Slice: "99"; 
+Span: (161, 163); 
+Type: NumericLiteral; 
+
+Slice: "<div v-for=\"(item3 = '1', index3 = 99) in source3\" />"; 
+Span: (126, 179); 
+Type: JSXElement; 
+
+Slice: "<div v-for=\"(item3 = '1', index3 = 99) in source3\" /"; 
+Span: (126, 178); 
+Type: JSXOpeningElement; 
+
+Slice: "div"; 
+Span: (127, 130); 
+Type: JSXIdentifier; 
+
+Slice: "v-for=\"(item3 = '1', index3 = 99) in source3\""; 
+Span: (131, 176); 
+Type: JSXAttribute; 
+
+Slice: "v-for"; 
+Span: (131, 136); 
+Type: JSXNamespacedName; 
+
+Slice: "v-for"; 
+Span: (131, 136); 
+Type: JSXIdentifier; 
+
+Slice: "(item3 = '1', index3 = 99) in source3"; 
+Span: (138, 175); 
+Type: JSXExpressionContainer; 
+
+Slice: "\n  "; 
+Span: (179, 182); 
+Type: JSXText; 
+
+Slice: "users4"; 
+Span: (212, 218); 
+Type: IdentifierReference; 
+
+Slice: "{ id4, name4 }"; 
+Span: (194, 208); 
+Type: FormalParameter; 
+
+Slice: "{ id4, name4 }"; 
+Span: (194, 208); 
+Type: ObjectPattern; 
+
+Slice: "id4"; 
+Span: (196, 199); 
+Type: BindingProperty; 
+
+Slice: "id4"; 
+Span: (196, 199); 
+Type: IdentifierName; 
+
+Slice: "id4"; 
+Span: (196, 199); 
+Type: BindingIdentifier; 
+
+Slice: "name4"; 
+Span: (201, 206); 
+Type: BindingProperty; 
+
+Slice: "name4"; 
+Span: (201, 206); 
+Type: IdentifierName; 
+
+Slice: "name4"; 
+Span: (201, 206); 
+Type: BindingIdentifier; 
+
+Slice: "<div v-for=\"{ id4, name4 } in users4\" />"; 
+Span: (182, 222); 
+Type: JSXElement; 
+
+Slice: "<div v-for=\"{ id4, name4 } in users4\" /"; 
+Span: (182, 221); 
+Type: JSXOpeningElement; 
+
+Slice: "div"; 
+Span: (183, 186); 
+Type: JSXIdentifier; 
+
+Slice: "v-for=\"{ id4, name4 } in users4\""; 
+Span: (187, 219); 
+Type: JSXAttribute; 
+
+Slice: "v-for"; 
+Span: (187, 192); 
+Type: JSXNamespacedName; 
+
+Slice: "v-for"; 
+Span: (187, 192); 
+Type: JSXIdentifier; 
+
+Slice: "{ id4, name4 } in users4"; 
+Span: (194, 218); 
+Type: JSXExpressionContainer; 
+
+Slice: "\n  "; 
+Span: (222, 225); 
+Type: JSXText; 
+
+Slice: "users5"; 
+Span: (264, 270); 
+Type: IdentifierReference; 
+
+Slice: "({ id5, name5 }, index)"; 
+Span: (237, 260); 
+Type: FormalParameters; 
+
+Slice: "{ id5, name5 }"; 
+Span: (238, 252); 
+Type: FormalParameter; 
+
+Slice: "{ id5, name5 }"; 
+Span: (238, 252); 
+Type: ObjectPattern; 
+
+Slice: "id5"; 
+Span: (240, 243); 
+Type: BindingProperty; 
+
+Slice: "id5"; 
+Span: (240, 243); 
+Type: IdentifierName; 
+
+Slice: "id5"; 
+Span: (240, 243); 
+Type: BindingIdentifier; 
+
+Slice: "name5"; 
+Span: (245, 250); 
+Type: BindingProperty; 
+
+Slice: "name5"; 
+Span: (245, 250); 
+Type: IdentifierName; 
+
+Slice: "name5"; 
+Span: (245, 250); 
+Type: BindingIdentifier; 
+
+Slice: "index"; 
+Span: (254, 259); 
+Type: FormalParameter; 
+
+Slice: "index"; 
+Span: (254, 259); 
+Type: BindingIdentifier; 
+
+Slice: "<div v-for=\"({ id5, name5 }, index) in users5\" />"; 
+Span: (225, 274); 
+Type: JSXElement; 
+
+Slice: "<div v-for=\"({ id5, name5 }, index) in users5\" /"; 
+Span: (225, 273); 
+Type: JSXOpeningElement; 
+
+Slice: "div"; 
+Span: (226, 229); 
+Type: JSXIdentifier; 
+
+Slice: "v-for=\"({ id5, name5 }, index) in users5\""; 
+Span: (230, 271); 
+Type: JSXAttribute; 
+
+Slice: "v-for"; 
+Span: (230, 235); 
+Type: JSXNamespacedName; 
+
+Slice: "v-for"; 
+Span: (230, 235); 
+Type: JSXIdentifier; 
+
+Slice: "({ id5, name5 }, index) in users5"; 
+Span: (237, 270); 
+Type: JSXExpressionContainer; 
+
+Slice: "\n  "; 
+Span: (274, 277); 
+Type: JSXText; 
+
+Slice: "users6"; 
+Span: (330, 336); 
+Type: IdentifierReference; 
+
+Slice: "({ id6 = 1, name6 = 'Liang' }, index)"; 
+Span: (289, 326); 
+Type: FormalParameters; 
+
+Slice: "{ id6 = 1, name6 = 'Liang' }"; 
+Span: (290, 318); 
+Type: FormalParameter; 
+
+Slice: "{ id6 = 1, name6 = 'Liang' }"; 
+Span: (290, 318); 
+Type: ObjectPattern; 
+
+Slice: "id6 = 1"; 
+Span: (292, 299); 
+Type: BindingProperty; 
+
+Slice: "id6"; 
+Span: (292, 295); 
+Type: IdentifierName; 
+
+Slice: "id6 = 1"; 
+Span: (292, 299); 
+Type: AssignmentPattern; 
+
+Slice: "id6"; 
+Span: (292, 295); 
+Type: BindingIdentifier; 
+
+Slice: "1"; 
+Span: (298, 299); 
+Type: NumericLiteral; 
+
+Slice: "name6 = 'Liang'"; 
+Span: (301, 316); 
+Type: BindingProperty; 
+
+Slice: "name6"; 
+Span: (301, 306); 
+Type: IdentifierName; 
+
+Slice: "name6 = 'Liang'"; 
+Span: (301, 316); 
+Type: AssignmentPattern; 
+
+Slice: "name6"; 
+Span: (301, 306); 
+Type: BindingIdentifier; 
+
+Slice: "'Liang'"; 
+Span: (309, 316); 
+Type: StringLiteral; 
+
+Slice: "index"; 
+Span: (320, 325); 
+Type: FormalParameter; 
+
+Slice: "index"; 
+Span: (320, 325); 
+Type: BindingIdentifier; 
+
+Slice: "<div v-for=\"({ id6 = 1, name6 = 'Liang' }, index) in users6\" />"; 
+Span: (277, 340); 
+Type: JSXElement; 
+
+Slice: "<div v-for=\"({ id6 = 1, name6 = 'Liang' }, index) in users6\" /"; 
+Span: (277, 339); 
+Type: JSXOpeningElement; 
+
+Slice: "div"; 
+Span: (278, 281); 
+Type: JSXIdentifier; 
+
+Slice: "v-for=\"({ id6 = 1, name6 = 'Liang' }, index) in users6\""; 
+Span: (282, 337); 
+Type: JSXAttribute; 
+
+Slice: "v-for"; 
+Span: (282, 287); 
+Type: JSXNamespacedName; 
+
+Slice: "v-for"; 
+Span: (282, 287); 
+Type: JSXIdentifier; 
+
+Slice: "({ id6 = 1, name6 = 'Liang' }, index) in users6"; 
+Span: (289, 336); 
+Type: JSXExpressionContainer; 
+
+Slice: "\n  "; 
+Span: (340, 343); 
+Type: JSXText; 
+
+Slice: "someObj7"; 
+Span: (381, 389); 
+Type: IdentifierReference; 
+
+Slice: "(key7, value7, index7)"; 
+Span: (355, 377); 
+Type: FormalParameters; 
+
+Slice: "key7"; 
+Span: (356, 360); 
+Type: FormalParameter; 
+
+Slice: "key7"; 
+Span: (356, 360); 
+Type: BindingIdentifier; 
+
+Slice: "value7"; 
+Span: (362, 368); 
+Type: FormalParameter; 
+
+Slice: "value7"; 
+Span: (362, 368); 
+Type: BindingIdentifier; 
+
+Slice: "index7"; 
+Span: (370, 376); 
+Type: FormalParameter; 
+
+Slice: "index7"; 
+Span: (370, 376); 
+Type: BindingIdentifier; 
+
+Slice: "<div v-for=\"(key7, value7, index7) in someObj7\" />"; 
+Span: (343, 393); 
+Type: JSXElement; 
+
+Slice: "<div v-for=\"(key7, value7, index7) in someObj7\" /"; 
+Span: (343, 392); 
+Type: JSXOpeningElement; 
+
+Slice: "div"; 
+Span: (344, 347); 
+Type: JSXIdentifier; 
+
+Slice: "v-for=\"(key7, value7, index7) in someObj7\""; 
+Span: (348, 390); 
+Type: JSXAttribute; 
+
+Slice: "v-for"; 
+Span: (348, 353); 
+Type: JSXNamespacedName; 
+
+Slice: "v-for"; 
+Span: (348, 353); 
+Type: JSXIdentifier; 
+
+Slice: "(key7, value7, index7) in someObj7"; 
+Span: (355, 389); 
+Type: JSXExpressionContainer; 
+
+Slice: "\n  "; 
+Span: (393, 396); 
+Type: JSXText; 
+
+Slice: "someIter8"; 
+Span: (427, 436); 
+Type: IdentifierReference; 
+
+Slice: "[item8, index8]"; 
+Span: (408, 423); 
+Type: FormalParameter; 
+
+Slice: "[item8, index8]"; 
+Span: (408, 423); 
+Type: ArrayPattern; 
+
+Slice: "item8"; 
+Span: (409, 414); 
+Type: BindingIdentifier; 
+
+Slice: "index8"; 
+Span: (416, 422); 
+Type: BindingIdentifier; 
+
+Slice: "<div v-for=\"[item8, index8] in someIter8\" />"; 
+Span: (396, 440); 
+Type: JSXElement; 
+
+Slice: "<div v-for=\"[item8, index8] in someIter8\" /"; 
+Span: (396, 439); 
+Type: JSXOpeningElement; 
+
+Slice: "div"; 
+Span: (397, 400); 
+Type: JSXIdentifier; 
+
+Slice: "v-for=\"[item8, index8] in someIter8\""; 
+Span: (401, 437); 
+Type: JSXAttribute; 
+
+Slice: "v-for"; 
+Span: (401, 406); 
+Type: JSXNamespacedName; 
+
+Slice: "v-for"; 
+Span: (401, 406); 
+Type: JSXIdentifier; 
+
+Slice: "[item8, index8] in someIter8"; 
+Span: (408, 436); 
+Type: JSXExpressionContainer; 
+
+Slice: "\n  "; 
+Span: (440, 443); 
+Type: JSXText; 
+
+Slice: "someIter9"; 
+Span: (481, 490); 
+Type: IdentifierReference; 
+
+Slice: "[item9 = 'hi', index9]"; 
+Span: (455, 477); 
+Type: FormalParameter; 
+
+Slice: "[item9 = 'hi', index9]"; 
+Span: (455, 477); 
+Type: ArrayPattern; 
+
+Slice: "item9 = 'hi'"; 
+Span: (456, 468); 
+Type: AssignmentPattern; 
+
+Slice: "item9"; 
+Span: (456, 461); 
+Type: BindingIdentifier; 
+
+Slice: "'hi'"; 
+Span: (464, 468); 
+Type: StringLiteral; 
+
+Slice: "index9"; 
+Span: (470, 476); 
+Type: BindingIdentifier; 
+
+Slice: "<div v-for=\"[item9 = 'hi', index9] in someIter9\" />"; 
+Span: (443, 494); 
+Type: JSXElement; 
+
+Slice: "<div v-for=\"[item9 = 'hi', index9] in someIter9\" /"; 
+Span: (443, 493); 
+Type: JSXOpeningElement; 
+
+Slice: "div"; 
+Span: (444, 447); 
+Type: JSXIdentifier; 
+
+Slice: "v-for=\"[item9 = 'hi', index9] in someIter9\""; 
+Span: (448, 491); 
+Type: JSXAttribute; 
+
+Slice: "v-for"; 
+Span: (448, 453); 
+Type: JSXNamespacedName; 
+
+Slice: "v-for"; 
+Span: (448, 453); 
+Type: JSXIdentifier; 
+
+Slice: "[item9 = 'hi', index9] in someIter9"; 
+Span: (455, 490); 
+Type: JSXExpressionContainer; 
+
+Slice: "\n"; 
+Span: (494, 495); 
+Type: JSXText; 
+
+Slice: "</template>"; 
+Span: (495, 506); 
+Type: JSXClosingElement; 
+
+Slice: "template"; 
+Span: (497, 505); 
+Type: JSXIdentifier;
