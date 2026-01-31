@@ -306,7 +306,8 @@ impl<'a> ParserImpl<'a> {
         start + 1 /* < */ + node.tag_name.len()
       };
       let end = memchr::memchr(b'>', &self.source_text.as_bytes()[tag_name_end..])
-        .map_or(tag_name_end /* unreachable!() */, |i| tag_name_end + i + 1);
+        .map(|i| tag_name_end + i + 1)
+        .unwrap(); // SAFETY: The tag must be closed. Or parser will treat it as panicked.
       Span::new(start as u32, end as u32)
     };
 
