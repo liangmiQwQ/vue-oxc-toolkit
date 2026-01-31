@@ -414,7 +414,7 @@ impl<'a> ParserImpl<'a> {
               JSXExpression::EmptyExpression(ast.jsx_empty_expression(SPAN))
             } else {
               // For possible dynamic arguments
-              let expr = self.parse_expression(expr.content.raw, expr.location.start.offset)?;
+              let expr = self.parse_expression(expr.content.raw, expr.location.start.offset + 1)?; // +1 to skip the opening quote
               self.parse_dynamic_argument(&dir, expr)?.into()
             },
           ))
@@ -454,9 +454,9 @@ impl<'a> ParserImpl<'a> {
       let dynamic_arg_expression = self.parse_expression(
         argument_str,
         if head_name.starts_with("v-") {
-          dir_start + 2 + dir.name.len() + 1
+          dir_start + 2 + dir.name.len() + 2 // v-bind:[arg] -> skip `:[` (2 chars)
         } else {
-          dir_start + 1
+          dir_start + 2 // :[arg] -> skip `:[` (2 chars)
         },
       )?;
       Some(self.ast.expression_object(
@@ -501,11 +501,14 @@ impl<'a> ParserImpl<'a> {
 
   fn parse_interpolation(&mut self, introp: &SourceNode<'a>) -> Option<JSXChild<'a>> {
     let ast = self.ast;
-    let span =
-      Span::new(introp.location.start.offset as u32 + 1, introp.location.end.offset as u32 - 1);
+    // Use full span for container (includes {{ and }})
+    let container_span = introp.location.span();
+    // Expression starts after {{ (2 characters)
+    let expr_start = introp.location.start.offset + 2;
+
     Some(ast.jsx_child_expression_container(
-      span,
-      self.parse_expression(introp.source, span.start as usize)?.into(),
+      container_span,
+      self.parse_expression(introp.source, expr_start)?.into(),
     ))
   }
 

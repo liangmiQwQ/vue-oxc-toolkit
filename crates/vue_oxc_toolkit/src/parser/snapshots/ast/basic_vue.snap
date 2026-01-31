@@ -118,14 +118,14 @@ Program: Program {
                                                                     ExpressionContainer(
                                                                         JSXExpressionContainer {
                                                                             span: Span {
-                                                                                start: 24,
-                                                                                end: 33,
+                                                                                start: 23,
+                                                                                end: 34,
                                                                             },
                                                                             expression: Identifier(
                                                                                 IdentifierReference {
                                                                                     span: Span {
-                                                                                        start: 25,
-                                                                                        end: 30,
+                                                                                        start: 26,
+                                                                                        end: 31,
                                                                                     },
                                                                                     name: "count",
                                                                                     reference_id: Cell {
@@ -494,12 +494,12 @@ Slice: "\n    ";
 Span: (18, 23); 
 Type: JSXText; 
 
-Slice: "{ count }"; 
-Span: (24, 33); 
+Slice: "{{ count }}"; 
+Span: (23, 34); 
 Type: JSXExpressionContainer; 
 
-Slice: " coun"; 
-Span: (25, 30); 
+Slice: "count"; 
+Span: (26, 31); 
 Type: IdentifierReference; 
 
 Slice: "\n  "; 

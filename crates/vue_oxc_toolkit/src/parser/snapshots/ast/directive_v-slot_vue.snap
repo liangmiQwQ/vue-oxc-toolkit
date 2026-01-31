@@ -583,14 +583,14 @@ Program: Program {
                                                                                                                                                 ExpressionContainer(
                                                                                                                                                     JSXExpressionContainer {
                                                                                                                                                         span: Span {
-                                                                                                                                                            start: 79,
-                                                                                                                                                            end: 90,
+                                                                                                                                                            start: 78,
+                                                                                                                                                            end: 91,
                                                                                                                                                         },
                                                                                                                                                         expression: Identifier(
                                                                                                                                                             IdentifierReference {
                                                                                                                                                                 span: Span {
-                                                                                                                                                                    start: 80,
-                                                                                                                                                                    end: 87,
+                                                                                                                                                                    start: 81,
+                                                                                                                                                                    end: 88,
                                                                                                                                                                 },
                                                                                                                                                                 name: "message",
                                                                                                                                                                 reference_id: Cell {
@@ -1315,14 +1315,14 @@ Program: Program {
                                                                                                                                                 ExpressionContainer(
                                                                                                                                                     JSXExpressionContainer {
                                                                                                                                                         span: Span {
-                                                                                                                                                            start: 194,
-                                                                                                                                                            end: 205,
+                                                                                                                                                            start: 193,
+                                                                                                                                                            end: 206,
                                                                                                                                                         },
                                                                                                                                                         expression: Identifier(
                                                                                                                                                             IdentifierReference {
                                                                                                                                                                 span: Span {
-                                                                                                                                                                    start: 195,
-                                                                                                                                                                    end: 202,
+                                                                                                                                                                    start: 196,
+                                                                                                                                                                    end: 203,
                                                                                                                                                                 },
                                                                                                                                                                 name: "message",
                                                                                                                                                                 reference_id: Cell {
@@ -1640,14 +1640,14 @@ Program: Program {
                                                                                                                                                 ExpressionContainer(
                                                                                                                                                     JSXExpressionContainer {
                                                                                                                                                         span: Span {
-                                                                                                                                                            start: 253,
-                                                                                                                                                            end: 264,
+                                                                                                                                                            start: 252,
+                                                                                                                                                            end: 265,
                                                                                                                                                         },
                                                                                                                                                         expression: Identifier(
                                                                                                                                                             IdentifierReference {
                                                                                                                                                                 span: Span {
-                                                                                                                                                                    start: 254,
-                                                                                                                                                                    end: 261,
+                                                                                                                                                                    start: 255,
+                                                                                                                                                                    end: 262,
                                                                                                                                                                 },
                                                                                                                                                                 name: "message",
                                                                                                                                                                 reference_id: Cell {
@@ -1968,14 +1968,14 @@ Program: Program {
                                                                                                                                                 ExpressionContainer(
                                                                                                                                                     JSXExpressionContainer {
                                                                                                                                                         span: Span {
-                                                                                                                                                            start: 317,
-                                                                                                                                                            end: 328,
+                                                                                                                                                            start: 316,
+                                                                                                                                                            end: 329,
                                                                                                                                                         },
                                                                                                                                                         expression: Identifier(
                                                                                                                                                             IdentifierReference {
                                                                                                                                                                 span: Span {
-                                                                                                                                                                    start: 318,
-                                                                                                                                                                    end: 325,
+                                                                                                                                                                    start: 319,
+                                                                                                                                                                    end: 326,
                                                                                                                                                                 },
                                                                                                                                                                 name: "message",
                                                                                                                                                                 reference_id: Cell {
@@ -2263,20 +2263,20 @@ Program: Program {
                                                                                                                                                 ExpressionContainer(
                                                                                                                                                     JSXExpressionContainer {
                                                                                                                                                         span: Span {
-                                                                                                                                                            start: 375,
-                                                                                                                                                            end: 388,
+                                                                                                                                                            start: 374,
+                                                                                                                                                            end: 389,
                                                                                                                                                         },
                                                                                                                                                         expression: StaticMemberExpression(
                                                                                                                                                             StaticMemberExpression {
                                                                                                                                                                 span: Span {
-                                                                                                                                                                    start: 376,
-                                                                                                                                                                    end: 385,
+                                                                                                                                                                    start: 377,
+                                                                                                                                                                    end: 386,
                                                                                                                                                                 },
                                                                                                                                                                 object: Identifier(
                                                                                                                                                                     IdentifierReference {
                                                                                                                                                                         span: Span {
-                                                                                                                                                                            start: 376,
-                                                                                                                                                                            end: 380,
+                                                                                                                                                                            start: 377,
+                                                                                                                                                                            end: 381,
                                                                                                                                                                         },
                                                                                                                                                                         name: "user",
                                                                                                                                                                         reference_id: Cell {
@@ -2286,8 +2286,8 @@ Program: Program {
                                                                                                                                                                 ),
                                                                                                                                                                 property: IdentifierName {
                                                                                                                                                                     span: Span {
-                                                                                                                                                                        start: 381,
-                                                                                                                                                                        end: 385,
+                                                                                                                                                                        start: 382,
+                                                                                                                                                                        end: 386,
                                                                                                                                                                     },
                                                                                                                                                                     name: "name",
                                                                                                                                                                 },
@@ -2592,12 +2592,12 @@ Slice: "\n    ";
 Span: (73, 78); 
 Type: JSXText; 
 
-Slice: "{ message }"; 
-Span: (79, 90); 
+Slice: "{{ message }}"; 
+Span: (78, 91); 
 Type: JSXExpressionContainer; 
 
-Slice: " messag"; 
-Span: (80, 87); 
+Slice: "message"; 
+Span: (81, 88); 
 Type: IdentifierReference; 
 
 Slice: "\n  "; 
@@ -2756,12 +2756,12 @@ Slice: "\n    ";
 Span: (188, 193); 
 Type: JSXText; 
 
-Slice: "{ message }"; 
-Span: (194, 205); 
+Slice: "{{ message }}"; 
+Span: (193, 206); 
 Type: JSXExpressionContainer; 
 
-Slice: " messag"; 
-Span: (195, 202); 
+Slice: "message"; 
+Span: (196, 203); 
 Type: IdentifierReference; 
 
 Slice: "\n  "; 
@@ -2836,12 +2836,12 @@ Slice: "\n    ";
 Span: (247, 252); 
 Type: JSXText; 
 
-Slice: "{ message }"; 
-Span: (253, 264); 
+Slice: "{{ message }}"; 
+Span: (252, 265); 
 Type: JSXExpressionContainer; 
 
-Slice: " messag"; 
-Span: (254, 261); 
+Slice: "message"; 
+Span: (255, 262); 
 Type: IdentifierReference; 
 
 Slice: "\n  "; 
@@ -2924,12 +2924,12 @@ Slice: "\n    ";
 Span: (311, 316); 
 Type: JSXText; 
 
-Slice: "{ message }"; 
-Span: (317, 328); 
+Slice: "{{ message }}"; 
+Span: (316, 329); 
 Type: JSXExpressionContainer; 
 
-Slice: " messag"; 
-Span: (318, 325); 
+Slice: "message"; 
+Span: (319, 326); 
 Type: IdentifierReference; 
 
 Slice: "\n  "; 
@@ -3000,20 +3000,20 @@ Slice: "\n    ";
 Span: (369, 374); 
 Type: JSXText; 
 
-Slice: "{ user.name }"; 
-Span: (375, 388); 
+Slice: "{{ user.name }}"; 
+Span: (374, 389); 
 Type: JSXExpressionContainer; 
 
-Slice: " user.nam"; 
-Span: (376, 385); 
+Slice: "user.name"; 
+Span: (377, 386); 
 Type: StaticMemberExpression; 
 
-Slice: " use"; 
-Span: (376, 380); 
+Slice: "user"; 
+Span: (377, 381); 
 Type: IdentifierReference; 
 
-Slice: ".nam"; 
-Span: (381, 385); 
+Slice: "name"; 
+Span: (382, 386); 
 Type: IdentifierName; 
 
 Slice: "\n  "; 

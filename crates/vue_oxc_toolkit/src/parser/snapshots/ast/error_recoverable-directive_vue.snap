@@ -137,14 +137,14 @@ Program: Program {
                                                                                             expression: ArrowFunctionExpression(
                                                                                                 ArrowFunctionExpression {
                                                                                                     span: Span {
-                                                                                                        start: 23,
-                                                                                                        end: 55,
+                                                                                                        start: 24,
+                                                                                                        end: 56,
                                                                                                     },
                                                                                                     type_parameters: None,
                                                                                                     params: FormalParameters {
                                                                                                         span: Span {
-                                                                                                            start: 23,
-                                                                                                            end: 25,
+                                                                                                            start: 24,
+                                                                                                            end: 26,
                                                                                                         },
                                                                                                         items: Vec(
                                                                                                             [],
@@ -155,8 +155,8 @@ Program: Program {
                                                                                                     return_type: None,
                                                                                                     body: FunctionBody {
                                                                                                         span: Span {
-                                                                                                            start: 29,
-                                                                                                            end: 55,
+                                                                                                            start: 30,
+                                                                                                            end: 56,
                                                                                                         },
                                                                                                         directives: Vec(
                                                                                                             [],
@@ -166,29 +166,29 @@ Program: Program {
                                                                                                                 ReturnStatement(
                                                                                                                     ReturnStatement {
                                                                                                                         span: Span {
-                                                                                                                            start: 31,
-                                                                                                                            end: 53,
+                                                                                                                            start: 32,
+                                                                                                                            end: 54,
                                                                                                                         },
                                                                                                                         argument: Some(
                                                                                                                             ObjectExpression(
                                                                                                                                 ObjectExpression {
                                                                                                                                     span: Span {
-                                                                                                                                        start: 38,
-                                                                                                                                        end: 53,
+                                                                                                                                        start: 39,
+                                                                                                                                        end: 54,
                                                                                                                                     },
                                                                                                                                     properties: Vec(
                                                                                                                                         [
                                                                                                                                             ObjectProperty(
                                                                                                                                                 ObjectProperty {
                                                                                                                                                     span: Span {
-                                                                                                                                                        start: 40,
-                                                                                                                                                        end: 44,
+                                                                                                                                                        start: 41,
+                                                                                                                                                        end: 45,
                                                                                                                                                     },
                                                                                                                                                     key: StaticIdentifier(
                                                                                                                                                         IdentifierName {
                                                                                                                                                             span: Span {
-                                                                                                                                                                start: 40,
-                                                                                                                                                                end: 41,
+                                                                                                                                                                start: 41,
+                                                                                                                                                                end: 42,
                                                                                                                                                             },
                                                                                                                                                             name: "a",
                                                                                                                                                         },
@@ -196,8 +196,8 @@ Program: Program {
                                                                                                                                                     value: Identifier(
                                                                                                                                                         IdentifierReference {
                                                                                                                                                             span: Span {
-                                                                                                                                                                start: 40,
-                                                                                                                                                                end: 41,
+                                                                                                                                                                start: 41,
+                                                                                                                                                                end: 42,
                                                                                                                                                             },
                                                                                                                                                             name: "a",
                                                                                                                                                             reference_id: Cell {
@@ -214,14 +214,14 @@ Program: Program {
                                                                                                                                             ObjectProperty(
                                                                                                                                                 ObjectProperty {
                                                                                                                                                     span: Span {
-                                                                                                                                                        start: 46,
-                                                                                                                                                        end: 51,
+                                                                                                                                                        start: 47,
+                                                                                                                                                        end: 52,
                                                                                                                                                     },
                                                                                                                                                     key: StaticIdentifier(
                                                                                                                                                         IdentifierName {
                                                                                                                                                             span: Span {
-                                                                                                                                                                start: 46,
-                                                                                                                                                                end: 47,
+                                                                                                                                                                start: 47,
+                                                                                                                                                                end: 48,
                                                                                                                                                             },
                                                                                                                                                             name: "b",
                                                                                                                                                         },
@@ -229,8 +229,8 @@ Program: Program {
                                                                                                                                                     value: Identifier(
                                                                                                                                                         IdentifierReference {
                                                                                                                                                             span: Span {
-                                                                                                                                                                start: 46,
-                                                                                                                                                                end: 47,
+                                                                                                                                                                start: 47,
+                                                                                                                                                                end: 48,
                                                                                                                                                             },
                                                                                                                                                             name: "b",
                                                                                                                                                             reference_id: Cell {
@@ -528,9 +528,9 @@ Errors: [
                         label: None,
                         span: SourceSpan {
                             offset: SourceOffset(
-                                46,
+                                41,
                             ),
-                            length: 5,
+                            length: 4,
                         },
                         primary: false,
                     },
@@ -557,9 +557,9 @@ Errors: [
                         label: None,
                         span: SourceSpan {
                             offset: SourceOffset(
-                                40,
+                                47,
                             ),
-                            length: 4,
+                            length: 5,
                         },
                         primary: false,
                     },
@@ -644,48 +644,48 @@ Slice: "() => { return { a =1, b = 1 } }";
 Span: (24, 56); 
 Type: JSXExpressionContainer; 
 
-Slice: "\"() => { return { a =1, b = 1 } "; 
-Span: (23, 55); 
+Slice: "() => { return { a =1, b = 1 } }"; 
+Span: (24, 56); 
 Type: ArrowFunctionExpression; 
 
-Slice: "\"("; 
-Span: (23, 25); 
+Slice: "()"; 
+Span: (24, 26); 
 Type: FormalParameters; 
 
-Slice: " { return { a =1, b = 1 } "; 
-Span: (29, 55); 
+Slice: "{ return { a =1, b = 1 } }"; 
+Span: (30, 56); 
 Type: FunctionBody; 
 
-Slice: " return { a =1, b = 1 "; 
-Span: (31, 53); 
+Slice: "return { a =1, b = 1 }"; 
+Span: (32, 54); 
 Type: ReturnStatement; 
 
-Slice: " { a =1, b = 1 "; 
-Span: (38, 53); 
+Slice: "{ a =1, b = 1 }"; 
+Span: (39, 54); 
 Type: ObjectExpression; 
 
-Slice: " a ="; 
-Span: (40, 44); 
+Slice: "a =1"; 
+Span: (41, 45); 
 Type: ObjectProperty; 
 
-Slice: " "; 
-Span: (40, 41); 
+Slice: "a"; 
+Span: (41, 42); 
 Type: IdentifierName; 
 
-Slice: " "; 
-Span: (40, 41); 
+Slice: "a"; 
+Span: (41, 42); 
 Type: IdentifierReference; 
 
-Slice: " b = "; 
-Span: (46, 51); 
+Slice: "b = 1"; 
+Span: (47, 52); 
 Type: ObjectProperty; 
 
-Slice: " "; 
-Span: (46, 47); 
+Slice: "b"; 
+Span: (47, 48); 
 Type: IdentifierName; 
 
-Slice: " "; 
-Span: (46, 47); 
+Slice: "b"; 
+Span: (47, 48); 
 Type: IdentifierReference; 
 
 Slice: "</div>"; 

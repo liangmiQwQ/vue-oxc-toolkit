@@ -399,20 +399,20 @@ Program: Program {
                                                                     ExpressionContainer(
                                                                         JSXExpressionContainer {
                                                                             span: Span {
-                                                                                start: 92,
-                                                                                end: 101,
+                                                                                start: 91,
+                                                                                end: 102,
                                                                             },
                                                                             expression: StaticMemberExpression(
                                                                                 StaticMemberExpression {
                                                                                     span: Span {
-                                                                                        start: 93,
-                                                                                        end: 98,
+                                                                                        start: 94,
+                                                                                        end: 99,
                                                                                     },
                                                                                     object: Identifier(
                                                                                         IdentifierReference {
                                                                                             span: Span {
-                                                                                                start: 93,
-                                                                                                end: 94,
+                                                                                                start: 94,
+                                                                                                end: 95,
                                                                                             },
                                                                                             name: "a",
                                                                                             reference_id: Cell {
@@ -422,8 +422,8 @@ Program: Program {
                                                                                     ),
                                                                                     property: IdentifierName {
                                                                                         span: Span {
-                                                                                            start: 95,
-                                                                                            end: 98,
+                                                                                            start: 96,
+                                                                                            end: 99,
                                                                                         },
                                                                                         name: "msg",
                                                                                     },
@@ -718,20 +718,20 @@ Slice: "div";
 Span: (87, 90); 
 Type: JSXIdentifier; 
 
-Slice: "{ a.msg }"; 
-Span: (92, 101); 
+Slice: "{{ a.msg }}"; 
+Span: (91, 102); 
 Type: JSXExpressionContainer; 
 
-Slice: " a.ms"; 
-Span: (93, 98); 
+Slice: "a.msg"; 
+Span: (94, 99); 
 Type: StaticMemberExpression; 
 
-Slice: " "; 
-Span: (93, 94); 
+Slice: "a"; 
+Span: (94, 95); 
 Type: IdentifierReference; 
 
-Slice: ".ms"; 
-Span: (95, 98); 
+Slice: "msg"; 
+Span: (96, 99); 
 Type: IdentifierName; 
 
 Slice: "</div>"; 

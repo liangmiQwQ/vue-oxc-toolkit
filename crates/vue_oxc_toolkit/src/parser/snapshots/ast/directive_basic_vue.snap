@@ -137,8 +137,8 @@ Program: Program {
                                                                                             expression: StringLiteral(
                                                                                                 StringLiteral {
                                                                                                     span: Span {
-                                                                                                        start: 25,
-                                                                                                        end: 32,
+                                                                                                        start: 26,
+                                                                                                        end: 33,
                                                                                                     },
                                                                                                     value: "w-100",
                                                                                                     raw: Some(
@@ -248,8 +248,8 @@ Program: Program {
                                                                                                                     key: Identifier(
                                                                                                                         IdentifierReference {
                                                                                                                             span: Span {
-                                                                                                                                start: 46,
-                                                                                                                                end: 50,
+                                                                                                                                start: 47,
+                                                                                                                                end: 51,
                                                                                                                             },
                                                                                                                             name: "some",
                                                                                                                             reference_id: Cell {
@@ -260,8 +260,8 @@ Program: Program {
                                                                                                                     value: NumericLiteral(
                                                                                                                         NumericLiteral {
                                                                                                                             span: Span {
-                                                                                                                                start: 53,
-                                                                                                                                end: 54,
+                                                                                                                                start: 54,
+                                                                                                                                end: 55,
                                                                                                                             },
                                                                                                                             value: 2.0,
                                                                                                                             raw: Some(
@@ -631,8 +631,8 @@ Program: Program {
                                                                                             expression: Identifier(
                                                                                                 IdentifierReference {
                                                                                                     span: Span {
-                                                                                                        start: 105,
-                                                                                                        end: 109,
+                                                                                                        start: 106,
+                                                                                                        end: 110,
                                                                                                     },
                                                                                                     name: "text",
                                                                                                     reference_id: Cell {
@@ -727,8 +727,8 @@ Program: Program {
                                                                                             expression: NumericLiteral(
                                                                                                 NumericLiteral {
                                                                                                     span: Span {
-                                                                                                        start: 140,
-                                                                                                        end: 141,
+                                                                                                        start: 141,
+                                                                                                        end: 142,
                                                                                                     },
                                                                                                     value: 1.0,
                                                                                                     raw: Some(
@@ -869,8 +869,8 @@ Slice: "'w-100'";
 Span: (26, 33); 
 Type: JSXExpressionContainer; 
 
-Slice: "\"'w-100"; 
-Span: (25, 32); 
+Slice: "'w-100'"; 
+Span: (26, 33); 
 Type: StringLiteral; 
 
 Slice: "\n  "; 
@@ -909,12 +909,12 @@ Slice: "2";
 Span: (54, 55); 
 Type: JSXExpressionContainer; 
 
-Slice: "[som"; 
-Span: (46, 50); 
+Slice: "some"; 
+Span: (47, 51); 
 Type: IdentifierReference; 
 
-Slice: "\""; 
-Span: (53, 54); 
+Slice: "2"; 
+Span: (54, 55); 
 Type: NumericLiteral; 
 
 Slice: "\n  "; 
@@ -1013,8 +1013,8 @@ Slice: "text";
 Span: (106, 110); 
 Type: JSXExpressionContainer; 
 
-Slice: "\"tex"; 
-Span: (105, 109); 
+Slice: "text"; 
+Span: (106, 110); 
 Type: IdentifierReference; 
 
 Slice: "\n  "; 
@@ -1053,8 +1053,8 @@ Slice: "1";
 Span: (141, 142); 
 Type: JSXExpressionContainer; 
 
-Slice: "\""; 
-Span: (140, 141); 
+Slice: "1"; 
+Span: (141, 142); 
 Type: NumericLiteral; 
 
 Slice: "\n"; 

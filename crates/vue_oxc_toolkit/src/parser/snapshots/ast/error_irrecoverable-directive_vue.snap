@@ -39,7 +39,7 @@ Errors: [
                         ),
                         span: SourceSpan {
                             offset: SourceOffset(
-                                25,
+                                26,
                             ),
                             length: 1,
                         },
@@ -51,7 +51,7 @@ Errors: [
                         ),
                         span: SourceSpan {
                             offset: SourceOffset(
-                                22,
+                                23,
                             ),
                             length: 1,
                         },

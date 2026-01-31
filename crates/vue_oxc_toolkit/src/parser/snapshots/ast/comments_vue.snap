@@ -12,10 +12,10 @@ Program: Program {
         [
             Comment {
                 span: Span {
-                    start: 25,
-                    end: 51,
+                    start: 26,
+                    end: 52,
                 },
-                attached_to: 51,
+                attached_to: 52,
                 kind: SingleLineBlock,
                 position: Leading,
                 newlines: CommentNewlines(
@@ -216,8 +216,8 @@ Program: Program {
                                                                                             expression: NumericLiteral(
                                                                                                 NumericLiteral {
                                                                                                     span: Span {
-                                                                                                        start: 23,
-                                                                                                        end: 24,
+                                                                                                        start: 24,
+                                                                                                        end: 25,
                                                                                                     },
                                                                                                     value: 1.0,
                                                                                                     raw: Some(
@@ -687,8 +687,8 @@ Slice: "1 /* vue is full of magic */";
 Span: (24, 52); 
 Type: JSXExpressionContainer; 
 
-Slice: "\""; 
-Span: (23, 24); 
+Slice: "1"; 
+Span: (24, 25); 
 Type: NumericLiteral; 
 
 Slice: "<!-- Good Morning -->"; 
