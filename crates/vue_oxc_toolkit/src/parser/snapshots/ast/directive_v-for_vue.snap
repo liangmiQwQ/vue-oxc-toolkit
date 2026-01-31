@@ -189,7 +189,7 @@ Program: Program {
                                                                                                                         opening_element: JSXOpeningElement {
                                                                                                                             span: Span {
                                                                                                                                 start: 13,
-                                                                                                                                end: 42,
+                                                                                                                                end: 43,
                                                                                                                             },
                                                                                                                             name: Identifier(
                                                                                                                                 JSXIdentifier {
@@ -409,7 +409,7 @@ Program: Program {
                                                                                                                         opening_element: JSXOpeningElement {
                                                                                                                             span: Span {
                                                                                                                                 start: 46,
-                                                                                                                                end: 77,
+                                                                                                                                end: 78,
                                                                                                                             },
                                                                                                                             name: Identifier(
                                                                                                                                 JSXIdentifier {
@@ -656,7 +656,7 @@ Program: Program {
                                                                                                                         opening_element: JSXOpeningElement {
                                                                                                                             span: Span {
                                                                                                                                 start: 81,
-                                                                                                                                end: 122,
+                                                                                                                                end: 123,
                                                                                                                             },
                                                                                                                             name: Identifier(
                                                                                                                                 JSXIdentifier {
@@ -931,7 +931,7 @@ Program: Program {
                                                                                                                         opening_element: JSXOpeningElement {
                                                                                                                             span: Span {
                                                                                                                                 start: 126,
-                                                                                                                                end: 178,
+                                                                                                                                end: 179,
                                                                                                                             },
                                                                                                                             name: Identifier(
                                                                                                                                 JSXIdentifier {
@@ -1210,7 +1210,7 @@ Program: Program {
                                                                                                                         opening_element: JSXOpeningElement {
                                                                                                                             span: Span {
                                                                                                                                 start: 182,
-                                                                                                                                end: 221,
+                                                                                                                                end: 222,
                                                                                                                             },
                                                                                                                             name: Identifier(
                                                                                                                                 JSXIdentifier {
@@ -1516,7 +1516,7 @@ Program: Program {
                                                                                                                         opening_element: JSXOpeningElement {
                                                                                                                             span: Span {
                                                                                                                                 start: 225,
-                                                                                                                                end: 273,
+                                                                                                                                end: 274,
                                                                                                                             },
                                                                                                                             name: Identifier(
                                                                                                                                 JSXIdentifier {
@@ -1864,7 +1864,7 @@ Program: Program {
                                                                                                                         opening_element: JSXOpeningElement {
                                                                                                                             span: Span {
                                                                                                                                 start: 277,
-                                                                                                                                end: 339,
+                                                                                                                                end: 340,
                                                                                                                             },
                                                                                                                             name: Identifier(
                                                                                                                                 JSXIdentifier {
@@ -2138,7 +2138,7 @@ Program: Program {
                                                                                                                         opening_element: JSXOpeningElement {
                                                                                                                             span: Span {
                                                                                                                                 start: 343,
-                                                                                                                                end: 392,
+                                                                                                                                end: 393,
                                                                                                                             },
                                                                                                                             name: Identifier(
                                                                                                                                 JSXIdentifier {
@@ -2387,7 +2387,7 @@ Program: Program {
                                                                                                                         opening_element: JSXOpeningElement {
                                                                                                                             span: Span {
                                                                                                                                 start: 396,
-                                                                                                                                end: 439,
+                                                                                                                                end: 440,
                                                                                                                             },
                                                                                                                             name: Identifier(
                                                                                                                                 JSXIdentifier {
@@ -2657,7 +2657,7 @@ Program: Program {
                                                                                                                         opening_element: JSXOpeningElement {
                                                                                                                             span: Span {
                                                                                                                                 start: 443,
-                                                                                                                                end: 493,
+                                                                                                                                end: 494,
                                                                                                                             },
                                                                                                                             name: Identifier(
                                                                                                                                 JSXIdentifier {
@@ -2859,8 +2859,8 @@ Slice: "<div v-for=\"item in source\" />";
 Span: (13, 43); 
 Type: JSXElement; 
 
-Slice: "<div v-for=\"item in source\" /"; 
-Span: (13, 42); 
+Slice: "<div v-for=\"item in source\" />"; 
+Span: (13, 43); 
 Type: JSXOpeningElement; 
 
 Slice: "div"; 
@@ -2903,8 +2903,8 @@ Slice: "<div v-for=\"item1 of source1\" />";
 Span: (46, 78); 
 Type: JSXElement; 
 
-Slice: "<div v-for=\"item1 of source1\" /"; 
-Span: (46, 77); 
+Slice: "<div v-for=\"item1 of source1\" />"; 
+Span: (46, 78); 
 Type: JSXOpeningElement; 
 
 Slice: "div"; 
@@ -2959,8 +2959,8 @@ Slice: "<div v-for=\"(item2, index2) in source2\" />";
 Span: (81, 123); 
 Type: JSXElement; 
 
-Slice: "<div v-for=\"(item2, index2) in source2\" /"; 
-Span: (81, 122); 
+Slice: "<div v-for=\"(item2, index2) in source2\" />"; 
+Span: (81, 123); 
 Type: JSXOpeningElement; 
 
 Slice: "div"; 
@@ -3023,8 +3023,8 @@ Slice: "<div v-for=\"(item3 = '1', index3 = 99) in source3\" />";
 Span: (126, 179); 
 Type: JSXElement; 
 
-Slice: "<div v-for=\"(item3 = '1', index3 = 99) in source3\" /"; 
-Span: (126, 178); 
+Slice: "<div v-for=\"(item3 = '1', index3 = 99) in source3\" />"; 
+Span: (126, 179); 
 Type: JSXOpeningElement; 
 
 Slice: "div"; 
@@ -3091,8 +3091,8 @@ Slice: "<div v-for=\"{ id4, name4 } in users4\" />";
 Span: (182, 222); 
 Type: JSXElement; 
 
-Slice: "<div v-for=\"{ id4, name4 } in users4\" /"; 
-Span: (182, 221); 
+Slice: "<div v-for=\"{ id4, name4 } in users4\" />"; 
+Span: (182, 222); 
 Type: JSXOpeningElement; 
 
 Slice: "div"; 
@@ -3171,8 +3171,8 @@ Slice: "<div v-for=\"({ id5, name5 }, index) in users5\" />";
 Span: (225, 274); 
 Type: JSXElement; 
 
-Slice: "<div v-for=\"({ id5, name5 }, index) in users5\" /"; 
-Span: (225, 273); 
+Slice: "<div v-for=\"({ id5, name5 }, index) in users5\" />"; 
+Span: (225, 274); 
 Type: JSXOpeningElement; 
 
 Slice: "div"; 
@@ -3267,8 +3267,8 @@ Slice: "<div v-for=\"({ id6 = 1, name6 = 'Liang' }, index) in users6\" />";
 Span: (277, 340); 
 Type: JSXElement; 
 
-Slice: "<div v-for=\"({ id6 = 1, name6 = 'Liang' }, index) in users6\" /"; 
-Span: (277, 339); 
+Slice: "<div v-for=\"({ id6 = 1, name6 = 'Liang' }, index) in users6\" />"; 
+Span: (277, 340); 
 Type: JSXOpeningElement; 
 
 Slice: "div"; 
@@ -3331,8 +3331,8 @@ Slice: "<div v-for=\"(key7, value7, index7) in someObj7\" />";
 Span: (343, 393); 
 Type: JSXElement; 
 
-Slice: "<div v-for=\"(key7, value7, index7) in someObj7\" /"; 
-Span: (343, 392); 
+Slice: "<div v-for=\"(key7, value7, index7) in someObj7\" />"; 
+Span: (343, 393); 
 Type: JSXOpeningElement; 
 
 Slice: "div"; 
@@ -3383,8 +3383,8 @@ Slice: "<div v-for=\"[item8, index8] in someIter8\" />";
 Span: (396, 440); 
 Type: JSXElement; 
 
-Slice: "<div v-for=\"[item8, index8] in someIter8\" /"; 
-Span: (396, 439); 
+Slice: "<div v-for=\"[item8, index8] in someIter8\" />"; 
+Span: (396, 440); 
 Type: JSXOpeningElement; 
 
 Slice: "div"; 
@@ -3443,8 +3443,8 @@ Slice: "<div v-for=\"[item9 = 'hi', index9] in someIter9\" />";
 Span: (443, 494); 
 Type: JSXElement; 
 
-Slice: "<div v-for=\"[item9 = 'hi', index9] in someIter9\" /"; 
-Span: (443, 493); 
+Slice: "<div v-for=\"[item9 = 'hi', index9] in someIter9\" />"; 
+Span: (443, 494); 
 Type: JSXOpeningElement; 
 
 Slice: "div"; 

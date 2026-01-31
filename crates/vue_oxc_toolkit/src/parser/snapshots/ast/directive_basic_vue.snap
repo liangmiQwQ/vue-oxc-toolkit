@@ -85,7 +85,7 @@ Program: Program {
                                                             opening_element: JSXOpeningElement {
                                                                 span: Span {
                                                                     start: 13,
-                                                                    end: 36,
+                                                                    end: 37,
                                                                 },
                                                                 name: Identifier(
                                                                     JSXIdentifier {
@@ -182,7 +182,7 @@ Program: Program {
                                                             opening_element: JSXOpeningElement {
                                                                 span: Span {
                                                                     start: 40,
-                                                                    end: 58,
+                                                                    end: 59,
                                                                 },
                                                                 name: Identifier(
                                                                     JSXIdentifier {
@@ -315,7 +315,7 @@ Program: Program {
                                                             opening_element: JSXOpeningElement {
                                                                 span: Span {
                                                                     start: 62,
-                                                                    end: 86,
+                                                                    end: 87,
                                                                 },
                                                                 name: Identifier(
                                                                     JSXIdentifier {
@@ -579,7 +579,7 @@ Program: Program {
                                                             opening_element: JSXOpeningElement {
                                                                 span: Span {
                                                                     start: 90,
-                                                                    end: 113,
+                                                                    end: 114,
                                                                 },
                                                                 name: Identifier(
                                                                     JSXIdentifier {
@@ -675,7 +675,7 @@ Program: Program {
                                                             opening_element: JSXOpeningElement {
                                                                 span: Span {
                                                                     start: 117,
-                                                                    end: 145,
+                                                                    end: 146,
                                                                 },
                                                                 name: Identifier(
                                                                     JSXIdentifier {
@@ -841,8 +841,8 @@ Slice: "<div :class=\"'w-100'\" />";
 Span: (13, 37); 
 Type: JSXElement; 
 
-Slice: "<div :class=\"'w-100'\" /"; 
-Span: (13, 36); 
+Slice: "<div :class=\"'w-100'\" />"; 
+Span: (13, 37); 
 Type: JSXOpeningElement; 
 
 Slice: "div"; 
@@ -881,8 +881,8 @@ Slice: "<div :[some]=\"2\" />";
 Span: (40, 59); 
 Type: JSXElement; 
 
-Slice: "<div :[some]=\"2\" /"; 
-Span: (40, 58); 
+Slice: "<div :[some]=\"2\" />"; 
+Span: (40, 59); 
 Type: JSXOpeningElement; 
 
 Slice: "div"; 
@@ -925,8 +925,8 @@ Slice: "<Some #default=\"{ a }\" />";
 Span: (62, 87); 
 Type: JSXElement; 
 
-Slice: "<Some #default=\"{ a }\" /"; 
-Span: (62, 86); 
+Slice: "<Some #default=\"{ a }\" />"; 
+Span: (62, 87); 
 Type: JSXOpeningElement; 
 
 Slice: "Some"; 
@@ -989,8 +989,8 @@ Slice: "<input v-model=\"text\" />";
 Span: (90, 114); 
 Type: JSXElement; 
 
-Slice: "<input v-model=\"text\" /"; 
-Span: (90, 113); 
+Slice: "<input v-model=\"text\" />"; 
+Span: (90, 114); 
 Type: JSXOpeningElement; 
 
 Slice: "input"; 
@@ -1025,8 +1025,8 @@ Slice: "<Some v-bind:some.none=\"1\" />";
 Span: (117, 146); 
 Type: JSXElement; 
 
-Slice: "<Some v-bind:some.none=\"1\" /"; 
-Span: (117, 145); 
+Slice: "<Some v-bind:some.none=\"1\" />"; 
+Span: (117, 146); 
 Type: JSXOpeningElement; 
 
 Slice: "Some"; 

@@ -128,7 +128,7 @@ Program: Program {
                                                             opening_element: JSXOpeningElement {
                                                                 span: Span {
                                                                     start: 20,
-                                                                    end: 27,
+                                                                    end: 29,
                                                                 },
                                                                 name: Identifier(
                                                                     JSXIdentifier {
@@ -325,8 +325,8 @@ Slice: "<input />";
 Span: (20, 29); 
 Type: JSXElement; 
 
-Slice: "<input "; 
-Span: (20, 27); 
+Slice: "<input />"; 
+Span: (20, 29); 
 Type: JSXOpeningElement; 
 
 Slice: "input"; 
