@@ -5,6 +5,7 @@ use oxc_ast::ast::Program;
 use oxc_ast_visit::Visit;
 use oxc_parser::ParseOptions;
 use oxc_span::{GetSpan, Span};
+use std::fmt::Write;
 
 #[macro_export]
 macro_rules! test_ast {
@@ -97,7 +98,7 @@ impl<'a> NodeLocationCollector<'a> {
 
 impl<'a> Visit<'a> for NodeLocationCollector<'a> {
   fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
-    self.add_span(kind.span(), format!("{:?}", kind));
+    self.add_span(kind.span(), format!("{kind:?}"));
   }
 }
 
@@ -109,7 +110,7 @@ pub fn format_node_locations(program: &Program, source_text: &str) -> String {
   for (span, slice, kind) in collector.locations {
     let start = span.start;
     let end = span.end;
-    result.push_str(&format!("Slice: {:?}; \nSpan: ({start}, {end}); \nType: {kind}; \n\n", slice));
+    let _ = write!(result, "Slice: {slice:?}; \nSpan: ({start}, {end}); \nType: {kind}; \n\n");
   }
   result
 }
