@@ -86,8 +86,8 @@ impl<'a> ParserImpl<'a> {
 
 impl<'a> ParserImpl<'a> {
   pub fn parse(mut self) -> ParserImplReturn<'a> {
-    match self.get_root_children() {
-      Some(children) => {
+    match self.analyze() {
+      Some(()) => {
         let span = Span::new(0, self.source_text.len() as u32);
         self.fix_module_records(span);
 
@@ -104,7 +104,7 @@ impl<'a> ParserImpl<'a> {
               self.ast.expression_jsx_fragment(
                 SPAN,
                 self.ast.jsx_opening_fragment(SPAN),
-                children,
+                self.tags,
                 self.ast.jsx_closing_fragment(SPAN),
               ),
             )),
@@ -123,7 +123,7 @@ impl<'a> ParserImpl<'a> {
     }
   }
 
-  fn get_root_children(&mut self) -> Option<ArenaVec<'a, JSXChild<'a>>> {
+  fn analyze(&mut self) -> Option<()> {
     let parser = Parser::new(ParseOption {
       whitespace: WhitespaceStrategy::Preserve,
       is_void_tag: |name| is_void_tag!(name),
@@ -147,6 +147,7 @@ impl<'a> ParserImpl<'a> {
       match child {
         AstNode::Element(node) => {
           if node.tag_name == "script" {
+            // Fill self.setup, self.statements
             children.push(self.parse_script(node)?);
           } else if node.tag_name == "template" {
             children.push(self.parse_element(node, None)?);
@@ -158,7 +159,8 @@ impl<'a> ParserImpl<'a> {
       }
     }
 
-    Some(children)
+    self.tags = children;
+    Some(())
   }
 
   fn parse_children(

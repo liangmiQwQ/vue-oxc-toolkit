@@ -28,7 +28,7 @@ pub struct ParserImpl<'a> {
 
   setup: ArenaVec<'a, Statement<'a>>,
   statements: ArenaVec<'a, Statement<'a>>,
-  sfc_layout: ArenaVec<'a, JSXChild<'a>>,
+  tags: ArenaVec<'a, JSXChild<'a>>,
 }
 
 impl<'a> ParserImpl<'a> {
@@ -49,7 +49,7 @@ impl<'a> ParserImpl<'a> {
 
       setup: ast.vec(),
       statements: ast.vec(),
-      sfc_layout: ast.vec(),
+      tags: ast.vec(),
     }
   }
 }
