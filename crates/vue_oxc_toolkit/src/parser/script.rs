@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
-use oxc_ast::ast::JSXChild;
+use oxc_allocator::Vec as ArenaVec;
+use oxc_ast::ast::{JSXChild, Statement};
 use oxc_diagnostics::OxcDiagnostic;
 use oxc_span::SourceType;
 use vue_compiler_core::{
@@ -56,9 +57,26 @@ impl<'a> ParserImpl<'a> {
       if is_setup {
         // Only merge imports, as exports are not allowed in <script setup>
         self.module_record.merge_imports(module_record);
-        self.setup.append(&mut body);
+
+        // Split imports and other statements
+        let mut imports: ArenaVec<Statement<'a>> = self.ast.vec();
+        let mut statements: ArenaVec<Statement<'a>> = self.ast.vec();
+
+        for statement in body {
+          match statement {
+            Statement::ImportDeclaration(_) => imports.push(statement),
+            _ => statements.push(statement),
+          }
+        }
+
+        // Append imports to self.statements (top level)
+        imports.append(&mut self.statements);
+        self.statements = imports;
+        // Replace self.setup with the rest (inside function).
+        self.setup = statements;
       } else {
         self.module_record.merge(module_record);
+        // Append all statements, do not replace all as probably exist imports statements
         self.statements.append(&mut body);
       }
     }
