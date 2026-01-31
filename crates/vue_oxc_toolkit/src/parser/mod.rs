@@ -1,5 +1,8 @@
-use oxc_allocator::Allocator;
-use oxc_ast::{AstBuilder, Comment, ast::Program};
+use oxc_allocator::{Allocator, Vec as ArenaVec};
+use oxc_ast::{
+  AstBuilder, Comment,
+  ast::{JSXChild, Program, Statement},
+};
 use oxc_diagnostics::OxcDiagnostic;
 use oxc_parser::ParseOptions;
 use oxc_span::SourceType;
@@ -9,6 +12,7 @@ mod directive;
 mod error;
 mod modules;
 mod parse;
+mod script;
 
 pub struct ParserImpl<'a> {
   allocator: &'a Allocator,
@@ -19,8 +23,12 @@ pub struct ParserImpl<'a> {
 
   module_record: ModuleRecord<'a>,
   source_type: SourceType,
-  comments: oxc_allocator::Vec<'a, Comment>,
+  comments: ArenaVec<'a, Comment>,
   errors: Vec<OxcDiagnostic>,
+
+  setup: ArenaVec<'a, Statement<'a>>,
+  statements: ArenaVec<'a, Statement<'a>>,
+  sfc_layout: ArenaVec<'a, JSXChild<'a>>,
 }
 
 impl<'a> ParserImpl<'a> {
@@ -38,6 +46,10 @@ impl<'a> ParserImpl<'a> {
       errors: vec![],
       empty_str: ".".repeat(source_text.len()),
       options,
+
+      setup: ast.vec(),
+      statements: ast.vec(),
+      sfc_layout: ast.vec(),
     }
   }
 }

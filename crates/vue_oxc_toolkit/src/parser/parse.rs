@@ -1,13 +1,11 @@
 use std::cell::RefCell;
-use std::collections::HashSet;
 
 use oxc_allocator::{self, Dummy, TakeIn, Vec as ArenaVec};
 use oxc_ast::ast::{
-  Expression, FormalParameterKind, JSXAttributeItem, JSXChild, JSXExpression, Program,
-  PropertyKind, Statement,
+  Expression, JSXAttributeItem, JSXChild, JSXExpression, Program, PropertyKind, Statement,
 };
 use oxc_ast::{Comment, CommentKind, NONE};
-use oxc_diagnostics::OxcDiagnostic;
+
 use oxc_span::{SPAN, SourceType, Span};
 use oxc_syntax::module_record::ModuleRecord;
 use vue_compiler_core::SourceLocation;
@@ -16,12 +14,10 @@ use vue_compiler_core::parser::{
   WhitespaceStrategy,
 };
 use vue_compiler_core::scanner::{ScanOption, Scanner};
-use vue_compiler_core::util::find_prop;
 
 use crate::parser::directive::v_for::VForWrapper;
 use crate::parser::directive::v_slot::VSlotWrapper;
 use crate::parser::error::OxcErrorHandler;
-use crate::parser::modules::Merge;
 
 use super::ParserImpl;
 use super::ParserImplReturn;
@@ -59,7 +55,7 @@ macro_rules! is_void_tag {
 }
 
 impl<'a> ParserImpl<'a> {
-  fn oxc_parse(
+  pub fn oxc_parse(
     &mut self,
     source: &str,
     source_type: SourceType,
@@ -83,7 +79,7 @@ impl<'a> ParserImpl<'a> {
   /// A workaround
   /// Use comment placeholder to make the location AST returned correct
   /// The start must > 4 in any valid Vue files
-  fn pad_source(&self, source: &str, start: usize) -> String {
+  pub fn pad_source(&self, source: &str, start: usize) -> String {
     format!("/*{}*/{source}", &self.empty_str[..start - 4])
   }
 }
@@ -146,86 +142,12 @@ impl<'a> ParserImpl<'a> {
       return None;
     }
 
-    let mut source_types: HashSet<&str> = HashSet::new();
     let mut children = self.ast.vec();
     for child in result.children {
       match child {
         AstNode::Element(node) => {
           if node.tag_name == "script" {
-            let lang = find_prop(&node, "lang")
-              .and_then(|p| match p.get_ref() {
-                ElemProp::Attr(p) => p.value.as_ref().map(|value| value.content.raw),
-                ElemProp::Dir(_) => None,
-              })
-              .unwrap_or("js");
-
-            source_types.insert(lang);
-
-            if source_types.len() > 1 {
-              self.errors.push(OxcDiagnostic::error(format!(
-                "Multiple script tags with different languages: {source_types:?}"
-              )));
-
-              return None;
-            }
-
-            self.source_type = if lang.starts_with("js") {
-              SourceType::jsx()
-            } else if lang.starts_with("ts") {
-              SourceType::tsx()
-            } else {
-              self
-                .errors
-                .push(OxcDiagnostic::error(format!("Unsupported script language: {lang}")));
-
-              return None;
-            };
-
-            let script_block = if let Some(child) = node.children.first() {
-              let span = child.get_location().span();
-              let source = span.source_text(self.source_text);
-
-              let (body, module_record) = self.oxc_parse(
-                source,
-                // SAFETY: lang is validated above to be "js" or "ts" based extensions which are valid for from_extension
-                SourceType::from_extension(lang).unwrap(),
-                span.start as usize,
-              )?;
-
-              // Deal with modules record there
-              let is_setup = find_prop(&node, "setup").is_some();
-
-              if is_setup {
-                // Only merge imports, as exports are not allowed in <script setup>
-                self.module_record.merge_imports(module_record);
-              } else {
-                self.module_record.merge(module_record);
-              }
-
-              body
-            } else {
-              self.ast.vec()
-            };
-            children.push(self.parse_element(
-              node,
-              Some(self.ast.vec1(self.ast.jsx_child_expression_container(
-                SPAN,
-                JSXExpression::ArrowFunctionExpression(self.ast.alloc_arrow_function_expression(
-                  SPAN,
-                  false,
-                  false,
-                  NONE,
-                  self.ast.formal_parameters(
-                    SPAN,
-                    FormalParameterKind::ArrowFormalParameters,
-                    self.ast.vec(),
-                    NONE,
-                  ),
-                  NONE,
-                  self.ast.function_body(SPAN, self.ast.vec(), script_block),
-                )),
-              ))),
-            )?);
+            children.push(self.parse_script(node)?);
           } else if node.tag_name == "template" {
             children.push(self.parse_element(node, None)?);
           }
@@ -288,7 +210,7 @@ impl<'a> ParserImpl<'a> {
     Some(result)
   }
 
-  fn parse_element(
+  pub fn parse_element(
     &mut self,
     node: Element<'a>,
     children: Option<ArenaVec<'a, JSXChild<'a>>>,
