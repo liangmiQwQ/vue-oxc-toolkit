@@ -45,7 +45,7 @@ impl<'a> ParserImpl<'a> {
 
       module_record: ModuleRecord::new(allocator),
       errors: vec![],
-      empty_str: ".".repeat(source_text.len()),
+      empty_str: " ".repeat(source_text.len()),
       options,
 
       setup: ast.vec(),
@@ -81,16 +81,15 @@ impl<'a> ParserImpl<'a> {
       // TODO: do not panic for js parsing error
       None
     } else {
-      self.comments.extend(&ret.program.comments[1..]);
+      self.comments.append(&mut ret.program.comments);
       Some((ret.program.body, ret.module_record))
     }
   }
 
   /// A workaround
-  /// Use comment placeholder to make the location AST returned correct
-  /// The start must > 4 in any valid Vue files
+  /// Use placeholder to make the location AST returned correct
   pub fn pad_source(&self, source: &str, start: usize) -> String {
-    format!("/*{}*/{source}", &self.empty_str[..start - 4])
+    format!("{}{source}", &self.empty_str[..start])
   }
 }
 
