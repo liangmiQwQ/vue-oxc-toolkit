@@ -18,141 +18,6 @@ Program {
     ),
     body: Vec(
         [
-            VariableDeclaration(
-                VariableDeclaration {
-                    span: Span {
-                        start: 25,
-                        end: 61,
-                    },
-                    declarations: Vec(
-                        [
-                            VariableDeclarator {
-                                span: Span {
-                                    start: 31,
-                                    end: 61,
-                                },
-                                id: BindingIdentifier(
-                                    BindingIdentifier {
-                                        span: Span {
-                                            start: 31,
-                                            end: 32,
-                                        },
-                                        name: "a",
-                                        symbol_id: Cell {
-                                            value: None,
-                                        },
-                                    },
-                                ),
-                                type_annotation: None,
-                                init: Some(
-                                    CallExpression(
-                                        CallExpression {
-                                            span: Span {
-                                                start: 35,
-                                                end: 61,
-                                            },
-                                            callee: Identifier(
-                                                IdentifierReference {
-                                                    span: Span {
-                                                        start: 35,
-                                                        end: 47,
-                                                    },
-                                                    name: "someFunction",
-                                                    reference_id: Cell {
-                                                        value: None,
-                                                    },
-                                                },
-                                            ),
-                                            type_arguments: Some(
-                                                TSTypeParameterInstantiation {
-                                                    span: Span {
-                                                        start: 47,
-                                                        end: 59,
-                                                    },
-                                                    params: Vec(
-                                                        [
-                                                            TSTypeLiteral(
-                                                                TSTypeLiteral {
-                                                                    span: Span {
-                                                                        start: 48,
-                                                                        end: 58,
-                                                                    },
-                                                                    members: Vec(
-                                                                        [
-                                                                            TSPropertySignature(
-                                                                                TSPropertySignature {
-                                                                                    span: Span {
-                                                                                        start: 50,
-                                                                                        end: 56,
-                                                                                    },
-                                                                                    key: StaticIdentifier(
-                                                                                        IdentifierName {
-                                                                                            span: Span {
-                                                                                                start: 50,
-                                                                                                end: 53,
-                                                                                            },
-                                                                                            name: "msg",
-                                                                                        },
-                                                                                    ),
-                                                                                    type_annotation: Some(
-                                                                                        TSTypeAnnotation {
-                                                                                            span: Span {
-                                                                                                start: 53,
-                                                                                                end: 56,
-                                                                                            },
-                                                                                            type_annotation: TSLiteralType(
-                                                                                                TSLiteralType {
-                                                                                                    span: Span {
-                                                                                                        start: 55,
-                                                                                                        end: 56,
-                                                                                                    },
-                                                                                                    literal: NumericLiteral(
-                                                                                                        NumericLiteral {
-                                                                                                            span: Span {
-                                                                                                                start: 55,
-                                                                                                                end: 56,
-                                                                                                            },
-                                                                                                            value: 1.0,
-                                                                                                            raw: Some(
-                                                                                                                "1",
-                                                                                                            ),
-                                                                                                            base: Decimal,
-                                                                                                        },
-                                                                                                    ),
-                                                                                                },
-                                                                                            ),
-                                                                                        },
-                                                                                    ),
-                                                                                    computed: false,
-                                                                                    optional: false,
-                                                                                    readonly: false,
-                                                                                },
-                                                                            ),
-                                                                        ],
-                                                                    ),
-                                                                },
-                                                            ),
-                                                        ],
-                                                    ),
-                                                },
-                                            ),
-                                            arguments: Vec(
-                                                [],
-                                            ),
-                                            optional: false,
-                                            pure: false,
-                                        },
-                                    ),
-                                ),
-                                kind: Const,
-                                definite: false,
-                            },
-                        ],
-                    ),
-                    kind: Const,
-                    declare: false,
-                },
-            ),
             ExportDefaultDeclaration(
                 ExportDefaultDeclaration {
                     span: Span {
@@ -214,6 +79,141 @@ Program {
                                                             ),
                                                             statements: Vec(
                                                                 [
+                                                                    VariableDeclaration(
+                                                                        VariableDeclaration {
+                                                                            span: Span {
+                                                                                start: 25,
+                                                                                end: 61,
+                                                                            },
+                                                                            declarations: Vec(
+                                                                                [
+                                                                                    VariableDeclarator {
+                                                                                        span: Span {
+                                                                                            start: 31,
+                                                                                            end: 61,
+                                                                                        },
+                                                                                        id: BindingIdentifier(
+                                                                                            BindingIdentifier {
+                                                                                                span: Span {
+                                                                                                    start: 31,
+                                                                                                    end: 32,
+                                                                                                },
+                                                                                                name: "a",
+                                                                                                symbol_id: Cell {
+                                                                                                    value: None,
+                                                                                                },
+                                                                                            },
+                                                                                        ),
+                                                                                        type_annotation: None,
+                                                                                        init: Some(
+                                                                                            CallExpression(
+                                                                                                CallExpression {
+                                                                                                    span: Span {
+                                                                                                        start: 35,
+                                                                                                        end: 61,
+                                                                                                    },
+                                                                                                    callee: Identifier(
+                                                                                                        IdentifierReference {
+                                                                                                            span: Span {
+                                                                                                                start: 35,
+                                                                                                                end: 47,
+                                                                                                            },
+                                                                                                            name: "someFunction",
+                                                                                                            reference_id: Cell {
+                                                                                                                value: None,
+                                                                                                            },
+                                                                                                        },
+                                                                                                    ),
+                                                                                                    type_arguments: Some(
+                                                                                                        TSTypeParameterInstantiation {
+                                                                                                            span: Span {
+                                                                                                                start: 47,
+                                                                                                                end: 59,
+                                                                                                            },
+                                                                                                            params: Vec(
+                                                                                                                [
+                                                                                                                    TSTypeLiteral(
+                                                                                                                        TSTypeLiteral {
+                                                                                                                            span: Span {
+                                                                                                                                start: 48,
+                                                                                                                                end: 58,
+                                                                                                                            },
+                                                                                                                            members: Vec(
+                                                                                                                                [
+                                                                                                                                    TSPropertySignature(
+                                                                                                                                        TSPropertySignature {
+                                                                                                                                            span: Span {
+                                                                                                                                                start: 50,
+                                                                                                                                                end: 56,
+                                                                                                                                            },
+                                                                                                                                            key: StaticIdentifier(
+                                                                                                                                                IdentifierName {
+                                                                                                                                                    span: Span {
+                                                                                                                                                        start: 50,
+                                                                                                                                                        end: 53,
+                                                                                                                                                    },
+                                                                                                                                                    name: "msg",
+                                                                                                                                                },
+                                                                                                                                            ),
+                                                                                                                                            type_annotation: Some(
+                                                                                                                                                TSTypeAnnotation {
+                                                                                                                                                    span: Span {
+                                                                                                                                                        start: 53,
+                                                                                                                                                        end: 56,
+                                                                                                                                                    },
+                                                                                                                                                    type_annotation: TSLiteralType(
+                                                                                                                                                        TSLiteralType {
+                                                                                                                                                            span: Span {
+                                                                                                                                                                start: 55,
+                                                                                                                                                                end: 56,
+                                                                                                                                                            },
+                                                                                                                                                            literal: NumericLiteral(
+                                                                                                                                                                NumericLiteral {
+                                                                                                                                                                    span: Span {
+                                                                                                                                                                        start: 55,
+                                                                                                                                                                        end: 56,
+                                                                                                                                                                    },
+                                                                                                                                                                    value: 1.0,
+                                                                                                                                                                    raw: Some(
+                                                                                                                                                                        "1",
+                                                                                                                                                                    ),
+                                                                                                                                                                    base: Decimal,
+                                                                                                                                                                },
+                                                                                                                                                            ),
+                                                                                                                                                        },
+                                                                                                                                                    ),
+                                                                                                                                                },
+                                                                                                                                            ),
+                                                                                                                                            computed: false,
+                                                                                                                                            optional: false,
+                                                                                                                                            readonly: false,
+                                                                                                                                        },
+                                                                                                                                    ),
+                                                                                                                                ],
+                                                                                                                            ),
+                                                                                                                        },
+                                                                                                                    ),
+                                                                                                                ],
+                                                                                                            ),
+                                                                                                        },
+                                                                                                    ),
+                                                                                                    arguments: Vec(
+                                                                                                        [],
+                                                                                                    ),
+                                                                                                    optional: false,
+                                                                                                    pure: false,
+                                                                                                },
+                                                                                            ),
+                                                                                        ),
+                                                                                        kind: Const,
+                                                                                        definite: false,
+                                                                                    },
+                                                                                ],
+                                                                            ),
+                                                                            kind: Const,
+                                                                            declare: false,
+                                                                        },
+                                                                    ),
                                                                     ReturnStatement(
                                                                         ReturnStatement {
                                                                             span: Span {
@@ -615,10 +615,10 @@ Errors:
 []
 
 JS: 
-const a = someFunction<{
-	msg: 1;
-}>();
 export default { setup() {
+	const a = someFunction<{
+		msg: 1;
+	}>();
 	return <><script lang="ts" setup></script><template>
   <div>{a.msg}</div>
   <div> I think 1 < 2, isn't it? </div>

@@ -18,56 +18,6 @@ Program {
     ),
     body: Vec(
         [
-            VariableDeclaration(
-                VariableDeclaration {
-                    span: Span {
-                        start: 82,
-                        end: 98,
-                    },
-                    declarations: Vec(
-                        [
-                            VariableDeclarator {
-                                span: Span {
-                                    start: 88,
-                                    end: 97,
-                                },
-                                id: BindingIdentifier(
-                                    BindingIdentifier {
-                                        span: Span {
-                                            start: 88,
-                                            end: 93,
-                                        },
-                                        name: "count",
-                                        symbol_id: Cell {
-                                            value: None,
-                                        },
-                                    },
-                                ),
-                                type_annotation: None,
-                                init: Some(
-                                    NumericLiteral(
-                                        NumericLiteral {
-                                            span: Span {
-                                                start: 96,
-                                                end: 97,
-                                            },
-                                            value: 1.0,
-                                            raw: Some(
-                                                "1",
-                                            ),
-                                            base: Decimal,
-                                        },
-                                    ),
-                                ),
-                                kind: Const,
-                                definite: false,
-                            },
-                        ],
-                    ),
-                    kind: Const,
-                    declare: false,
-                },
-            ),
             ExportDefaultDeclaration(
                 ExportDefaultDeclaration {
                     span: Span {
@@ -129,6 +79,56 @@ Program {
                                                             ),
                                                             statements: Vec(
                                                                 [
+                                                                    VariableDeclaration(
+                                                                        VariableDeclaration {
+                                                                            span: Span {
+                                                                                start: 82,
+                                                                                end: 98,
+                                                                            },
+                                                                            declarations: Vec(
+                                                                                [
+                                                                                    VariableDeclarator {
+                                                                                        span: Span {
+                                                                                            start: 88,
+                                                                                            end: 97,
+                                                                                        },
+                                                                                        id: BindingIdentifier(
+                                                                                            BindingIdentifier {
+                                                                                                span: Span {
+                                                                                                    start: 88,
+                                                                                                    end: 93,
+                                                                                                },
+                                                                                                name: "count",
+                                                                                                symbol_id: Cell {
+                                                                                                    value: None,
+                                                                                                },
+                                                                                            },
+                                                                                        ),
+                                                                                        type_annotation: None,
+                                                                                        init: Some(
+                                                                                            NumericLiteral(
+                                                                                                NumericLiteral {
+                                                                                                    span: Span {
+                                                                                                        start: 96,
+                                                                                                        end: 97,
+                                                                                                    },
+                                                                                                    value: 1.0,
+                                                                                                    raw: Some(
+                                                                                                        "1",
+                                                                                                    ),
+                                                                                                    base: Decimal,
+                                                                                                },
+                                                                                            ),
+                                                                                        ),
+                                                                                        kind: Const,
+                                                                                        definite: false,
+                                                                                    },
+                                                                                ],
+                                                                            ),
+                                                                            kind: Const,
+                                                                            declare: false,
+                                                                        },
+                                                                    ),
                                                                     ReturnStatement(
                                                                         ReturnStatement {
                                                                             span: Span {
@@ -466,8 +466,8 @@ Errors:
 []
 
 JS: 
-const count = 1;
 export default { setup() {
+	const count = 1;
 	return <><template>
   <div>
     {count}

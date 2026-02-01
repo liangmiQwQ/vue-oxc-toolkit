@@ -64,19 +64,19 @@ Module Record: ModuleRecord {
         [
             ExportEntry {
                 span: Span {
-                    start: 100,
-                    end: 102,
+                    start: 0,
+                    end: 0,
                 },
                 statement_span: Span {
-                    start: 85,
-                    end: 102,
+                    start: 0,
+                    end: 0,
                 },
                 module_request: None,
                 import_name: Null,
                 export_name: Default(
                     Span {
-                        start: 92,
-                        end: 99,
+                        start: 0,
+                        end: 0,
                     },
                 ),
                 local_name: Null,

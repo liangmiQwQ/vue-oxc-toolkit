@@ -6,7 +6,7 @@ use oxc_diagnostics::OxcDiagnostic;
 use oxc_span::SourceType;
 use vue_compiler_core::{
   parser::{ElemProp, Element},
-  util::find_prop,
+  util::{find_prop, prop_finder},
 };
 
 use crate::parser::{ParserImpl, modules::Merge, parse::SourceLocatonSpan};
@@ -52,7 +52,7 @@ impl<'a> ParserImpl<'a> {
       )?;
 
       // Deal with modules record there
-      let is_setup = find_prop(&node, "setup").is_some();
+      let is_setup = prop_finder(&node, "setup").allow_empty().find().is_some();
 
       if is_setup {
         // Only merge imports, as exports are not allowed in <script setup>
