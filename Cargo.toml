@@ -28,7 +28,7 @@ cast_possible_truncation = { level = "allow" }
 too_many_lines = { level = "allow" }
 
 [workspace.dependencies]
-insta = "1.46.0"
+insta = "1.46.2"
 
 oxc_allocator = "0.111.0"
 oxc_ast = "0.111.0"
