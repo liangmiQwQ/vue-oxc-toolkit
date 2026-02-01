@@ -1,9 +1,9 @@
 use std::cell::RefCell;
 
-use oxc_allocator::{self, Dummy, TakeIn, Vec as ArenaVec};
+use oxc_allocator::{self, Dummy, TakeIn};
 use oxc_ast::ast::{Program, Statement};
 
-use oxc_span::{SPAN, SourceType, Span};
+use oxc_span::{SPAN, Span};
 use oxc_syntax::module_record::ModuleRecord;
 use vue_compiler_core::SourceLocation;
 use vue_compiler_core::parser::{AstNode, ParseOption, Parser, WhitespaceStrategy};
@@ -107,37 +107,6 @@ pub trait SourceLocatonSpan {
 impl SourceLocatonSpan for SourceLocation {
   fn span(&self) -> Span {
     Span::new(self.start.offset as u32, self.end.offset as u32)
-  }
-}
-
-// Some public utils
-impl<'a> ParserImpl<'a> {
-  pub fn oxc_parse(
-    &mut self,
-    source: &str,
-    source_type: SourceType,
-    start: usize,
-  ) -> Option<(ArenaVec<'a, Statement<'a>>, ModuleRecord<'a>)> {
-    let source_text = self.ast.atom(&self.pad_source(source, start));
-    let mut ret = oxc_parser::Parser::new(self.allocator, source_text.as_str(), source_type)
-      .with_options(self.options)
-      .parse();
-
-    self.errors.append(&mut ret.errors);
-    if ret.panicked {
-      // TODO: do not panic for js parsing error
-      None
-    } else {
-      self.comments.extend(&ret.program.comments[1..]);
-      Some((ret.program.body, ret.module_record))
-    }
-  }
-
-  /// A workaround
-  /// Use comment placeholder to make the location AST returned correct
-  /// The start must > 4 in any valid Vue files
-  pub fn pad_source(&self, source: &str, start: usize) -> String {
-    format!("/*{}*/{source}", &self.empty_str[..start - 4])
   }
 }
 

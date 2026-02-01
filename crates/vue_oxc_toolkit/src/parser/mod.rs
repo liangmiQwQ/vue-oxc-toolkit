@@ -63,6 +63,37 @@ pub struct ParserImplReturn<'a> {
   pub errors: Vec<OxcDiagnostic>,
 }
 
+// Some public utils
+impl<'a> ParserImpl<'a> {
+  pub fn oxc_parse(
+    &mut self,
+    source: &str,
+    source_type: SourceType,
+    start: usize,
+  ) -> Option<(ArenaVec<'a, Statement<'a>>, ModuleRecord<'a>)> {
+    let source_text = self.ast.atom(&self.pad_source(source, start));
+    let mut ret = oxc_parser::Parser::new(self.allocator, source_text.as_str(), source_type)
+      .with_options(self.options)
+      .parse();
+
+    self.errors.append(&mut ret.errors);
+    if ret.panicked {
+      // TODO: do not panic for js parsing error
+      None
+    } else {
+      self.comments.extend(&ret.program.comments[1..]);
+      Some((ret.program.body, ret.module_record))
+    }
+  }
+
+  /// A workaround
+  /// Use comment placeholder to make the location AST returned correct
+  /// The start must > 4 in any valid Vue files
+  pub fn pad_source(&self, source: &str, start: usize) -> String {
+    format!("/*{}*/{source}", &self.empty_str[..start - 4])
+  }
+}
+
 #[macro_export]
 macro_rules! is_void_tag {
   ($name:ident) => {
