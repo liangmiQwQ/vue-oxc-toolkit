@@ -598,8 +598,8 @@ Program {
 Errors: 
 []
 
-JS:
- export default { setup() {
+JS: 
+export default { setup() {
 	return <><template>
   <div class="1"></div>
   <div></div>

@@ -599,8 +599,8 @@ Errors:
     },
 ]
 
-JS:
- export default { setup() {
+JS: 
+export default { setup() {
 	return <><template>
   <div v-bind:key={(() => {
 		return {

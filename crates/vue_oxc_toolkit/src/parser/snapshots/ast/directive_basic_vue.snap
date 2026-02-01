@@ -902,8 +902,8 @@ Program {
 Errors: 
 []
 
-JS:
- export default { setup() {
+JS: 
+export default { setup() {
 	return <><template>
   <div v-bind:class={"w-100"} />
   <div v-bind:[some]={{ [some]: 2 }} />

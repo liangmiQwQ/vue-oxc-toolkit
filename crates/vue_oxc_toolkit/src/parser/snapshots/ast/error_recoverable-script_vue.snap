@@ -544,8 +544,8 @@ Errors:
     },
 ]
 
-JS:
- const a = {
+JS: 
+const a = {
 	b,
 	c
 };

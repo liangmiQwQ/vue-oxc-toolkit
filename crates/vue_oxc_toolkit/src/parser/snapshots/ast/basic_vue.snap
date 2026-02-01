@@ -465,8 +465,8 @@ Program {
 Errors: 
 []
 
-JS:
- const count = 1;
+JS: 
+const count = 1;
 export default { setup() {
 	return <><template>
   <div>

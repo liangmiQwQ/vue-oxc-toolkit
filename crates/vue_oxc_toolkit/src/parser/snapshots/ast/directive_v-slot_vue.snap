@@ -2516,8 +2516,8 @@ Program {
 Errors: 
 []
 
-JS:
- export default { setup() {
+JS: 
+export default { setup() {
 	return <><template>
   <Comp v-slot:={}>{{ default: ({ message }) => <></> }}</Comp>
   <Comp v-slot:header={}>{{ header: ({ message }) => <>
