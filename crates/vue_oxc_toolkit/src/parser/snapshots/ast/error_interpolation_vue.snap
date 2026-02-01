@@ -2,7 +2,8 @@
 source: crates/vue_oxc_toolkit/src/test.rs
 expression: result
 ---
-Program: Program {
+Program: 
+Program {
     span: Span {
         start: 0,
         end: 0,
@@ -27,7 +28,9 @@ Program: Program {
         variant: Standard,
     },
 }
-Errors: [
+
+Errors: 
+[
     OxcDiagnostic {
         inner: OxcDiagnosticInner {
             message: "Interpolation end sign was not found.",
@@ -110,5 +113,8 @@ Errors: [
         },
     },
 ]
-JS: 
+
+JS:
+ 
+
 Node Locations:

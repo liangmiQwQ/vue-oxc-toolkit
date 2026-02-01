@@ -2,7 +2,8 @@
 source: crates/vue_oxc_toolkit/src/test.rs
 expression: result
 ---
-Program: Program {
+Program: 
+Program {
     span: Span {
         start: 0,
         end: 412,
@@ -2511,8 +2512,12 @@ Program: Program {
         variant: Jsx,
     },
 }
-Errors: []
-JS: export default { setup() {
+
+Errors: 
+[]
+
+JS:
+ export default { setup() {
 	return <><template>
   <Comp v-slot:={}>{{ default: ({ message }) => <></> }}</Comp>
   <Comp v-slot:header={}>{{ header: ({ message }) => <>
@@ -2534,6 +2539,7 @@ JS: export default { setup() {
   </> }}</Comp>
 </template></>;
 } };
+
 
 Node Locations:
 Slice: "<template>\n  <Comp #=\"{ message }\"></Com..[OMIT]..  {{ user.name }}\n  </Comp>\n</template>\n"; 

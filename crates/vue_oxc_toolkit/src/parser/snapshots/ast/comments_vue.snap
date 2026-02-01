@@ -2,7 +2,8 @@
 source: crates/vue_oxc_toolkit/src/test.rs
 expression: result
 ---
-Program: Program {
+Program: 
+Program {
     span: Span {
         start: 0,
         end: 282,
@@ -593,12 +594,17 @@ Program: Program {
         variant: Jsx,
     },
 }
-Errors: []
-JS: export default { setup() {
+
+Errors: 
+[]
+
+JS:
+ export default { setup() {
 	return <><template>
   <div v-bind:key={1}>{}</div>
 </template><script lang="ts"></script><script lang="ts" setup></script></>;
 } };
+
 
 Node Locations:
 Slice: "<template>\n  <div :key=\"1 /* vue is full..[OMIT]..setup>\n// Hello\n/* Me too! */\n</script>\n"; 

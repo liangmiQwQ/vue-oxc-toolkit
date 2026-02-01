@@ -2,7 +2,8 @@
 source: crates/vue_oxc_toolkit/src/test.rs
 expression: result
 ---
-Program: Program {
+Program: 
+Program {
     span: Span {
         start: 0,
         end: 126,
@@ -460,8 +461,12 @@ Program: Program {
         variant: Jsx,
     },
 }
-Errors: []
-JS: const count = 1;
+
+Errors: 
+[]
+
+JS:
+ const count = 1;
 export default { setup() {
 	return <><template>
   <div>
@@ -469,6 +474,7 @@ export default { setup() {
   </div>
 </template><script lang="js" setup></script></>;
 } };
+
 
 Node Locations:
 Slice: "<template>\n  <div>\n    {{ count }}\n  </d..[OMIT]..t count = 1;\n</script>\n\n<style></style>\n"; 

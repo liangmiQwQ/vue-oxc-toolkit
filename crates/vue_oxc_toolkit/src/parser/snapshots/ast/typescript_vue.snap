@@ -2,7 +2,8 @@
 source: crates/vue_oxc_toolkit/src/test.rs
 expression: result
 ---
-Program: Program {
+Program: 
+Program {
     span: Span {
         start: 0,
         end: 161,
@@ -609,8 +610,12 @@ Program: Program {
         variant: Jsx,
     },
 }
-Errors: []
-JS: const a = someFunction<{
+
+Errors: 
+[]
+
+JS:
+ const a = someFunction<{
 	msg: 1;
 }>();
 export default { setup() {
@@ -619,6 +624,7 @@ export default { setup() {
   <div> I think 1 < 2, isn't it? </div>
 </template></>;
 } };
+
 
 Node Locations:
 Slice: "<script lang=\"ts\" setup>\nconst a = someF..[OMIT]..ink 1 < 2, isn't it? </div>\n</template>\n"; 

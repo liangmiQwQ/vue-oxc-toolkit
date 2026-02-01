@@ -2,7 +2,8 @@
 source: crates/vue_oxc_toolkit/src/test.rs
 expression: result
 ---
-Program: Program {
+Program: 
+Program {
     span: Span {
         start: 0,
         end: 159,
@@ -897,8 +898,12 @@ Program: Program {
         variant: Jsx,
     },
 }
-Errors: []
-JS: export default { setup() {
+
+Errors: 
+[]
+
+JS:
+ export default { setup() {
 	return <><template>
   <div v-bind:class={"w-100"} />
   <div v-bind:[some]={{ [some]: 2 }} />
@@ -907,6 +912,7 @@ JS: export default { setup() {
   <Some v-bind:some.none={1} />
 </template></>;
 } };
+
 
 Node Locations:
 Slice: "<template>\n  <div :class=\"'w-100'\" />\n  ..[OMIT]..ome v-bind:some.none=\"1\" />\n</template>\n"; 

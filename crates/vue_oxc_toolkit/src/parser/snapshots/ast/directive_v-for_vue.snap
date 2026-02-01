@@ -2,7 +2,8 @@
 source: crates/vue_oxc_toolkit/src/test.rs
 expression: result
 ---
-Program: Program {
+Program: 
+Program {
     span: Span {
         start: 0,
         end: 507,
@@ -2898,8 +2899,12 @@ Program: Program {
         variant: Jsx,
     },
 }
-Errors: []
-JS: export default { setup() {
+
+Errors: 
+[]
+
+JS:
+ export default { setup() {
 	return <><template>
   {source((item) => <div v-for:={} />)}
   {source1((item1) => <div v-for:={} />)}
@@ -2913,6 +2918,7 @@ JS: export default { setup() {
   {someIter9(([item9 = "hi", index9]) => <div v-for:={} />)}
 </template></>;
 } };
+
 
 Node Locations:
 Slice: "<template>\n  <div v-for=\"item in source\"..[OMIT]..', index9] in someIter9\" />\n</template>\n"; 

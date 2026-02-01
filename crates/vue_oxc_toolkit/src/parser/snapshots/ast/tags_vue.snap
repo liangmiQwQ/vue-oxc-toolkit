@@ -2,7 +2,8 @@
 source: crates/vue_oxc_toolkit/src/test.rs
 expression: result
 ---
-Program: Program {
+Program: 
+Program {
     span: Span {
         start: 0,
         end: 133,
@@ -593,8 +594,12 @@ Program: Program {
         variant: Jsx,
     },
 }
-Errors: []
-JS: export default { setup() {
+
+Errors: 
+[]
+
+JS:
+ export default { setup() {
 	return <><template>
   <div class="1"></div>
   <div></div>
@@ -604,6 +609,7 @@ JS: export default { setup() {
   <br />
 </template></>;
 } };
+
 
 Node Locations:
 Slice: "<template>\n  <div class=\"1\"    ></div>\n ..[OMIT]..s=\"1\" />\n  <img />\n  <br />\n</template>\n"; 

@@ -2,7 +2,8 @@
 source: crates/vue_oxc_toolkit/src/test.rs
 expression: result
 ---
-Program: Program {
+Program: 
+Program {
     span: Span {
         start: 0,
         end: 56,
@@ -339,7 +340,9 @@ Program: Program {
         variant: Jsx,
     },
 }
-Errors: [
+
+Errors: 
+[
     OxcDiagnostic {
         inner: OxcDiagnosticInner {
             message: "Invalid end tag.",
@@ -368,13 +371,16 @@ Errors: [
         },
     },
 ]
-JS: export default { setup() {
+
+JS:
+ export default { setup() {
 	return <><template>
   <br />
   <input />
   <img /></img>
 </template></>;
 } };
+
 
 Node Locations:
 Slice: "<template>\n  <br>\n  <input />\n  <img></img>\n</template>\n"; 
