@@ -1,7 +1,7 @@
 use oxc_allocator::{Allocator, Vec as ArenaVec};
 use oxc_ast::{
   AstBuilder, Comment,
-  ast::{JSXChild, Program, Statement},
+  ast::{Program, Statement},
 };
 use oxc_diagnostics::OxcDiagnostic;
 use oxc_parser::ParseOptions;
@@ -13,6 +13,7 @@ mod error;
 mod modules;
 mod parse;
 mod script;
+mod tags;
 
 pub struct ParserImpl<'a> {
   allocator: &'a Allocator,
@@ -28,7 +29,7 @@ pub struct ParserImpl<'a> {
 
   setup: ArenaVec<'a, Statement<'a>>,
   statements: ArenaVec<'a, Statement<'a>>,
-  tags: ArenaVec<'a, JSXChild<'a>>,
+  sfc_return: Option<Statement<'a>>,
 }
 
 impl<'a> ParserImpl<'a> {
@@ -49,7 +50,7 @@ impl<'a> ParserImpl<'a> {
 
       setup: ast.vec(),
       statements: ast.vec(),
-      tags: ast.vec(),
+      sfc_return: None,
     }
   }
 }
@@ -60,4 +61,27 @@ pub struct ParserImplReturn<'a> {
 
   pub fatal: bool,
   pub errors: Vec<OxcDiagnostic>,
+}
+
+#[macro_export]
+macro_rules! is_void_tag {
+  ($name:ident) => {
+    matches!(
+      $name,
+      "area"
+        | "base"
+        | "br"
+        | "col"
+        | "embed"
+        | "hr"
+        | "img"
+        | "input"
+        | "link"
+        | "meta"
+        | "param"
+        | "source"
+        | "track"
+        | "wbr"
+    )
+  };
 }
