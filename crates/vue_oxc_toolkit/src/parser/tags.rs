@@ -298,12 +298,10 @@ impl<'a> ParserImpl<'a> {
     let Some(Statement::ExpressionStatement(stmt)) = body.get_mut(0) else {
       // SAFETY: We always wrap the source in parentheses, so it should always be an expression statement
       // if it was valid partially. If it's invalid, the parser might return empty body if it fails early.
-      // unreachable!()
-      return None;
+      unreachable!()
     };
     let Expression::ParenthesizedExpression(expression) = &mut stmt.expression else {
-      // unreachable!()
-      return None;
+      unreachable!()
     };
     Some(expression.expression.take_in(self.allocator))
   }

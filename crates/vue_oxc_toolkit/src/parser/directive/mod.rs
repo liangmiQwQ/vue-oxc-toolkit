@@ -22,7 +22,7 @@ impl<'a> ParserImpl<'a> {
       name if name.starts_with(':') => Some(self.analyze_directive_alias(name, span, "v-bind")),
       name if name.starts_with('@') => Some(self.analyze_directive_alias(name, span, "v-on")),
       name if name.starts_with('#') => Some(self.analyze_directive_alias(name, span, "v-slot")),
-      _ => None, // unreachable!();
+      _ => unreachable!(),
     }
   }
 

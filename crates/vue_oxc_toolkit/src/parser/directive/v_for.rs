@@ -57,8 +57,7 @@ impl<'a> ParserImpl<'a> {
       let mut expr = self.parse_expression(self.ast.atom(&str).as_str(), start)?;
 
       let Expression::ArrowFunctionExpression(expression) = &mut expr else {
-        // unreachable!();
-        return None;
+        unreachable!();
       };
 
       let mut params = expression.params.take_in(self.ast.allocator);
