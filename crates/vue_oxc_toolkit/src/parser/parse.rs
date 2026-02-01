@@ -222,4 +222,13 @@ mod tests {
     test_ast!("error/irrecoverable-script.vue", true, true);
     test_ast!("error/irrecoverable-directive.vue", true, true);
   }
+
+  #[test]
+  fn scripts() {
+    test_ast!("scripts/basic.vue");
+    test_ast!("scripts/setup.vue");
+    test_ast!("scripts/both.vue");
+    test_ast!("scripts/empty.vue");
+    test_ast!("scripts/invaild-export.vue", true, false);
+  }
 }
