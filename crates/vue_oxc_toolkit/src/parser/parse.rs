@@ -1,9 +1,14 @@
 use std::cell::RefCell;
 
-use oxc_allocator::{self, Dummy, TakeIn};
-use oxc_ast::ast::{Program, Statement};
+use oxc_allocator::{self, CloneIn, Dummy, TakeIn, Vec as ArenaVec};
+use oxc_ast::ast::{
+  ExportDefaultDeclarationKind, Expression, FormalParameterKind, FunctionType, Program,
+  PropertyKind, Statement,
+};
+use oxc_ast::{AstBuilder, NONE};
 
-use oxc_span::{SPAN, Span};
+use oxc_diagnostics::OxcDiagnostic;
+use oxc_span::{GetSpan, SPAN, Span};
 use oxc_syntax::module_record::ModuleRecord;
 use vue_compiler_core::SourceLocation;
 use vue_compiler_core::parser::{AstNode, ParseOption, Parser, WhitespaceStrategy};
@@ -17,24 +22,37 @@ use super::ParserImplReturn;
 
 impl<'a> ParserImpl<'a> {
   pub fn parse(mut self) -> ParserImplReturn<'a> {
-    match self.analyze() {
+    let result = self.analyze();
+    match result {
       Some(()) => {
-        let span = Span::new(0, self.source_text.len() as u32);
-        self.fix_module_records(span);
+        self.fix_module_records();
+
+        let Self {
+          source_text,
+          ast,
+          module_record,
+          source_type,
+          comments,
+          mut errors,
+          setup,
+          statements,
+          sfc_return,
+          ..
+        } = self;
 
         ParserImplReturn {
-          program: self.ast.program(
-            span,
-            self.source_type,
-            self.source_text,
-            self.comments.take_in(self.ast.allocator),
+          program: ast.program(
+            Span::new(0, self.source_text.len() as u32),
+            source_type,
+            source_text,
+            comments,
             None, // no hashbang needed for vue files
-            self.ast.vec(),
-            self.statements,
+            ast.vec(),
+            Self::get_body_statements(statements, setup, sfc_return, ast, &mut errors),
           ),
           fatal: false,
-          errors: self.errors,
-          module_record: self.module_record,
+          errors,
+          module_record,
         }
       }
       None => ParserImplReturn {
@@ -96,6 +114,74 @@ impl<'a> ParserImpl<'a> {
     )));
 
     Some(())
+  }
+
+  fn get_body_statements<'b>(
+    mut statements: ArenaVec<'a, Statement<'a>>,
+    mut setup: ArenaVec<'a, Statement<'a>>,
+    sfc_return: Option<Statement<'a>>,
+    ast: AstBuilder<'a>,
+    errors: &'b mut Vec<OxcDiagnostic>,
+  ) -> ArenaVec<'a, Statement<'a>> {
+    let setup_property = ast.object_property_kind_object_property(
+      SPAN,
+      PropertyKind::Init,
+      ast.property_key_static_identifier(SPAN, "setup"),
+      Expression::FunctionExpression(ast.alloc_function(
+        SPAN,
+        FunctionType::FunctionExpression,
+        None,
+        false,
+        false,
+        false,
+        NONE,
+        NONE,
+        ast.alloc_formal_parameters(
+          SPAN,
+          FormalParameterKind::UniqueFormalParameters,
+          ast.vec(),
+          NONE,
+        ),
+        NONE,
+        Some(ast.function_body(SPAN, ast.vec(), {
+          if let Some(ret) = sfc_return {
+            setup.push(ret);
+          }
+          setup
+        })),
+      )),
+      true,
+      false,
+      false,
+    );
+
+    match statements.iter_mut().find_map(|statement| {
+      if let Statement::ExportDefaultDeclaration(decl) = statement { Some(decl) } else { None }
+    }) {
+      Some(export_default) => match export_default.declaration.as_expression_mut() {
+        Some(expr) => {
+          let property =
+            ast.object_property_kind_spread_property(SPAN, expr.take_in(ast.allocator));
+
+          *expr = ast.expression_object(SPAN, ast.vec_from_array([property, setup_property]));
+        }
+        None => errors.push(
+          OxcDiagnostic::error("Vue SFC export default must be an expression.")
+            .with_help("Use `export default { ... }` (options object) instead of declarations.")
+            .with_label(export_default.declaration.span()),
+        ),
+      },
+      None => {
+        statements.push(Statement::ExportDefaultDeclaration(ast.alloc_export_default_declaration(
+          SPAN,
+          ExportDefaultDeclarationKind::ObjectExpression(
+            ast.alloc_object_expression(SPAN, ast.vec1(setup_property)),
+          ),
+        )));
+      }
+    }
+
+    statements
   }
 }
 

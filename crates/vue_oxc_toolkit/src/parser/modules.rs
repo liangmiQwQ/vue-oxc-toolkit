@@ -33,14 +33,14 @@ impl Merge for ModuleRecord<'_> {
 }
 
 impl ParserImpl<'_> {
-  pub fn fix_module_records(&mut self, span: Span) {
+  pub fn fix_module_records(&mut self) {
     self.module_record.has_module_syntax = true;
 
     if !self.module_record.local_export_entries.iter().any(|entry| entry.export_name.is_default()) {
       // For no script or <script setup> only file
       self.module_record.local_export_entries.push(ExportEntry {
-        span,
-        statement_span: span,
+        span: SPAN,
+        statement_span: SPAN,
         module_request: None,
         import_name: ExportImportName::Null,
         export_name: ExportExportName::Default(SPAN),
