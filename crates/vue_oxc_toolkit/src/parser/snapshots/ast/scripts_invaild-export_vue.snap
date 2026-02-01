@@ -1,0 +1,234 @@
+---
+source: crates/vue_oxc_toolkit/src/test.rs
+expression: result
+---
+Program: 
+Program {
+    span: Span {
+        start: 0,
+        end: 120,
+    },
+    source_text: "<template>\n  <div>\n    \n  </div>\n</template>\n\n<script>\nexport default function () {\n  console.log(\"hello\")\n}\n</script>\n\n",
+    comments: Vec(
+        [],
+    ),
+    hashbang: None,
+    directives: Vec(
+        [],
+    ),
+    body: Vec(
+        [
+            ExportDefaultDeclaration(
+                ExportDefaultDeclaration {
+                    span: Span {
+                        start: 55,
+                        end: 108,
+                    },
+                    declaration: FunctionDeclaration(
+                        Function {
+                            span: Span {
+                                start: 70,
+                                end: 108,
+                            },
+                            id: None,
+                            type_parameters: None,
+                            this_param: None,
+                            params: FormalParameters {
+                                span: Span {
+                                    start: 79,
+                                    end: 81,
+                                },
+                                items: Vec(
+                                    [],
+                                ),
+                                rest: None,
+                                kind: FormalParameter,
+                            },
+                            return_type: None,
+                            body: Some(
+                                FunctionBody {
+                                    span: Span {
+                                        start: 82,
+                                        end: 108,
+                                    },
+                                    directives: Vec(
+                                        [],
+                                    ),
+                                    statements: Vec(
+                                        [
+                                            ExpressionStatement(
+                                                ExpressionStatement {
+                                                    span: Span {
+                                                        start: 86,
+                                                        end: 106,
+                                                    },
+                                                    expression: CallExpression(
+                                                        CallExpression {
+                                                            span: Span {
+                                                                start: 86,
+                                                                end: 106,
+                                                            },
+                                                            callee: StaticMemberExpression(
+                                                                StaticMemberExpression {
+                                                                    span: Span {
+                                                                        start: 86,
+                                                                        end: 97,
+                                                                    },
+                                                                    object: Identifier(
+                                                                        IdentifierReference {
+                                                                            span: Span {
+                                                                                start: 86,
+                                                                                end: 93,
+                                                                            },
+                                                                            name: "console",
+                                                                            reference_id: Cell {
+                                                                                value: None,
+                                                                            },
+                                                                        },
+                                                                    ),
+                                                                    property: IdentifierName {
+                                                                        span: Span {
+                                                                            start: 94,
+                                                                            end: 97,
+                                                                        },
+                                                                        name: "log",
+                                                                    },
+                                                                    optional: false,
+                                                                },
+                                                            ),
+                                                            type_arguments: None,
+                                                            arguments: Vec(
+                                                                [
+                                                                    StringLiteral(
+                                                                        StringLiteral {
+                                                                            span: Span {
+                                                                                start: 98,
+                                                                                end: 105,
+                                                                            },
+                                                                            value: "hello",
+                                                                            raw: Some(
+                                                                                "\"hello\"",
+                                                                            ),
+                                                                            lone_surrogates: false,
+                                                                        },
+                                                                    ),
+                                                                ],
+                                                            ),
+                                                            optional: false,
+                                                            pure: false,
+                                                        },
+                                                    ),
+                                                },
+                                            ),
+                                        ],
+                                    ),
+                                },
+                            ),
+                            scope_id: Cell {
+                                value: None,
+                            },
+                            type: FunctionDeclaration,
+                            generator: false,
+                            async: false,
+                            declare: false,
+                            pure: false,
+                            pife: false,
+                        },
+                    ),
+                },
+            ),
+        ],
+    ),
+    scope_id: Cell {
+        value: None,
+    },
+    source_type: SourceType {
+        language: JavaScript,
+        module_kind: Module,
+        variant: Jsx,
+    },
+}
+
+Errors: 
+[
+    OxcDiagnostic {
+        inner: OxcDiagnosticInner {
+            message: "Vue SFC export default must be an expression.",
+            labels: Some(
+                [
+                    LabeledSpan {
+                        label: None,
+                        span: SourceSpan {
+                            offset: SourceOffset(
+                                70,
+                            ),
+                            length: 38,
+                        },
+                        primary: false,
+                    },
+                ],
+            ),
+            help: Some(
+                "Use `export default { ... }` (options object) instead of declarations.",
+            ),
+            note: None,
+            severity: Error,
+            code: OxcCode {
+                scope: None,
+                number: None,
+            },
+            url: None,
+        },
+    },
+]
+
+JS: 
+export default function() {
+	console.log("hello");
+}
+
+
+Node Locations:
+Slice: "<template>\n  <div>\n    \n  </div>\n</templ..[OMIT]..) {\n  console.log(\"hello\")\n}\n</script>\n\n"; 
+Span: (0, 120); 
+Type: Program; 
+
+Slice: "export default function () {\n  console.log(\"hello\")\n}"; 
+Span: (55, 108); 
+Type: ExportDefaultDeclaration; 
+
+Slice: "function () {\n  console.log(\"hello\")\n}"; 
+Span: (70, 108); 
+Type: Function; 
+
+Slice: "()"; 
+Span: (79, 81); 
+Type: FormalParameters; 
+
+Slice: "{\n  console.log(\"hello\")\n}"; 
+Span: (82, 108); 
+Type: FunctionBody; 
+
+Slice: "console.log(\"hello\")"; 
+Span: (86, 106); 
+Type: ExpressionStatement; 
+
+Slice: "console.log(\"hello\")"; 
+Span: (86, 106); 
+Type: CallExpression; 
+
+Slice: "console.log"; 
+Span: (86, 97); 
+Type: StaticMemberExpression; 
+
+Slice: "console"; 
+Span: (86, 93); 
+Type: IdentifierReference; 
+
+Slice: "log"; 
+Span: (94, 97); 
+Type: IdentifierName; 
+
+Slice: "\"hello\""; 
+Span: (98, 105); 
+Type: StringLiteral;

@@ -20,7 +20,7 @@ macro_rules! test_ast {
       let node_locations = $crate::test::format_node_locations(&ret.program, &source_text);
       assert_eq!(ret.fatal, $should_panic);
       format!(
-        "Program: {:#?}\nErrors: {:#?}\nJS: {}\n{}",
+        "Program: \n{:#?}\n\nErrors: \n{:#?}\n\nJS: \n{}\n\n{}",
         ret.program, ret.errors, js.code, node_locations
       )
     });

@@ -1,5 +1,8 @@
-use oxc_allocator::Allocator;
-use oxc_ast::{AstBuilder, Comment, ast::Program};
+use oxc_allocator::{Allocator, Vec as ArenaVec};
+use oxc_ast::{
+  AstBuilder, Comment,
+  ast::{Program, Statement},
+};
 use oxc_diagnostics::OxcDiagnostic;
 use oxc_parser::ParseOptions;
 use oxc_span::SourceType;
@@ -9,6 +12,8 @@ mod directive;
 mod error;
 mod modules;
 mod parse;
+mod script;
+mod tags;
 
 pub struct ParserImpl<'a> {
   allocator: &'a Allocator,
@@ -19,8 +24,12 @@ pub struct ParserImpl<'a> {
 
   module_record: ModuleRecord<'a>,
   source_type: SourceType,
-  comments: oxc_allocator::Vec<'a, Comment>,
+  comments: ArenaVec<'a, Comment>,
   errors: Vec<OxcDiagnostic>,
+
+  setup: ArenaVec<'a, Statement<'a>>,
+  statements: ArenaVec<'a, Statement<'a>>,
+  sfc_return: Option<Statement<'a>>,
 }
 
 impl<'a> ParserImpl<'a> {
@@ -38,6 +47,10 @@ impl<'a> ParserImpl<'a> {
       errors: vec![],
       empty_str: ".".repeat(source_text.len()),
       options,
+
+      setup: ast.vec(),
+      statements: ast.vec(),
+      sfc_return: None,
     }
   }
 }
@@ -48,4 +61,58 @@ pub struct ParserImplReturn<'a> {
 
   pub fatal: bool,
   pub errors: Vec<OxcDiagnostic>,
+}
+
+// Some public utils
+impl<'a> ParserImpl<'a> {
+  pub fn oxc_parse(
+    &mut self,
+    source: &str,
+    source_type: SourceType,
+    start: usize,
+  ) -> Option<(ArenaVec<'a, Statement<'a>>, ModuleRecord<'a>)> {
+    let source_text = self.ast.atom(&self.pad_source(source, start));
+    let mut ret = oxc_parser::Parser::new(self.allocator, source_text.as_str(), source_type)
+      .with_options(self.options)
+      .parse();
+
+    self.errors.append(&mut ret.errors);
+    if ret.panicked {
+      // TODO: do not panic for js parsing error
+      None
+    } else {
+      self.comments.extend(&ret.program.comments[1..]);
+      Some((ret.program.body, ret.module_record))
+    }
+  }
+
+  /// A workaround
+  /// Use comment placeholder to make the location AST returned correct
+  /// The start must > 4 in any valid Vue files
+  pub fn pad_source(&self, source: &str, start: usize) -> String {
+    format!("/*{}*/{source}", &self.empty_str[..start - 4])
+  }
+}
+
+#[macro_export]
+macro_rules! is_void_tag {
+  ($name:ident) => {
+    matches!(
+      $name,
+      "area"
+        | "base"
+        | "br"
+        | "col"
+        | "embed"
+        | "hr"
+        | "img"
+        | "input"
+        | "link"
+        | "meta"
+        | "param"
+        | "source"
+        | "track"
+        | "wbr"
+    )
+  };
 }

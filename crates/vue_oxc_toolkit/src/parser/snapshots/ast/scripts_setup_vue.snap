@@ -6,9 +6,9 @@ Program:
 Program {
     span: Span {
         start: 0,
-        end: 118,
+        end: 119,
     },
-    source_text: "<template>\n  <div></div>\n</template>\n\n<script lang=\"ts\" setup>\nconst a = { b = 1, c = 1 };\n</script>\n\n<style></style>\n",
+    source_text: "<template>\n  <div>\n    \n  </div>\n</template>\n\n<script setup>\nimport { ref } from 'vue'\n\nconst count = ref(0)\n</script>\n",
     comments: Vec(
         [],
     ),
@@ -18,6 +18,62 @@ Program {
     ),
     body: Vec(
         [
+            ImportDeclaration(
+                ImportDeclaration {
+                    span: Span {
+                        start: 61,
+                        end: 86,
+                    },
+                    specifiers: Some(
+                        Vec(
+                            [
+                                ImportSpecifier(
+                                    ImportSpecifier {
+                                        span: Span {
+                                            start: 70,
+                                            end: 73,
+                                        },
+                                        imported: IdentifierName(
+                                            IdentifierName {
+                                                span: Span {
+                                                    start: 70,
+                                                    end: 73,
+                                                },
+                                                name: "ref",
+                                            },
+                                        ),
+                                        local: BindingIdentifier {
+                                            span: Span {
+                                                start: 70,
+                                                end: 73,
+                                            },
+                                            name: "ref",
+                                            symbol_id: Cell {
+                                                value: None,
+                                            },
+                                        },
+                                        import_kind: Value,
+                                    },
+                                ),
+                            ],
+                        ),
+                    ),
+                    source: StringLiteral {
+                        span: Span {
+                            start: 81,
+                            end: 86,
+                        },
+                        value: "vue",
+                        raw: Some(
+                            "'vue'",
+                        ),
+                        lone_surrogates: false,
+                    },
+                    with_clause: None,
+                    phase: None,
+                    import_kind: Value,
+                },
+            ),
             ExportDefaultDeclaration(
                 ExportDefaultDeclaration {
                     span: Span {
@@ -82,23 +138,23 @@ Program {
                                                                     VariableDeclaration(
                                                                         VariableDeclaration {
                                                                             span: Span {
-                                                                                start: 63,
-                                                                                end: 90,
+                                                                                start: 88,
+                                                                                end: 108,
                                                                             },
                                                                             declarations: Vec(
                                                                                 [
                                                                                     VariableDeclarator {
                                                                                         span: Span {
-                                                                                            start: 69,
-                                                                                            end: 89,
+                                                                                            start: 94,
+                                                                                            end: 108,
                                                                                         },
                                                                                         id: BindingIdentifier(
                                                                                             BindingIdentifier {
                                                                                                 span: Span {
-                                                                                                    start: 69,
-                                                                                                    end: 70,
+                                                                                                    start: 94,
+                                                                                                    end: 99,
                                                                                                 },
-                                                                                                name: "a",
+                                                                                                name: "count",
                                                                                                 symbol_id: Cell {
                                                                                                     value: None,
                                                                                                 },
@@ -106,82 +162,44 @@ Program {
                                                                                         ),
                                                                                         type_annotation: None,
                                                                                         init: Some(
-                                                                                            ObjectExpression(
-                                                                                                ObjectExpression {
+                                                                                            CallExpression(
+                                                                                                CallExpression {
                                                                                                     span: Span {
-                                                                                                        start: 73,
-                                                                                                        end: 89,
+                                                                                                        start: 102,
+                                                                                                        end: 108,
                                                                                                     },
-                                                                                                    properties: Vec(
+                                                                                                    callee: Identifier(
+                                                                                                        IdentifierReference {
+                                                                                                            span: Span {
+                                                                                                                start: 102,
+                                                                                                                end: 105,
+                                                                                                            },
+                                                                                                            name: "ref",
+                                                                                                            reference_id: Cell {
+                                                                                                                value: None,
+                                                                                                            },
+                                                                                                        },
+                                                                                                    ),
+                                                                                                    type_arguments: None,
+                                                                                                    arguments: Vec(
                                                                                                         [
-                                                                                                            ObjectProperty(
-                                                                                                                ObjectProperty {
+                                                                                                            NumericLiteral(
+                                                                                                                NumericLiteral {
                                                                                                                     span: Span {
-                                                                                                                        start: 75,
-                                                                                                                        end: 80,
+                                                                                                                        start: 106,
+                                                                                                                        end: 107,
                                                                                                                     },
-                                                                                                                    key: StaticIdentifier(
-                                                                                                                        IdentifierName {
-                                                                                                                            span: Span {
-                                                                                                                                start: 75,
-                                                                                                                                end: 76,
-                                                                                                                            },
-                                                                                                                            name: "b",
-                                                                                                                        },
+                                                                                                                    value: 0.0,
+                                                                                                                    raw: Some(
+                                                                                                                        "0",
                                                                                                                     ),
-                                                                                                                    value: Identifier(
-                                                                                                                        IdentifierReference {
-                                                                                                                            span: Span {
-                                                                                                                                start: 75,
-                                                                                                                                end: 76,
-                                                                                                                            },
-                                                                                                                            name: "b",
-                                                                                                                            reference_id: Cell {
-                                                                                                                                value: None,
-                                                                                                                            },
-                                                                                                                        },
-                                                                                                                    ),
-                                                                                                                    kind: Init,
-                                                                                                                    method: false,
-                                                                                                                    shorthand: true,
-                                                                                                                    computed: false,
-                                                                                                                },
-                                                                                                            ),
-                                                                                                            ObjectProperty(
-                                                                                                                ObjectProperty {
-                                                                                                                    span: Span {
-                                                                                                                        start: 82,
-                                                                                                                        end: 87,
-                                                                                                                    },
-                                                                                                                    key: StaticIdentifier(
-                                                                                                                        IdentifierName {
-                                                                                                                            span: Span {
-                                                                                                                                start: 82,
-                                                                                                                                end: 83,
-                                                                                                                            },
-                                                                                                                            name: "c",
-                                                                                                                        },
-                                                                                                                    ),
-                                                                                                                    value: Identifier(
-                                                                                                                        IdentifierReference {
-                                                                                                                            span: Span {
-                                                                                                                                start: 82,
-                                                                                                                                end: 83,
-                                                                                                                            },
-                                                                                                                            name: "c",
-                                                                                                                            reference_id: Cell {
-                                                                                                                                value: None,
-                                                                                                                            },
-                                                                                                                        },
-                                                                                                                    ),
-                                                                                                                    kind: Init,
-                                                                                                                    method: false,
-                                                                                                                    shorthand: true,
-                                                                                                                    computed: false,
+                                                                                                                    base: Decimal,
                                                                                                                 },
                                                                                                             ),
                                                                                                         ],
                                                                                                     ),
+                                                                                                    optional: false,
+                                                                                                    pure: false,
                                                                                                 },
                                                                                             ),
                                                                                         ),
@@ -219,7 +237,7 @@ Program {
                                                                                                     JSXElement {
                                                                                                         span: Span {
                                                                                                             start: 0,
-                                                                                                            end: 36,
+                                                                                                            end: 44,
                                                                                                         },
                                                                                                         opening_element: JSXOpeningElement {
                                                                                                             span: Span {
@@ -258,7 +276,7 @@ Program {
                                                                                                                     JSXElement {
                                                                                                                         span: Span {
                                                                                                                             start: 13,
-                                                                                                                            end: 24,
+                                                                                                                            end: 32,
                                                                                                                         },
                                                                                                                         opening_element: JSXOpeningElement {
                                                                                                                             span: Span {
@@ -285,14 +303,14 @@ Program {
                                                                                                                         closing_element: Some(
                                                                                                                             JSXClosingElement {
                                                                                                                                 span: Span {
-                                                                                                                                    start: 18,
-                                                                                                                                    end: 24,
+                                                                                                                                    start: 26,
+                                                                                                                                    end: 32,
                                                                                                                                 },
                                                                                                                                 name: Identifier(
                                                                                                                                     JSXIdentifier {
                                                                                                                                         span: Span {
-                                                                                                                                            start: 20,
-                                                                                                                                            end: 23,
+                                                                                                                                            start: 28,
+                                                                                                                                            end: 31,
                                                                                                                                         },
                                                                                                                                         name: "div",
                                                                                                                                     },
@@ -304,8 +322,8 @@ Program {
                                                                                                                 Text(
                                                                                                                     JSXText {
                                                                                                                         span: Span {
-                                                                                                                            start: 24,
-                                                                                                                            end: 25,
+                                                                                                                            start: 32,
+                                                                                                                            end: 33,
                                                                                                                         },
                                                                                                                         value: "\n",
                                                                                                                         raw: Some(
@@ -318,14 +336,14 @@ Program {
                                                                                                         closing_element: Some(
                                                                                                             JSXClosingElement {
                                                                                                                 span: Span {
-                                                                                                                    start: 25,
-                                                                                                                    end: 36,
+                                                                                                                    start: 33,
+                                                                                                                    end: 44,
                                                                                                                 },
                                                                                                                 name: Identifier(
                                                                                                                     JSXIdentifier {
                                                                                                                         span: Span {
-                                                                                                                            start: 27,
-                                                                                                                            end: 35,
+                                                                                                                            start: 35,
+                                                                                                                            end: 43,
                                                                                                                         },
                                                                                                                         name: "template",
                                                                                                                     },
@@ -337,19 +355,19 @@ Program {
                                                                                                 Element(
                                                                                                     JSXElement {
                                                                                                         span: Span {
-                                                                                                            start: 38,
-                                                                                                            end: 100,
+                                                                                                            start: 46,
+                                                                                                            end: 118,
                                                                                                         },
                                                                                                         opening_element: JSXOpeningElement {
                                                                                                             span: Span {
-                                                                                                                start: 38,
-                                                                                                                end: 62,
+                                                                                                                start: 46,
+                                                                                                                end: 60,
                                                                                                             },
                                                                                                             name: Identifier(
                                                                                                                 JSXIdentifier {
                                                                                                                     span: Span {
-                                                                                                                        start: 39,
-                                                                                                                        end: 45,
+                                                                                                                        start: 47,
+                                                                                                                        end: 53,
                                                                                                                     },
                                                                                                                     name: "script",
                                                                                                                 },
@@ -360,44 +378,14 @@ Program {
                                                                                                                     Attribute(
                                                                                                                         JSXAttribute {
                                                                                                                             span: Span {
-                                                                                                                                start: 46,
-                                                                                                                                end: 55,
+                                                                                                                                start: 54,
+                                                                                                                                end: 59,
                                                                                                                             },
                                                                                                                             name: Identifier(
                                                                                                                                 JSXIdentifier {
                                                                                                                                     span: Span {
-                                                                                                                                        start: 46,
-                                                                                                                                        end: 50,
-                                                                                                                                    },
-                                                                                                                                    name: "lang",
-                                                                                                                                },
-                                                                                                                            ),
-                                                                                                                            value: Some(
-                                                                                                                                StringLiteral(
-                                                                                                                                    StringLiteral {
-                                                                                                                                        span: Span {
-                                                                                                                                            start: 52,
-                                                                                                                                            end: 54,
-                                                                                                                                        },
-                                                                                                                                        value: "ts",
-                                                                                                                                        raw: None,
-                                                                                                                                        lone_surrogates: false,
-                                                                                                                                    },
-                                                                                                                                ),
-                                                                                                                            ),
-                                                                                                                        },
-                                                                                                                    ),
-                                                                                                                    Attribute(
-                                                                                                                        JSXAttribute {
-                                                                                                                            span: Span {
-                                                                                                                                start: 56,
-                                                                                                                                end: 61,
-                                                                                                                            },
-                                                                                                                            name: Identifier(
-                                                                                                                                JSXIdentifier {
-                                                                                                                                    span: Span {
-                                                                                                                                        start: 56,
-                                                                                                                                        end: 61,
+                                                                                                                                        start: 54,
+                                                                                                                                        end: 59,
                                                                                                                                     },
                                                                                                                                     name: "setup",
                                                                                                                                 },
@@ -414,14 +402,14 @@ Program {
                                                                                                         closing_element: Some(
                                                                                                             JSXClosingElement {
                                                                                                                 span: Span {
-                                                                                                                    start: 91,
-                                                                                                                    end: 100,
+                                                                                                                    start: 109,
+                                                                                                                    end: 118,
                                                                                                                 },
                                                                                                                 name: Identifier(
                                                                                                                     JSXIdentifier {
                                                                                                                         span: Span {
-                                                                                                                            start: 93,
-                                                                                                                            end: 99,
+                                                                                                                            start: 111,
+                                                                                                                            end: 117,
                                                                                                                         },
                                                                                                                         name: "script",
                                                                                                                     },
@@ -476,133 +464,76 @@ Program {
         value: None,
     },
     source_type: SourceType {
-        language: TypeScript,
+        language: JavaScript,
         module_kind: Module,
         variant: Jsx,
     },
 }
 
 Errors: 
-[
-    OxcDiagnostic {
-        inner: OxcDiagnosticInner {
-            message: "Invalid assignment in object literal",
-            labels: Some(
-                [
-                    LabeledSpan {
-                        label: None,
-                        span: SourceSpan {
-                            offset: SourceOffset(
-                                82,
-                            ),
-                            length: 5,
-                        },
-                        primary: false,
-                    },
-                ],
-            ),
-            help: Some(
-                "Did you mean to use a ':'? An '=' can only follow a property name when the containing object literal is part of a destructuring pattern.",
-            ),
-            note: None,
-            severity: Error,
-            code: OxcCode {
-                scope: None,
-                number: None,
-            },
-            url: None,
-        },
-    },
-    OxcDiagnostic {
-        inner: OxcDiagnosticInner {
-            message: "Invalid assignment in object literal",
-            labels: Some(
-                [
-                    LabeledSpan {
-                        label: None,
-                        span: SourceSpan {
-                            offset: SourceOffset(
-                                75,
-                            ),
-                            length: 5,
-                        },
-                        primary: false,
-                    },
-                ],
-            ),
-            help: Some(
-                "Did you mean to use a ':'? An '=' can only follow a property name when the containing object literal is part of a destructuring pattern.",
-            ),
-            note: None,
-            severity: Error,
-            code: OxcCode {
-                scope: None,
-                number: None,
-            },
-            url: None,
-        },
-    },
-]
+[]
 
 JS: 
+import { ref } from "vue";
 export default { setup() {
-	const a = {
-		b,
-		c
-	};
+	const count = ref(0);
 	return <><template>
   <div></div>
-</template><script lang="ts" setup></script></>;
+</template><script setup></script></>;
 } };
 
 
 Node Locations:
-Slice: "<template>\n  <div></div>\n</template>\n\n<s..[OMIT].. 1, c = 1 };\n</script>\n\n<style></style>\n"; 
-Span: (0, 118); 
+Slice: "<template>\n  <div>\n    \n  </div>\n</templ..[OMIT]..m 'vue'\n\nconst count = ref(0)\n</script>\n"; 
+Span: (0, 119); 
 Type: Program; 
 
-Slice: "const a = { b = 1, c = 1 };"; 
-Span: (63, 90); 
-Type: VariableDeclaration; 
+Slice: "import { ref } from 'vue'"; 
+Span: (61, 86); 
+Type: ImportDeclaration; 
 
-Slice: "a = { b = 1, c = 1 }"; 
-Span: (69, 89); 
-Type: VariableDeclarator; 
+Slice: "ref"; 
+Span: (70, 73); 
+Type: ImportSpecifier; 
 
-Slice: "a"; 
-Span: (69, 70); 
+Slice: "ref"; 
+Span: (70, 73); 
+Type: IdentifierName; 
+
+Slice: "ref"; 
+Span: (70, 73); 
 Type: BindingIdentifier; 
 
-Slice: "{ b = 1, c = 1 }"; 
-Span: (73, 89); 
-Type: ObjectExpression; 
+Slice: "'vue'"; 
+Span: (81, 86); 
+Type: StringLiteral; 
 
-Slice: "b = 1"; 
-Span: (75, 80); 
-Type: ObjectProperty; 
+Slice: "const count = ref(0)"; 
+Span: (88, 108); 
+Type: VariableDeclaration; 
 
-Slice: "b"; 
-Span: (75, 76); 
-Type: IdentifierName; 
+Slice: "count = ref(0)"; 
+Span: (94, 108); 
+Type: VariableDeclarator; 
 
-Slice: "b"; 
-Span: (75, 76); 
+Slice: "count"; 
+Span: (94, 99); 
+Type: BindingIdentifier; 
+
+Slice: "ref(0)"; 
+Span: (102, 108); 
+Type: CallExpression; 
+
+Slice: "ref"; 
+Span: (102, 105); 
 Type: IdentifierReference; 
 
-Slice: "c = 1"; 
-Span: (82, 87); 
-Type: ObjectProperty; 
+Slice: "0"; 
+Span: (106, 107); 
+Type: NumericLiteral; 
 
-Slice: "c"; 
-Span: (82, 83); 
-Type: IdentifierName; 
-
-Slice: "c"; 
-Span: (82, 83); 
-Type: IdentifierReference; 
-
-Slice: "<template>\n  <div></div>\n</template>"; 
-Span: (0, 36); 
+Slice: "<template>\n  <div>\n    \n  </div>\n</template>"; 
+Span: (0, 44); 
 Type: JSXElement; 
 
 Slice: "<template>"; 
@@ -617,8 +548,8 @@ Slice: "\n  ";
 Span: (10, 13); 
 Type: JSXText; 
 
-Slice: "<div></div>"; 
-Span: (13, 24); 
+Slice: "<div>\n    \n  </div>"; 
+Span: (13, 32); 
 Type: JSXElement; 
 
 Slice: "<div>"; 
@@ -630,61 +561,49 @@ Span: (14, 17);
 Type: JSXIdentifier; 
 
 Slice: "</div>"; 
-Span: (18, 24); 
+Span: (26, 32); 
 Type: JSXClosingElement; 
 
 Slice: "div"; 
-Span: (20, 23); 
+Span: (28, 31); 
 Type: JSXIdentifier; 
 
 Slice: "\n"; 
-Span: (24, 25); 
+Span: (32, 33); 
 Type: JSXText; 
 
 Slice: "</template>"; 
-Span: (25, 36); 
+Span: (33, 44); 
 Type: JSXClosingElement; 
 
 Slice: "template"; 
-Span: (27, 35); 
+Span: (35, 43); 
 Type: JSXIdentifier; 
 
-Slice: "<script lang=\"ts\" setup>\nconst a = { b = 1, c = 1 };\n</script>"; 
-Span: (38, 100); 
+Slice: "<script setup>\nimport { ref } from 'vue'\n\nconst count = ref(0)\n</script>"; 
+Span: (46, 118); 
 Type: JSXElement; 
 
-Slice: "<script lang=\"ts\" setup>"; 
-Span: (38, 62); 
+Slice: "<script setup>"; 
+Span: (46, 60); 
 Type: JSXOpeningElement; 
 
 Slice: "script"; 
-Span: (39, 45); 
+Span: (47, 53); 
 Type: JSXIdentifier; 
-
-Slice: "lang=\"ts\""; 
-Span: (46, 55); 
-Type: JSXAttribute; 
-
-Slice: "lang"; 
-Span: (46, 50); 
-Type: JSXIdentifier; 
-
-Slice: "ts"; 
-Span: (52, 54); 
-Type: StringLiteral; 
 
 Slice: "setup"; 
-Span: (56, 61); 
+Span: (54, 59); 
 Type: JSXAttribute; 
 
 Slice: "setup"; 
-Span: (56, 61); 
+Span: (54, 59); 
 Type: JSXIdentifier; 
 
 Slice: "</script>"; 
-Span: (91, 100); 
+Span: (109, 118); 
 Type: JSXClosingElement; 
 
 Slice: "script"; 
-Span: (93, 99); 
+Span: (111, 117); 
 Type: JSXIdentifier;

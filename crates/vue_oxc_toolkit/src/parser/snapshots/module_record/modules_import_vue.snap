@@ -65,11 +65,11 @@ Module Record: ModuleRecord {
             ExportEntry {
                 span: Span {
                     start: 0,
-                    end: 88,
+                    end: 0,
                 },
                 statement_span: Span {
                     start: 0,
-                    end: 88,
+                    end: 0,
                 },
                 module_request: None,
                 import_name: Null,
