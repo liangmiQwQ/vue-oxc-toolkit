@@ -14,14 +14,14 @@ impl<'a> ParserImpl<'a> {
   /// ### Semantic
   ///  - Treat directive type as namespace, like `v-bind` for `:class="..."`, also for `v-for`, `v-if` which has no params
   ///  - Treat directive argument, modifiers as attribute name, like `v-bind:class.a.b` -> `class.a.b`
-  pub(crate) fn parse_directive_name(&self, dire: &Directive<'a>) -> Option<JSXAttributeName<'a>> {
+  pub(crate) fn parse_directive_name(&self, dire: &Directive<'a>) -> JSXAttributeName<'a> {
     let span = dire.head_loc.span();
 
     match span.source_text(self.source_text) {
-      name if name.starts_with("v-") => Some(self.analyze_directive_name(name, span)),
-      name if name.starts_with(':') => Some(self.analyze_directive_alias(name, span, "v-bind")),
-      name if name.starts_with('@') => Some(self.analyze_directive_alias(name, span, "v-on")),
-      name if name.starts_with('#') => Some(self.analyze_directive_alias(name, span, "v-slot")),
+      name if name.starts_with("v-") => self.analyze_directive_name(name, span),
+      name if name.starts_with(':') => self.analyze_directive_alias(name, span, "v-bind"),
+      name if name.starts_with('@') => self.analyze_directive_alias(name, span, "v-on"),
+      name if name.starts_with('#') => self.analyze_directive_alias(name, span, "v-slot"),
       _ => unreachable!(),
     }
   }

@@ -181,7 +181,7 @@ impl<'a> ParserImpl<'a> {
         let dir_start = dir.location.start.offset as u32;
         let dir_end = self.roffset(dir.location.end.offset) as u32;
 
-        let dir_name = self.parse_directive_name(&dir)?;
+        let dir_name = self.parse_directive_name(&dir);
         // Analyze v-slot and v-for, no matter whether there is an expression
         if dir.name == "slot" {
           self.analyze_v_slot(&dir, v_slot_wrapper, &dir_name)?;
