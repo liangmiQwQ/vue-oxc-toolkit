@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use oxc_allocator::{self, CloneIn, Dummy, TakeIn, Vec as ArenaVec};
+use oxc_allocator::{self, Dummy, TakeIn, Vec as ArenaVec};
 use oxc_ast::ast::{
   ExportDefaultDeclarationKind, Expression, FormalParameterKind, FunctionType, Program,
   PropertyKind, Statement,

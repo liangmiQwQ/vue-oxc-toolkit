@@ -1,4 +1,4 @@
-use oxc_span::{SPAN, Span};
+use oxc_span::SPAN;
 use oxc_syntax::module_record::{
   ExportEntry, ExportExportName, ExportImportName, ExportLocalName, ModuleRecord,
 };
