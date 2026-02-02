@@ -9,10 +9,10 @@ use vue_compiler_core::{
   util::{find_prop, prop_finder},
 };
 
-use crate::parser::{ParserImpl, modules::Merge, parse::SourceLocatonSpan};
+use crate::parser::{ParserImpl, RetParse, RetParseExt, modules::Merge, parse::SourceLocatonSpan};
 
 impl<'a> ParserImpl<'a> {
-  pub fn parse_script(&mut self, node: Element<'a>) -> Option<JSXChild<'a>> {
+  pub fn parse_script(&mut self, node: Element<'a>) -> RetParse<Option<JSXChild<'a>>> {
     let mut source_types: HashSet<&str> = HashSet::new();
 
     let lang = find_prop(&node, "lang")
@@ -28,7 +28,7 @@ impl<'a> ParserImpl<'a> {
       self.errors.push(OxcDiagnostic::error(format!(
         "Multiple script tags with different languages: {source_types:?}"
       )));
-      return None;
+      return RetParse::panic();
     }
 
     self.source_type = if lang.starts_with("js") {
@@ -37,19 +37,21 @@ impl<'a> ParserImpl<'a> {
       SourceType::tsx()
     } else {
       self.errors.push(OxcDiagnostic::error(format!("Unsupported script language: {lang}")));
-      return None;
+      return RetParse::panic();
     };
 
     if let Some(child) = node.children.first() {
       let span = child.get_location().span();
       let source = span.source_text(self.source_text);
 
-      let (mut body, module_record) = self.oxc_parse(
+      let Some((mut body, module_record)) = self.oxc_parse(
         source,
         // SAFETY: lang is validated above to be "js" or "ts" based extensions which are valid for from_extension
         SourceType::from_extension(lang).unwrap(),
         span.start as usize,
-      )?;
+      ) else {
+        return Ok(None);
+      };
 
       // Deal with modules record there
       let is_setup = prop_finder(&node, "setup").allow_empty().find().is_some();
@@ -81,6 +83,6 @@ impl<'a> ParserImpl<'a> {
       }
     }
 
-    self.parse_element(node, Some(self.ast.vec()))
+    RetParse::success(self.parse_element(node, Some(self.ast.vec())))
   }
 }
