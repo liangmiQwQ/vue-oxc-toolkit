@@ -16,6 +16,7 @@ use vue_compiler_core::scanner::{ScanOption, Scanner};
 
 use crate::is_void_tag;
 use crate::parser::error::OxcErrorHandler;
+use crate::parser::{RetParse, RetParseExt};
 
 use super::ParserImpl;
 use super::ParserImplReturn;
@@ -24,7 +25,7 @@ impl<'a> ParserImpl<'a> {
   pub fn parse(mut self) -> ParserImplReturn<'a> {
     let result = self.analyze();
     match result {
-      Some(()) => {
+      Ok(()) => {
         self.fix_module_records();
 
         let Self {
@@ -55,7 +56,7 @@ impl<'a> ParserImpl<'a> {
           module_record,
         }
       }
-      None => ParserImplReturn {
+      Err(()) => ParserImplReturn {
         program: Program::dummy(self.allocator),
         fatal: true,
         errors: self.errors,
@@ -64,7 +65,7 @@ impl<'a> ParserImpl<'a> {
     }
   }
 
-  fn analyze(&mut self) -> Option<()> {
+  fn analyze(&mut self) -> RetParse<()> {
     let parser = Parser::new(ParseOption {
       whitespace: WhitespaceStrategy::Preserve,
       is_void_tag: |name| is_void_tag!(name),
@@ -80,7 +81,7 @@ impl<'a> ParserImpl<'a> {
     let result = parser.parse(tokens, OxcErrorHandler::new(&errors, &panicked));
 
     if *panicked.borrow() {
-      return None;
+      return RetParse::panic();
     }
 
     let mut children = self.ast.vec();
@@ -90,9 +91,14 @@ impl<'a> ParserImpl<'a> {
         AstNode::Element(node) => {
           if node.tag_name == "script" {
             // Fill self.setup, self.statements
-            children.push(self.parse_script(node)?);
+            if let Some(child) = self.parse_script(node)? {
+              children.push(child);
+            }
           } else if node.tag_name == "template" {
-            children.push(self.parse_element(node, None)?);
+            // TODO: just let parse_element return JSXChild<'a> instead of Option<JSXChild<'a>>
+            if let Some(child) = self.parse_element(node, None) {
+              children.push(child);
+            }
           }
         }
         // TODO: Do not add comment, interpolation nodes for root elements, regard all of them as texts
@@ -113,7 +119,7 @@ impl<'a> ParserImpl<'a> {
       )),
     )));
 
-    Some(())
+    RetParse::success(())
   }
 
   fn get_body_statements<'b>(
