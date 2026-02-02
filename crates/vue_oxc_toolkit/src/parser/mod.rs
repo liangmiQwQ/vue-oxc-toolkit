@@ -116,17 +116,18 @@ macro_rules! is_void_tag {
   };
 }
 
-type ParseResult<T> = Result<T, ()>;
-
 /// For inner parser implement use. Use Result<T, ()> for fn which may make parser panic
-trait ParseResultExt<T> {
-  fn panic() -> ParseResult<T> {
+type RetParse<T> = Result<T, ()>;
+
+trait RetParseExt<T> {
+  fn panic() -> RetParse<T> {
     Err(())
   }
 
-  fn ok(t: T) -> ParseResult<T> {
+  // do not use `ok` as name, because it is a method of Result
+  fn success(t: T) -> RetParse<T> {
     Ok(t)
   }
 }
 
-impl<T> ParseResultExt<T> for ParseResult<T> {}
+impl<T> RetParseExt<T> for RetParse<T> {}
