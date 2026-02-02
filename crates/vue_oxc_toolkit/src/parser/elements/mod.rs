@@ -12,10 +12,14 @@ use crate::{
   is_void_tag,
   parser::{
     ParserImpl,
-    directive::{v_for::VForWrapper, v_slot::VSlotWrapper},
+    elements::{v_for::VForWrapper, v_slot::VSlotWrapper},
     parse::SourceLocatonSpan,
   },
 };
+
+mod directive;
+mod v_for;
+mod v_slot;
 
 impl<'a> ParserImpl<'a> {
   fn parse_children(

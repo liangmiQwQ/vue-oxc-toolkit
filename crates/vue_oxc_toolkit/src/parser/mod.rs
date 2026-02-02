@@ -8,12 +8,11 @@ use oxc_parser::ParseOptions;
 use oxc_span::SourceType;
 use oxc_syntax::module_record::ModuleRecord;
 
-mod directive;
+mod elements;
 mod error;
 mod modules;
 mod parse;
 mod script;
-mod tags;
 
 pub struct ParserImpl<'a> {
   allocator: &'a Allocator,

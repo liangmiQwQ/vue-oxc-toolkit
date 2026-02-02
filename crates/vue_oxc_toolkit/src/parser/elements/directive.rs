@@ -5,9 +5,6 @@ use vue_compiler_core::parser::Directive;
 
 use crate::parser::{ParserImpl, parse::SourceLocatonSpan};
 
-pub mod v_for;
-pub mod v_slot;
-
 impl<'a> ParserImpl<'a> {
   /// Parse directive name
   ///
