@@ -27,10 +27,10 @@ impl<'a> ParserImpl<'a> {
     start: u32,
     end: u32,
     children: Vec<AstNode<'a>>,
-  ) -> Option<ArenaVec<'a, JSXChild<'a>>> {
+  ) -> ArenaVec<'a, JSXChild<'a>> {
     let ast = self.ast;
     if children.is_empty() {
-      return Some(ast.vec());
+      return ast.vec();
     }
     let mut result = self.ast.vec_with_capacity(children.len() + 2);
 
@@ -57,10 +57,10 @@ impl<'a> ParserImpl<'a> {
 
     for child in children {
       result.push(match child {
-        AstNode::Element(node) => self.parse_element(node, None)?,
+        AstNode::Element(node) => self.parse_element(node, None),
         AstNode::Text(text) => self.parse_text(&text),
         AstNode::Comment(comment) => self.parse_comment(&comment),
-        AstNode::Interpolation(interp) => self.parse_interpolation(&interp)?,
+        AstNode::Interpolation(interp) => self.parse_interpolation(&interp),
       });
     }
 
@@ -68,14 +68,14 @@ impl<'a> ParserImpl<'a> {
       result.push(last);
     }
 
-    Some(result)
+    result
   }
 
   pub fn parse_element(
     &mut self,
     node: Element<'a>,
     children: Option<ArenaVec<'a, JSXChild<'a>>>,
-  ) -> Option<JSXChild<'a>> {
+  ) -> JSXChild<'a> {
     let ast = self.ast;
 
     let open_element_span = {
@@ -110,7 +110,9 @@ impl<'a> ParserImpl<'a> {
     let mut v_slot_wrapper = VSlotWrapper::new(&ast);
     let mut attributes = ast.vec();
     for prop in node.properties {
-      attributes.push(self.parse_attribute(prop, &mut v_for_wrapper, &mut v_slot_wrapper)?);
+      if let Some(attr) = self.parse_attribute(prop, &mut v_for_wrapper, &mut v_slot_wrapper) {
+        attributes.push(attr);
+      }
     }
 
     let children = match children {
@@ -119,10 +121,10 @@ impl<'a> ParserImpl<'a> {
         open_element_span.end,
         end_element_span.start,
         node.children,
-      )?),
+      )),
     };
 
-    Some(v_for_wrapper.wrap(ast.jsx_element(
+    v_for_wrapper.wrap(ast.jsx_element(
       location_span,
       ast.jsx_opening_element(
         open_element_span,
@@ -151,7 +153,7 @@ impl<'a> ParserImpl<'a> {
           ),
         ))
       },
-    )))
+    ))
   }
 
   fn parse_attribute(
@@ -282,17 +284,20 @@ impl<'a> ParserImpl<'a> {
     ast.jsx_child_expression_container(span, ast.jsx_expression_empty_expression(SPAN))
   }
 
-  fn parse_interpolation(&mut self, introp: &SourceNode<'a>) -> Option<JSXChild<'a>> {
+  fn parse_interpolation(&mut self, introp: &SourceNode<'a>) -> JSXChild<'a> {
     let ast = self.ast;
     // Use full span for container (includes {{ and }})
     let container_span = introp.location.span();
     // Expression starts after {{ (2 characters)
     let expr_start = introp.location.start.offset + 2;
 
-    Some(ast.jsx_child_expression_container(
+    ast.jsx_child_expression_container(
       container_span,
-      self.parse_expression(introp.source, expr_start)?.into(),
-    ))
+      match self.parse_expression(introp.source, expr_start) {
+        Some(expr) => JSXExpression::from(expr),
+        None => ast.jsx_expression_empty_expression(SPAN),
+      },
+    )
   }
 
   pub fn parse_expression(&mut self, source: &'a str, start: usize) -> Option<Expression<'a>> {

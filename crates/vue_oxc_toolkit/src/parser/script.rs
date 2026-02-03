@@ -83,6 +83,6 @@ impl<'a> ParserImpl<'a> {
       }
     }
 
-    RetParse::success(self.parse_element(node, Some(self.ast.vec())))
+    RetParse::success(Some(self.parse_element(node, Some(self.ast.vec()))))
   }
 }

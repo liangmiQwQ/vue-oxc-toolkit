@@ -96,9 +96,7 @@ impl<'a> ParserImpl<'a> {
             }
           } else if node.tag_name == "template" {
             // TODO: just let parse_element return JSXChild<'a> instead of Option<JSXChild<'a>>
-            if let Some(child) = self.parse_element(node, None) {
-              children.push(child);
-            }
+            children.push(self.parse_element(node, None));
           }
         }
         // TODO: Do not add comment, interpolation nodes for root elements, regard all of them as texts
