@@ -293,10 +293,9 @@ impl<'a> ParserImpl<'a> {
 
     ast.jsx_child_expression_container(
       container_span,
-      match self.parse_expression(introp.source, expr_start) {
-        Some(expr) => JSXExpression::from(expr),
-        None => ast.jsx_expression_empty_expression(SPAN),
-      },
+      self
+        .parse_expression(introp.source, expr_start)
+        .map_or_else(|| ast.jsx_expression_empty_expression(SPAN), JSXExpression::from),
     )
   }
 
