@@ -24,60 +24,62 @@ impl<'a> ParserImpl<'a> {
     dir: &Directive<'a>,
     wrapper: &mut VSlotWrapper<'_, 'a>,
     dir_name: &JSXAttributeName<'a>,
-  ) -> Option<()> {
-    // --- Process Key ---
-    let JSXAttributeName::NamespacedName(name_space) = dir_name else { unreachable!() };
-    let key_span = name_space.name.span;
-    if key_span.is_empty() {
-      // Generate a dummy one
-      wrapper.set_is_computed(false);
-      wrapper.set_key(self.ast.property_key_static_identifier(SPAN, "default"));
-    } else {
-      // Parse with a object expression wrapper
-      let str = key_span.source_text(self.source_text);
-      let Expression::ObjectExpression(mut object_expression) = self.parse_expression(
-        self.ast.atom(&format!("{{{str}: 0}}")).as_str(),
-        key_span.start as usize - 1,
-      )?
-      else {
-        unreachable!()
-      };
-      // SAFETY: must get wrapped
-      let ObjectPropertyKind::ObjectProperty(object_property) =
-        object_expression.properties.first_mut().unwrap()
-      else {
-        unreachable!()
-      };
-      if let PropertyKey::StaticIdentifier(_) = object_property.key {
+  ) {
+    (|| {
+      // --- Process Key ---
+      let JSXAttributeName::NamespacedName(name_space) = dir_name else { unreachable!() };
+      let key_span = name_space.name.span;
+      if key_span.is_empty() {
+        // Generate a dummy one
         wrapper.set_is_computed(false);
+        wrapper.set_key(self.ast.property_key_static_identifier(SPAN, "default"));
       } else {
-        wrapper.set_is_computed(true);
+        // Parse with a object expression wrapper
+        let str = key_span.source_text(self.source_text);
+        let Expression::ObjectExpression(mut object_expression) = self.parse_expression(
+          self.ast.atom(&format!("{{{str}: 0}}")).as_str(),
+          key_span.start as usize - 1,
+        )?
+        else {
+          unreachable!()
+        };
+        // SAFETY: must get wrapped
+        let ObjectPropertyKind::ObjectProperty(object_property) =
+          object_expression.properties.first_mut().unwrap()
+        else {
+          unreachable!()
+        };
+        if let PropertyKey::StaticIdentifier(_) = object_property.key {
+          wrapper.set_is_computed(false);
+        } else {
+          wrapper.set_is_computed(true);
+        }
+        wrapper.set_key(object_property.key.take_in(self.allocator));
       }
-      wrapper.set_key(object_property.key.take_in(self.allocator));
-    }
 
-    // --- Process Params ---
-    // As vue use arrow function to wrap the slot content, we use it as well to prevent some edge cases
-    // https://play.vuejs.org/#eNp9kD1PwzAQhv+KdXNJB5iigASoAwyAgNFLlBxpir/kO4dIkf87tquGDsBmvc9z9utb4Na5agoINTSM2qmW8UYaIZp7q52YLkhZrvfY9uivJSxCI1E7oIgSiifEchbGMrrNs4k22/VK2ABTZ83HOFQHsia9t2RXQpfcUaF/djxaQxJqUUhmrVL267Fk7ANuTnm3x+7zl/xAc84kvHgk9BNKWBm3fkA+4t3bE87pvEJt+6CS/Q98RbIq5I5H7S6YPtU+80rbB+2s59EM77SbGQ2dPpWLZjMWX0Jael7TX1//qXtZXZU5aSLEbzFYjTA=
-    if dir.has_empty_expr() {
-      wrapper.set_params(self.ast.formal_parameters(
-        SPAN,
-        FormalParameterKind::ArrowFormalParameters,
-        self.ast.vec(),
-        NONE,
-      ));
-    } else {
-      let expr = dir.expression.as_ref().unwrap();
-      let params = format!("({}) => 0", expr.content.raw);
-      let Expression::ArrowFunctionExpression(mut arrow_function_expression) = self
-        .parse_expression(self.ast.atom(params.as_str()).as_str(), expr.location.start.offset)?
-      else {
-        unreachable!()
-      };
-      wrapper.set_params(arrow_function_expression.params.take_in(self.allocator));
-    }
+      // --- Process Params ---
+      // As vue use arrow function to wrap the slot content, we use it as well to prevent some edge cases
+      // https://play.vuejs.org/#eNp9kD1PwzAQhv+KdXNJB5iigASoAwyAgNFLlBxpir/kO4dIkf87tquGDsBmvc9z9utb4Na5agoINTSM2qmW8UYaIZp7q52YLkhZrvfY9uivJSxCI1E7oIgSiifEchbGMrrNs4k22/VK2ABTZ83HOFQHsia9t2RXQpfcUaF/djxaQxJqUUhmrVL267Fk7ANuTnm3x+7zl/xAc84kvHgk9BNKWBm3fkA+4t3bE87pvEJt+6CS/Q98RbIq5I5H7S6YPtU+80rbB+2s59EM77SbGQ2dPpWLZjMWX0Jael7TX1//qXtZXZU5aSLEbzFYjTA=
+      if dir.has_empty_expr() {
+        wrapper.set_params(self.ast.formal_parameters(
+          SPAN,
+          FormalParameterKind::ArrowFormalParameters,
+          self.ast.vec(),
+          NONE,
+        ));
+      } else {
+        let expr = dir.expression.as_ref().unwrap();
+        let params = format!("({}) => 0", expr.content.raw);
+        let Expression::ArrowFunctionExpression(mut arrow_function_expression) = self
+          .parse_expression(self.ast.atom(params.as_str()).as_str(), expr.location.start.offset)?
+        else {
+          unreachable!()
+        };
+        wrapper.set_params(arrow_function_expression.params.take_in(self.allocator));
+      }
 
-    Some(())
+      Some(())
+    })();
   }
 }
 

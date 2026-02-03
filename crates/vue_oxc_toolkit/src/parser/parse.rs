@@ -95,7 +95,6 @@ impl<'a> ParserImpl<'a> {
               children.push(child);
             }
           } else if node.tag_name == "template" {
-            // TODO: just let parse_element return JSXChild<'a> instead of Option<JSXChild<'a>>
             children.push(self.parse_element(node, None));
           }
         }
