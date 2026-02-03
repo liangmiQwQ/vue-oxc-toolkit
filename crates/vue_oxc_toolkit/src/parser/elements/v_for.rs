@@ -143,6 +143,6 @@ mod tests {
 
   #[test]
   fn v_for_error() {
-    test_ast!("directive/v-for-error.vue", true, true);
+    test_ast!("directive/v-for-error.vue", true, false);
   }
 }
