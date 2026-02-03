@@ -198,6 +198,7 @@ impl<'a> ParserImpl<'a> {
           Some(
             ast.jsx_attribute_value_expression_container(
               Span::new(expr_start as u32, dir_end - 1),
+              // TODO: v-if / v-else-if / v-else transforming for cfg semantic
               ((|| {
                 // Use placeholder for v-for and v-slot
                 if matches!(dir.name, "for" | "slot") {
