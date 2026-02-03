@@ -19,6 +19,7 @@ impl<'a> ParserImpl<'a> {
       name if name.starts_with(':') => self.analyze_directive_alias(name, span, "v-bind"),
       name if name.starts_with('@') => self.analyze_directive_alias(name, span, "v-on"),
       name if name.starts_with('#') => self.analyze_directive_alias(name, span, "v-slot"),
+      // SAFETY: if the directive doesn't start with 'v-', ':', '@', '#', it will be not regarded as a directive by vue-compiler-core
       _ => unreachable!(),
     }
   }

@@ -308,11 +308,11 @@ impl<'a> ParserImpl<'a> {
       self.oxc_parse(&format!("({source})"), self.source_type, start.saturating_sub(1))?;
 
     let Some(Statement::ExpressionStatement(stmt)) = body.get_mut(0) else {
-      // SAFETY: We always wrap the source in parentheses, so it should always be an expression statement
-      // if it was valid partially. If it's invalid, the parser might return empty body if it fails early.
+      // SAFETY: We always wrap the source in parentheses, so it should always be an expression statement.
       unreachable!()
     };
     let Expression::ParenthesizedExpression(expression) = &mut stmt.expression else {
+      // SAFETY: We always wrap the source in parentheses, so it should always be a parenthesized expression
       unreachable!()
     };
     Some(expression.expression.take_in(self.allocator))

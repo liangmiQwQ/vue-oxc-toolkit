@@ -27,7 +27,10 @@ impl<'a> ParserImpl<'a> {
   ) {
     (|| {
       // --- Process Key ---
-      let JSXAttributeName::NamespacedName(name_space) = dir_name else { unreachable!() };
+      let JSXAttributeName::NamespacedName(name_space) = dir_name else {
+        // SAFETY: Directives' props name is always a namespaced name
+        unreachable!()
+      };
       let key_span = name_space.name.span;
       if key_span.is_empty() {
         // Generate a dummy one
@@ -41,12 +44,13 @@ impl<'a> ParserImpl<'a> {
           key_span.start as usize - 1,
         )?
         else {
+          // SAFETY: We always wrap the source in object expression
           unreachable!()
         };
-        // SAFETY: must get wrapped
         let ObjectPropertyKind::ObjectProperty(object_property) =
           object_expression.properties.first_mut().unwrap()
         else {
+          // SAFETY: must get wrapped
           unreachable!()
         };
         if let PropertyKey::StaticIdentifier(_) = object_property.key {
@@ -73,6 +77,7 @@ impl<'a> ParserImpl<'a> {
         let Expression::ArrowFunctionExpression(mut arrow_function_expression) = self
           .parse_expression(self.ast.atom(params.as_str()).as_str(), expr.location.start.offset)?
         else {
+          // SAFETY: We always wrap the source in arrow function expression
           unreachable!()
         };
         wrapper.set_params(arrow_function_expression.params.take_in(self.allocator));
