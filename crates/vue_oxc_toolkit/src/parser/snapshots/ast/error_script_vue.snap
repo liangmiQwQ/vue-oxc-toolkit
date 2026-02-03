@@ -6,9 +6,9 @@ Program:
 Program {
     span: Span {
         start: 0,
-        end: 118,
+        end: 165,
     },
-    source_text: "<template>\n  <div></div>\n</template>\n\n<script lang=\"ts\" setup>\nconst a = { b = 1, c = 1 };\n</script>\n\n<style></style>\n",
+    source_text: "<template>\n  <div></div>\n</template>\n\n<script lang=\"ts\" setup>\nconst a = { b = 1, c = 1 };\n</script>\n\n<script>\nlet const p { const w p =)\n</script>\n\n<style></style>\n",
     comments: Vec(
         [],
     ),
@@ -476,7 +476,7 @@ Program {
         value: None,
     },
     source_type: SourceType {
-        language: TypeScript,
+        language: JavaScript,
         module_kind: Module,
         variant: Jsx,
     },
@@ -542,6 +542,33 @@ Errors:
             url: None,
         },
     },
+    OxcDiagnostic {
+        inner: OxcDiagnosticInner {
+            message: "Identifier expected. 'const' is a reserved word that cannot be used here.",
+            labels: Some(
+                [
+                    LabeledSpan {
+                        label: None,
+                        span: SourceSpan {
+                            offset: SourceOffset(
+                                115,
+                            ),
+                            length: 5,
+                        },
+                        primary: false,
+                    },
+                ],
+            ),
+            help: None,
+            note: None,
+            severity: Error,
+            code: OxcCode {
+                scope: None,
+                number: None,
+            },
+            url: None,
+        },
+    },
 ]
 
 JS: 
@@ -557,8 +584,8 @@ export default { setup() {
 
 
 Node Locations:
-Slice: "<template>\n  <div></div>\n</template>\n\n<s..[OMIT].. 1, c = 1 };\n</script>\n\n<style></style>\n"; 
-Span: (0, 118); 
+Slice: "<template>\n  <div></div>\n</template>\n\n<s..[OMIT]..const w p =)\n</script>\n\n<style></style>\n"; 
+Span: (0, 165); 
 Type: Program; 
 
 Slice: "const a = { b = 1, c = 1 };"; 

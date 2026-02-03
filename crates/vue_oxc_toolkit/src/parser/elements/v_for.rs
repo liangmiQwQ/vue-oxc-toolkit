@@ -25,53 +25,50 @@ impl<'a> ParserImpl<'a> {
     None
   }
 
-  pub fn analyze_v_for(
-    &mut self,
-    dir: &Directive<'a>,
-    wrapper: &mut VForWrapper<'_, 'a>,
-  ) -> Option<()> {
-    if dir.has_empty_expr() {
-      self.invalid_v_for_expression(dir.location.span())?;
-    }
-    let expr = dir.expression.as_ref().unwrap(); // SAFETY: Checked above
+  pub fn analyze_v_for(&mut self, dir: &Directive<'a>, wrapper: &mut VForWrapper<'_, 'a>) {
+    (|| {
+      if dir.has_empty_expr() {
+        self.invalid_v_for_expression(dir.location.span())?;
+      }
+      let expr = dir.expression.as_ref().unwrap(); // SAFETY: Checked above
 
-    // https://github.com/vuejs/core/blob/e1ccd9fde8f57fe7bd40fdf1345692ab3e6a1fa0/packages/compiler-core/src/utils.ts#L571
-    let for_alias_regex = Regex::new(r"^([\s\S]*?)\s+(?:in|of)\s+(\S[\s\S]*)").unwrap();
-    if let Some(caps) = for_alias_regex.captures(expr.content.raw)
-      && let Some(cap1) = caps.get(1)
-      && let Some(cap2) = caps.get(2)
-    {
-      wrapper.set_data_origin(self.ast.parenthesized_expression(
-        SPAN,
-        self.parse_expression(cap2.as_str(), expr.location.start.offset + cap2.start() + 1)?,
-      ));
+      // https://github.com/vuejs/core/blob/e1ccd9fde8f57fe7bd40fdf1345692ab3e6a1fa0/packages/compiler-core/src/utils.ts#L571
+      let for_alias_regex = Regex::new(r"^([\s\S]*?)\s+(?:in|of)\s+(\S[\s\S]*)").unwrap();
+      if let Some(caps) = for_alias_regex.captures(expr.content.raw)
+        && let Some(cap1) = caps.get(1)
+        && let Some(cap2) = caps.get(2)
+      {
+        wrapper.set_data_origin(self.ast.parenthesized_expression(
+          SPAN,
+          self.parse_expression(cap2.as_str(), expr.location.start.offset + cap2.start() + 1)?,
+        ));
 
-      let params = cap1.as_str();
-      let (str, start, should_dummy_span) =
-        if params.trim().starts_with('(') && params.trim().ends_with(')') {
-          (format!("{params} => 0"), expr.location.start.offset + cap1.start() + 1, false)
-        } else {
-          (format!("({params}) => 0"), expr.location.start.offset + cap1.start(), true)
+        let params = cap1.as_str();
+        let (str, start, should_dummy_span) =
+          if params.trim().starts_with('(') && params.trim().ends_with(')') {
+            (format!("{params} => 0"), expr.location.start.offset + cap1.start() + 1, false)
+          } else {
+            (format!("({params}) => 0"), expr.location.start.offset + cap1.start(), true)
+          };
+
+        let mut expr = self.parse_expression(self.ast.atom(&str).as_str(), start)?;
+
+        let Expression::ArrowFunctionExpression(expression) = &mut expr else {
+          unreachable!();
         };
 
-      let mut expr = self.parse_expression(self.ast.atom(&str).as_str(), start)?;
+        let mut params = expression.params.take_in(self.ast.allocator);
+        if should_dummy_span {
+          params.span = SPAN;
+        }
 
-      let Expression::ArrowFunctionExpression(expression) = &mut expr else {
-        // unreachable!();
-        return None;
-      };
-
-      let mut params = expression.params.take_in(self.ast.allocator);
-      if should_dummy_span {
-        params.span = SPAN;
+        wrapper.set_params(params);
+      } else {
+        self.invalid_v_for_expression(dir.location.span())?;
       }
 
-      wrapper.set_params(params);
-    } else {
-      self.invalid_v_for_expression(dir.location.span())?;
-    }
-
-    Some(())
+      Some(())
+    })();
   }
 }
 
@@ -146,6 +143,6 @@ mod tests {
 
   #[test]
   fn v_for_error() {
-    test_ast!("directive/v-for-error.vue", true, true);
+    test_ast!("directive/v-for-error.vue", true, false);
   }
 }

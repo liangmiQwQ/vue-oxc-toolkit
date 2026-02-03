@@ -12,10 +12,14 @@ use crate::{
   is_void_tag,
   parser::{
     ParserImpl,
-    directive::{v_for::VForWrapper, v_slot::VSlotWrapper},
+    elements::{v_for::VForWrapper, v_slot::VSlotWrapper},
     parse::SourceLocatonSpan,
   },
 };
+
+mod directive;
+mod v_for;
+mod v_slot;
 
 impl<'a> ParserImpl<'a> {
   fn parse_children(
@@ -23,10 +27,10 @@ impl<'a> ParserImpl<'a> {
     start: u32,
     end: u32,
     children: Vec<AstNode<'a>>,
-  ) -> Option<ArenaVec<'a, JSXChild<'a>>> {
+  ) -> ArenaVec<'a, JSXChild<'a>> {
     let ast = self.ast;
     if children.is_empty() {
-      return Some(ast.vec());
+      return ast.vec();
     }
     let mut result = self.ast.vec_with_capacity(children.len() + 2);
 
@@ -53,10 +57,10 @@ impl<'a> ParserImpl<'a> {
 
     for child in children {
       result.push(match child {
-        AstNode::Element(node) => self.parse_element(node, None)?,
+        AstNode::Element(node) => self.parse_element(node, None),
         AstNode::Text(text) => self.parse_text(&text),
         AstNode::Comment(comment) => self.parse_comment(&comment),
-        AstNode::Interpolation(interp) => self.parse_interpolation(&interp)?,
+        AstNode::Interpolation(interp) => self.parse_interpolation(&interp),
       });
     }
 
@@ -64,14 +68,14 @@ impl<'a> ParserImpl<'a> {
       result.push(last);
     }
 
-    Some(result)
+    result
   }
 
   pub fn parse_element(
     &mut self,
     node: Element<'a>,
     children: Option<ArenaVec<'a, JSXChild<'a>>>,
-  ) -> Option<JSXChild<'a>> {
+  ) -> JSXChild<'a> {
     let ast = self.ast;
 
     let open_element_span = {
@@ -106,7 +110,7 @@ impl<'a> ParserImpl<'a> {
     let mut v_slot_wrapper = VSlotWrapper::new(&ast);
     let mut attributes = ast.vec();
     for prop in node.properties {
-      attributes.push(self.parse_attribute(prop, &mut v_for_wrapper, &mut v_slot_wrapper)?);
+      attributes.push(self.parse_prop(prop, &mut v_for_wrapper, &mut v_slot_wrapper));
     }
 
     let children = match children {
@@ -115,10 +119,10 @@ impl<'a> ParserImpl<'a> {
         open_element_span.end,
         end_element_span.start,
         node.children,
-      )?),
+      )),
     };
 
-    Some(v_for_wrapper.wrap(ast.jsx_element(
+    v_for_wrapper.wrap(ast.jsx_element(
       location_span,
       ast.jsx_opening_element(
         open_element_span,
@@ -147,22 +151,22 @@ impl<'a> ParserImpl<'a> {
           ),
         ))
       },
-    )))
+    ))
   }
 
-  fn parse_attribute(
+  fn parse_prop(
     &mut self,
     prop: ElemProp<'a>,
     v_for_wrapper: &mut VForWrapper<'_, 'a>,
     v_slot_wrapper: &mut VSlotWrapper<'_, 'a>,
-  ) -> Option<JSXAttributeItem<'a>> {
+  ) -> JSXAttributeItem<'a> {
     let ast = self.ast;
     match prop {
       // For normal attributes, like <div class="w-100" />
       ElemProp::Attr(attr) => {
         let attr_end = self.roffset(attr.location.end.offset) as u32;
         let attr_span = Span::new(attr.location.start.offset as u32, attr_end);
-        Some(ast.jsx_attribute_item_attribute(
+        ast.jsx_attribute_item_attribute(
           attr_span,
           ast.jsx_attribute_name_identifier(attr.name_loc.span(), ast.atom(attr.name)),
           if let Some(value) = attr.value {
@@ -174,51 +178,57 @@ impl<'a> ParserImpl<'a> {
           } else {
             None
           },
-        ))
+        )
       }
       // Directive, starts with `v-`
       ElemProp::Dir(dir) => {
         let dir_start = dir.location.start.offset as u32;
         let dir_end = self.roffset(dir.location.end.offset) as u32;
 
-        let dir_name = self.parse_directive_name(&dir)?;
+        let dir_name = self.parse_directive_name(&dir);
         // Analyze v-slot and v-for, no matter whether there is an expression
         if dir.name == "slot" {
-          self.analyze_v_slot(&dir, v_slot_wrapper, &dir_name)?;
+          self.analyze_v_slot(&dir, v_slot_wrapper, &dir_name);
         } else if dir.name == "for" {
-          self.analyze_v_for(&dir, v_for_wrapper)?;
+          self.analyze_v_for(&dir, v_for_wrapper);
         }
-        let attribute_value = if let Some(expr) = &dir.expression {
-          Some(ast.jsx_attribute_value_expression_container(
-            Span::new(expr.location.start.offset as u32 + 1, dir_end - 1),
-            // Use placeholder for v-for and v-slot
-            if matches!(dir.name, "for" | "slot") {
-              JSXExpression::EmptyExpression(ast.jsx_empty_expression(SPAN))
-            } else {
-              // For possible dynamic arguments
-              let expr = self.parse_expression(expr.content.raw, expr.location.start.offset + 1)?; // +1 to skip the opening quote
-              self.parse_dynamic_argument(&dir, expr)?.into()
-            },
-          ))
+        let value = if let Some(expr) = &dir.expression {
+          // +1 to skip the opening quote
+          let expr_start = expr.location.start.offset + 1;
+          Some(
+            ast.jsx_attribute_value_expression_container(
+              Span::new(expr_start as u32, dir_end - 1),
+              ((|| {
+                // Use placeholder for v-for and v-slot
+                if matches!(dir.name, "for" | "slot") {
+                  None
+                } else {
+                  // For possible dynamic arguments
+                  let expr = self.parse_expression(expr.content.raw, expr_start)?;
+                  Some(JSXExpression::from(self.parse_dynamic_argument(&dir, expr)?))
+                }
+              })())
+              .unwrap_or_else(|| JSXExpression::EmptyExpression(ast.jsx_empty_expression(SPAN))),
+            ),
+          )
         } else if let Some(argument) = &dir.argument
           && let DirectiveArg::Dynamic(_) = argument
+          && let Some(argument) =
+            self.parse_dynamic_argument(&dir, ast.expression_identifier(SPAN, "undefined"))
         {
           // v-slot:[name]
-          Some(ast.jsx_attribute_value_expression_container(
-            SPAN,
-            self.parse_dynamic_argument(&dir, ast.expression_identifier(SPAN, "undefined"))?.into(),
-          ))
+          Some(ast.jsx_attribute_value_expression_container(SPAN, argument.into()))
         } else {
           None
         };
 
-        Some(ast.jsx_attribute_item_attribute(
+        ast.jsx_attribute_item_attribute(
           Span::new(dir_start, dir_end),
           // Attribute Name
           dir_name,
           // Attribute Value
-          attribute_value,
-        ))
+          value,
+        )
       }
     }
   }
@@ -278,17 +288,19 @@ impl<'a> ParserImpl<'a> {
     ast.jsx_child_expression_container(span, ast.jsx_expression_empty_expression(SPAN))
   }
 
-  fn parse_interpolation(&mut self, introp: &SourceNode<'a>) -> Option<JSXChild<'a>> {
+  fn parse_interpolation(&mut self, introp: &SourceNode<'a>) -> JSXChild<'a> {
     let ast = self.ast;
     // Use full span for container (includes {{ and }})
     let container_span = introp.location.span();
     // Expression starts after {{ (2 characters)
     let expr_start = introp.location.start.offset + 2;
 
-    Some(ast.jsx_child_expression_container(
+    ast.jsx_child_expression_container(
       container_span,
-      self.parse_expression(introp.source, expr_start)?.into(),
-    ))
+      self
+        .parse_expression(introp.source, expr_start)
+        .map_or_else(|| ast.jsx_expression_empty_expression(SPAN), JSXExpression::from),
+    )
   }
 
   pub fn parse_expression(&mut self, source: &'a str, start: usize) -> Option<Expression<'a>> {
@@ -296,14 +308,12 @@ impl<'a> ParserImpl<'a> {
       self.oxc_parse(&format!("({source})"), self.source_type, start.saturating_sub(1))?;
 
     let Some(Statement::ExpressionStatement(stmt)) = body.get_mut(0) else {
-      // SAFETY: We always wrap the source in parentheses, so it should always be an expression statement
-      // if it was valid partially. If it's invalid, the parser might return empty body if it fails early.
-      // unreachable!()
-      return None;
+      // SAFETY: We always wrap the source in parentheses, so it should always be an expression statement.
+      unreachable!()
     };
     let Expression::ParenthesizedExpression(expression) = &mut stmt.expression else {
-      // unreachable!()
-      return None;
+      // SAFETY: We always wrap the source in parentheses, so it should always be a parenthesized expression
+      unreachable!()
     };
     Some(expression.expression.take_in(self.allocator))
   }

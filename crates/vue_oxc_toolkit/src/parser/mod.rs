@@ -8,12 +8,11 @@ use oxc_parser::ParseOptions;
 use oxc_span::SourceType;
 use oxc_syntax::module_record::ModuleRecord;
 
-mod directive;
+mod elements;
 mod error;
 mod modules;
 mod parse;
 mod script;
-mod tags;
 
 pub struct ParserImpl<'a> {
   allocator: &'a Allocator,
@@ -115,3 +114,19 @@ macro_rules! is_void_tag {
     )
   };
 }
+
+/// For inner parser implement use. Use Result<T, ()> for fn which may make parser panic
+type RetParse<T> = Result<T, ()>;
+
+trait RetParseExt<T> {
+  fn panic() -> RetParse<T> {
+    Err(())
+  }
+
+  // do not use `ok` as name, because it is a method of Result
+  fn success(t: T) -> RetParse<T> {
+    Ok(t)
+  }
+}
+
+impl<T> RetParseExt<T> for RetParse<T> {}
