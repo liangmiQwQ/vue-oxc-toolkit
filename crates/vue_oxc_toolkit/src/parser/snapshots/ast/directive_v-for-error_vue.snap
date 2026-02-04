@@ -2,7 +2,7 @@
 source: crates/vue_oxc_toolkit/src/test.rs
 expression: result
 ---
-Program: 
+=============== Program ===============
 Program {
     span: Span {
         start: 0,
@@ -684,7 +684,7 @@ Program {
     },
 }
 
-Errors: 
+===============  Error  ===============
 [
     OxcDiagnostic {
         inner: OxcDiagnosticInner {
@@ -823,7 +823,7 @@ Errors:
     },
 ]
 
-JS: 
+=============== Codegen ===============
 export default { setup() {
 	return <><template>
   <div v-for:={} />
@@ -836,7 +836,7 @@ export default { setup() {
 } };
 
 
-Node Locations:
+===============  Spans  ===============
 Slice: "<template>\n  <div v-for=\"\" />\n  <div v-f..[OMIT]..dex) /* in */ in source\" />\n</template>\n"; 
 Span: (0, 208); 
 Type: Program; 

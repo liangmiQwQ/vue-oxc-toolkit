@@ -3,6 +3,7 @@ pub use crate::parser::ParserImplReturn;
 use oxc_allocator::Allocator;
 use oxc_ast::ast::Program;
 use oxc_ast_visit::Visit;
+use oxc_diagnostics::OxcDiagnostic;
 use oxc_parser::ParseOptions;
 use oxc_span::{GetSpan, Span};
 use std::fmt::Write;
@@ -19,10 +20,14 @@ macro_rules! test_ast {
       let source_text = $crate::test::read_file($file_path);
       let node_locations = $crate::test::format_node_locations(&ret.program, &source_text);
       assert_eq!(ret.fatal, $should_panic);
-      format!(
-        "Program: \n{:#?}\n\nErrors: \n{:#?}\n\nJS: \n{}\n\n{}",
-        ret.program, ret.errors, js.code, node_locations
-      )
+
+      let result = $crate::test::TestResult {
+        program: &ret.program,
+        errors: &ret.errors,
+        codegen: js.code,
+        spans: node_locations,
+      };
+      format!("{result:#?}")
     });
   }};
 }
@@ -34,6 +39,27 @@ macro_rules! test_module_record {
       format!("Module Record: {:#?}", ret.module_record)
     });
   }};
+}
+
+pub struct TestResult<'a> {
+  pub program: &'a Program<'a>,
+  pub errors: &'a Vec<OxcDiagnostic>,
+  pub codegen: String,
+  pub spans: String,
+}
+
+impl<'a> std::fmt::Debug for TestResult<'a> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.write_str("=============== Program ===============\n")?;
+    write!(f, "{:#?}", self.program)?;
+    f.write_str("\n\n===============  Error  ===============\n")?;
+    write!(f, "{:#?}", self.errors)?;
+    f.write_str("\n\n=============== Codegen ===============\n")?;
+    f.write_str(&self.codegen)?;
+    f.write_str("\n\n===============  Spans  ===============\n")?;
+    f.write_str(&self.spans)?;
+    Ok(())
+  }
 }
 
 pub fn run_test<F>(file_path: &str, folder: &str, f: F)
@@ -106,7 +132,7 @@ pub fn format_node_locations(program: &Program, source_text: &str) -> String {
   let mut collector = NodeLocationCollector::new(source_text);
   collector.visit_program(program);
 
-  let mut result = String::from("Node Locations:\n");
+  let mut result = String::new();
   for (span, slice, kind) in collector.locations {
     let start = span.start;
     let end = span.end;

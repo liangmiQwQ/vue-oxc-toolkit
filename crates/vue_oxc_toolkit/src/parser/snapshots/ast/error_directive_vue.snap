@@ -2,7 +2,7 @@
 source: crates/vue_oxc_toolkit/src/test.rs
 expression: result
 ---
-Program: 
+=============== Program ===============
 Program {
     span: Span {
         start: 0,
@@ -681,7 +681,7 @@ Program {
     },
 }
 
-Errors: 
+===============  Error  ===============
 [
     OxcDiagnostic {
         inner: OxcDiagnosticInner {
@@ -784,7 +784,7 @@ Errors:
     },
 ]
 
-JS: 
+=============== Codegen ===============
 export default { setup() {
 	return <><template>
   <div v-bind:key={(() => {
@@ -803,7 +803,7 @@ export default { setup() {
 } };
 
 
-Node Locations:
+===============  Spans  ===============
 Slice: "<template>\n  <div :key=\"() => { return {..[OMIT]..g=\"ts\" setup></script>\n\n<style></style>\n"; 
 Span: (0, 162); 
 Type: Program; 

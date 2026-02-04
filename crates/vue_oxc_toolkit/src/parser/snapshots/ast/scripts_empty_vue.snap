@@ -2,7 +2,7 @@
 source: crates/vue_oxc_toolkit/src/test.rs
 expression: result
 ---
-Program: 
+=============== Program ===============
 Program {
     span: Span {
         start: 0,
@@ -420,10 +420,10 @@ Program {
     },
 }
 
-Errors: 
+===============  Error  ===============
 []
 
-JS: 
+=============== Codegen ===============
 export default { setup() {
 	return <><template>
   <div></div>
@@ -436,7 +436,7 @@ export default { setup() {
 } };
 
 
-Node Locations:
+===============  Spans  ===============
 Slice: "<template>\n  <div>\n    \n  </div>\n</templ..[OMIT]..ript setup></script>\n\n<script></script>\n"; 
 Span: (0, 89); 
 Type: Program; 
