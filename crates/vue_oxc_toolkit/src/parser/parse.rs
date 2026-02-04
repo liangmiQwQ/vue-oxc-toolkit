@@ -85,24 +85,25 @@ impl<'a> ParserImpl<'a> {
     }
 
     let mut children = self.ast.vec();
+    let mut text_start: u32 = 0;
     for child in result.children {
-      #[allow(clippy::single_match)]
-      match child {
-        AstNode::Element(node) => {
-          if node.tag_name == "script" {
-            // Fill self.setup, self.statements
-            if let Some(child) = self.parse_script(node)? {
-              children.push(child);
-            }
-          } else if node.tag_name == "template" {
-            children.push(self.parse_element(node, None));
-          }
+      if let AstNode::Element(node) = child {
+        // Process the texts between last element and current element
+        let span = Span::new(text_start, node.location.start.offset as u32);
+        if !span.is_empty() {
+          let atom = self.ast.atom(span.source_text(self.source_text));
+          children.push(self.ast.jsx_child_text(span, atom, Some(atom)));
         }
-        // TODO: Do not add comment, interpolation nodes for root elements, regard all of them as texts
-        // AstNode::Text(text) => children.push(self.parse_text(&text)),
-        // AstNode::Comment(comment) => children.push(self.parse_comment(&comment)),
-        // AstNode::Interpolation(interp) => children.push(self.parse_interpolation(&interp)?),
-        _ => (),
+        text_start = node.location.end.offset as u32;
+
+        if node.tag_name == "script" {
+          // Fill self.setup, self.statements
+          if let Some(child) = self.parse_script(node)? {
+            children.push(child);
+          }
+        } else if node.tag_name == "template" {
+          children.push(self.parse_element(node, None));
+        }
       }
     }
 
