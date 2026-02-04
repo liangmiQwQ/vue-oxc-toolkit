@@ -107,8 +107,23 @@ impl<'a> ParserImpl<'a> {
           }
         } else if node.tag_name == "template" {
           children.push(self.parse_element(node, None));
+        } else {
+          // Process other tags like <style>
+          let text = if let Some(first) = node.children.first() {
+            let last = node.children.last().unwrap(); // SAFETY: if first exists, last must exist
+            let span = Span::new(
+              first.get_location().start.offset as u32,
+              last.get_location().end.offset as u32,
+            );
+
+            let atom = self.ast.atom(span.source_text(self.source_text));
+            self.ast.vec1(self.ast.jsx_child_text(span, atom, Some(atom)))
+          } else {
+            self.ast.vec()
+          };
+
+          children.push(self.parse_element(node, Some(text)));
         }
-        // TODO: handle <style> or other possible tags
       }
     }
     // Process the texts after last element

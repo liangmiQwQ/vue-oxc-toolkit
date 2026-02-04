@@ -466,6 +466,53 @@ Program {
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
+                                                                                                Element(
+                                                                                                    JSXElement {
+                                                                                                        span: Span {
+                                                                                                            start: 149,
+                                                                                                            end: 164,
+                                                                                                        },
+                                                                                                        opening_element: JSXOpeningElement {
+                                                                                                            span: Span {
+                                                                                                                start: 149,
+                                                                                                                end: 156,
+                                                                                                            },
+                                                                                                            name: Identifier(
+                                                                                                                JSXIdentifier {
+                                                                                                                    span: Span {
+                                                                                                                        start: 150,
+                                                                                                                        end: 155,
+                                                                                                                    },
+                                                                                                                    name: "style",
+                                                                                                                },
+                                                                                                            ),
+                                                                                                            type_arguments: None,
+                                                                                                            attributes: Vec(
+                                                                                                                [],
+                                                                                                            ),
+                                                                                                        },
+                                                                                                        children: Vec(
+                                                                                                            [],
+                                                                                                        ),
+                                                                                                        closing_element: Some(
+                                                                                                            JSXClosingElement {
+                                                                                                                span: Span {
+                                                                                                                    start: 156,
+                                                                                                                    end: 164,
+                                                                                                                },
+                                                                                                                name: Identifier(
+                                                                                                                    JSXIdentifier {
+                                                                                                                        span: Span {
+                                                                                                                            start: 158,
+                                                                                                                            end: 163,
+                                                                                                                        },
+                                                                                                                        name: "style",
+                                                                                                                    },
+                                                                                                                ),
+                                                                                                            },
+                                                                                                        ),
+                                                                                                    },
+                                                                                                ),
                                                                                                 Text(
                                                                                                     JSXText {
                                                                                                         span: Span {
@@ -633,7 +680,7 @@ export default { setup() {
 
 
 
-
+<style></style>
 </>;
 } };
 
@@ -782,6 +829,26 @@ Type: JSXText;
 Slice: "\n\n"; 
 Span: (147, 149); 
 Type: JSXText; 
+
+Slice: "<style></style>"; 
+Span: (149, 164); 
+Type: JSXElement; 
+
+Slice: "<style>"; 
+Span: (149, 156); 
+Type: JSXOpeningElement; 
+
+Slice: "style"; 
+Span: (150, 155); 
+Type: JSXIdentifier; 
+
+Slice: "</style>"; 
+Span: (156, 164); 
+Type: JSXClosingElement; 
+
+Slice: "style"; 
+Span: (158, 163); 
+Type: JSXIdentifier; 
 
 Slice: "\n"; 
 Span: (164, 165); 

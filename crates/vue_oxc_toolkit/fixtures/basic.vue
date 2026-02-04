@@ -8,4 +8,8 @@
 const count = 1;
 </script>
 
-<style></style>
+<style>
+div {
+  color: red;
+}
+</style>

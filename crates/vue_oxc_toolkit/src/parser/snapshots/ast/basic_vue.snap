@@ -6,9 +6,9 @@ expression: result
 Program {
     span: Span {
         start: 0,
-        end: 126,
+        end: 149,
     },
-    source_text: "<template>\n  <div>\n    {{ count }}\n  </div>\n</template>\n\n<script lang=\"js\" setup>\nconst count = 1;\n</script>\n\n<style></style>\n",
+    source_text: "<template>\n  <div>\n    {{ count }}\n  </div>\n</template>\n\n<script lang=\"js\" setup>\nconst count = 1;\n</script>\n\n<style>\ndiv {\n  color: red;\n}\n</style>\n",
     comments: Vec(
         [],
     ),
@@ -434,11 +434,71 @@ Program {
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
+                                                                                                Element(
+                                                                                                    JSXElement {
+                                                                                                        span: Span {
+                                                                                                            start: 110,
+                                                                                                            end: 148,
+                                                                                                        },
+                                                                                                        opening_element: JSXOpeningElement {
+                                                                                                            span: Span {
+                                                                                                                start: 110,
+                                                                                                                end: 117,
+                                                                                                            },
+                                                                                                            name: Identifier(
+                                                                                                                JSXIdentifier {
+                                                                                                                    span: Span {
+                                                                                                                        start: 111,
+                                                                                                                        end: 116,
+                                                                                                                    },
+                                                                                                                    name: "style",
+                                                                                                                },
+                                                                                                            ),
+                                                                                                            type_arguments: None,
+                                                                                                            attributes: Vec(
+                                                                                                                [],
+                                                                                                            ),
+                                                                                                        },
+                                                                                                        children: Vec(
+                                                                                                            [
+                                                                                                                Text(
+                                                                                                                    JSXText {
+                                                                                                                        span: Span {
+                                                                                                                            start: 117,
+                                                                                                                            end: 140,
+                                                                                                                        },
+                                                                                                                        value: "\ndiv {\n  color: red;\n}\n",
+                                                                                                                        raw: Some(
+                                                                                                                            "\ndiv {\n  color: red;\n}\n",
+                                                                                                                        ),
+                                                                                                                    },
+                                                                                                                ),
+                                                                                                            ],
+                                                                                                        ),
+                                                                                                        closing_element: Some(
+                                                                                                            JSXClosingElement {
+                                                                                                                span: Span {
+                                                                                                                    start: 140,
+                                                                                                                    end: 148,
+                                                                                                                },
+                                                                                                                name: Identifier(
+                                                                                                                    JSXIdentifier {
+                                                                                                                        span: Span {
+                                                                                                                            start: 142,
+                                                                                                                            end: 147,
+                                                                                                                        },
+                                                                                                                        name: "style",
+                                                                                                                    },
+                                                                                                                ),
+                                                                                                            },
+                                                                                                        ),
+                                                                                                    },
+                                                                                                ),
                                                                                                 Text(
                                                                                                     JSXText {
                                                                                                         span: Span {
-                                                                                                            start: 125,
-                                                                                                            end: 126,
+                                                                                                            start: 148,
+                                                                                                            end: 149,
                                                                                                         },
                                                                                                         value: "\n",
                                                                                                         raw: Some(
@@ -512,14 +572,18 @@ export default { setup() {
 
 <script lang="js" setup></script>
 
-
+<style>
+div {
+  color: red;
+}
+</style>
 </>;
 } };
 
 
 ===============  Spans  ===============
-Slice: "<template>\n  <div>\n    {{ count }}\n  </d..[OMIT]..t count = 1;\n</script>\n\n<style></style>\n"; 
-Span: (0, 126); 
+Slice: "<template>\n  <div>\n    {{ count }}\n  </d..[OMIT]..\n<style>\ndiv {\n  color: red;\n}\n</style>\n"; 
+Span: (0, 149); 
 Type: Program; 
 
 Slice: "const count = 1;"; 
@@ -650,6 +714,30 @@ Slice: "\n\n";
 Span: (108, 110); 
 Type: JSXText; 
 
+Slice: "<style>\ndiv {\n  color: red;\n}\n</style>"; 
+Span: (110, 148); 
+Type: JSXElement; 
+
+Slice: "<style>"; 
+Span: (110, 117); 
+Type: JSXOpeningElement; 
+
+Slice: "style"; 
+Span: (111, 116); 
+Type: JSXIdentifier; 
+
+Slice: "\ndiv {\n  color: red;\n}\n"; 
+Span: (117, 140); 
+Type: JSXText; 
+
+Slice: "</style>"; 
+Span: (140, 148); 
+Type: JSXClosingElement; 
+
+Slice: "style"; 
+Span: (142, 147); 
+Type: JSXIdentifier; 
+
 Slice: "\n"; 
-Span: (125, 126); 
+Span: (148, 149); 
 Type: JSXText;
