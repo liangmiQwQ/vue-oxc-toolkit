@@ -101,8 +101,8 @@ impl<'a> ParserImpl<'a> {
         node.location.span()
       } else {
         let end = node.location.end.offset;
-        // TODO: use memchr to find < instead of use +3 magic number (for </div     >)
-        let start = self.roffset(end).saturating_sub(tag_name.len() + 3) as u32;
+        let start =
+          memchr::memrchr(b'<', &self.source_text.as_bytes()[..end]).map(|i| i as u32).unwrap();
         Span::new(start, end as u32)
       }
     };
