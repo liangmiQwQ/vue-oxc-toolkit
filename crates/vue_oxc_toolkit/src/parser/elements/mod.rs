@@ -101,6 +101,7 @@ impl<'a> ParserImpl<'a> {
         node.location.span()
       } else {
         let end = node.location.end.offset;
+        // TODO: use memchr to find < instead of use +3 magic number (for </div     >)
         let start = self.roffset(end).saturating_sub(tag_name.len() + 3) as u32;
         Span::new(start, end as u32)
       }
@@ -112,13 +113,26 @@ impl<'a> ParserImpl<'a> {
         open_element_span.start + 1,
         open_element_span.start + 1 + node.tag_name.len() as u32,
       );
-      let name = ast.atom(node.tag_name);
-      if node.is_component() || node.tag_name.contains('-') {
-        // TODO: transform component name (like `keep-alive` to `KeepAlive`)
-        // TODO: processing namespaces, like motion.div
-        ast.jsx_element_name_identifier_reference(name_span, name)
+
+      if tag_name.contains('.')
+        // Directly call oxc_parser because it's too complex to process <a.b.c.d.e />
+        && let Some(expr) = self.parse_expression(
+          self.ast.atom(&format!("<{tag_name}/>")).as_str(),
+          name_span.start as usize - 1,
+        )
+        && let Expression::JSXElement(mut jsx_element) = expr
+      {
+        // For namespace tag name, e.g. <motion.div />
+        jsx_element.opening_element.name.take_in(self.allocator)
       } else {
-        ast.jsx_element_name_identifier(name_span, name)
+        let name = ast.atom(node.tag_name);
+        if node.is_component() || tag_name.contains('-') {
+          // TODO: transform component name (like `keep-alive` to `KeepAlive`)
+          ast.jsx_element_name_identifier_reference(name_span, name)
+        } else {
+          // For normal element, like <div>, use identifier
+          ast.jsx_element_name_identifier(name_span, name)
+        }
       }
     };
 
