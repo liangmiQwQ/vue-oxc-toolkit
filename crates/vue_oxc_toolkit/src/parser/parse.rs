@@ -217,6 +217,7 @@ mod tests {
     test_ast!("typescript.vue");
     test_ast!("void.vue");
     test_ast!("tags.vue");
+    test_ast!("root_texts.vue");
   }
 
   #[test]
