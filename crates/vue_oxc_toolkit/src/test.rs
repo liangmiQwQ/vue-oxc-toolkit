@@ -48,7 +48,7 @@ pub struct TestResult<'a> {
   pub spans: String,
 }
 
-impl<'a> std::fmt::Debug for TestResult<'a> {
+impl std::fmt::Debug for TestResult<'_> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     f.write_str("=============== Program ===============\n")?;
     write!(f, "{:#?}", self.program)?;
