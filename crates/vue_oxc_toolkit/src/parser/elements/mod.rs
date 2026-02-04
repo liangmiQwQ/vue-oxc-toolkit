@@ -129,9 +129,7 @@ impl<'a> ParserImpl<'a> {
         let name = tag_name
           .split('-')
           .map(|s| {
-            if s.is_empty() {
-              return String::new();
-            }
+            // SAFETY to use ascii and not check bytes length
             let mut bytes = s.as_bytes().to_vec();
             bytes[0] = bytes[0].to_ascii_uppercase();
             String::from_utf8(bytes).unwrap()
