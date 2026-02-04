@@ -104,6 +104,7 @@ impl<'a> ParserImpl<'a> {
         } else if node.tag_name == "template" {
           children.push(self.parse_element(node, None));
         }
+        // TODO: handle <style> or other possible tags
       }
     }
     // Process the texts after last element
