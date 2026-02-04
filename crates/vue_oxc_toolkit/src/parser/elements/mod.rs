@@ -113,8 +113,9 @@ impl<'a> ParserImpl<'a> {
         open_element_span.start + 1 + node.tag_name.len() as u32,
       );
       let name = ast.atom(node.tag_name);
-      if node.is_component() {
+      if node.is_component() || node.tag_name.contains('-') {
         // TODO: transform component name (like `keep-alive` to `KeepAlive`)
+        // TODO: processing namespaces, like motion.div
         ast.jsx_element_name_identifier_reference(name_span, name)
       } else {
         ast.jsx_element_name_identifier(name_span, name)
