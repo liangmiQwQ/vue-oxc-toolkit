@@ -2,7 +2,7 @@ use std::cell::RefCell;
 
 use oxc_allocator::{self, Dummy, TakeIn, Vec as ArenaVec};
 use oxc_ast::ast::{
-  ExportDefaultDeclarationKind, Expression, FormalParameterKind, FunctionType, Program,
+  ExportDefaultDeclarationKind, Expression, FormalParameterKind, FunctionType, JSXChild, Program,
   PropertyKind, Statement,
 };
 use oxc_ast::{AstBuilder, NONE};
@@ -65,6 +65,13 @@ impl<'a> ParserImpl<'a> {
     }
   }
 
+  fn push_text_child(&self, children: &mut ArenaVec<'a, JSXChild<'a>>, span: Span) {
+    if !span.is_empty() {
+      let atom = self.ast.atom(span.source_text(self.source_text));
+      children.push(self.ast.jsx_child_text(span, atom, Some(atom)));
+    }
+  }
+
   fn analyze(&mut self) -> RetParse<()> {
     let parser = Parser::new(ParseOption {
       whitespace: WhitespaceStrategy::Preserve,
@@ -89,11 +96,8 @@ impl<'a> ParserImpl<'a> {
     for child in result.children {
       if let AstNode::Element(node) = child {
         // Process the texts between last element and current element
-        let span = Span::new(text_start, node.location.start.offset as u32);
-        if !span.is_empty() {
-          let atom = self.ast.atom(span.source_text(self.source_text));
-          children.push(self.ast.jsx_child_text(span, atom, Some(atom)));
-        }
+        self
+          .push_text_child(&mut children, Span::new(text_start, node.location.start.offset as u32));
         text_start = node.location.end.offset as u32;
 
         if node.tag_name == "script" {
@@ -108,11 +112,7 @@ impl<'a> ParserImpl<'a> {
       }
     }
     // Process the texts after last element
-    let span = Span::new(text_start, self.source_text.len() as u32);
-    if !span.is_empty() {
-      let atom = self.ast.atom(span.source_text(self.source_text));
-      children.push(self.ast.jsx_child_text(span, atom, Some(atom)));
-    }
+    self.push_text_child(&mut children, Span::new(text_start, self.source_text.len() as u32));
 
     self.sfc_return = Some(Statement::ReturnStatement(self.ast.alloc_return_statement(
       SPAN,
