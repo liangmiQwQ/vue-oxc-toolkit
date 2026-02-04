@@ -106,6 +106,20 @@ impl<'a> ParserImpl<'a> {
       }
     };
 
+    // Use different JSXElementName for component and normal element
+    let element_name = {
+      let name_span = Span::new(
+        open_element_span.start + 1,
+        open_element_span.start + 1 + node.tag_name.len() as u32,
+      );
+      let name = ast.atom(node.tag_name);
+      if node.is_component() {
+        ast.jsx_element_name_identifier_reference(name_span, name)
+      } else {
+        ast.jsx_element_name_identifier(name_span, name)
+      }
+    };
+
     let mut v_for_wrapper = VForWrapper::new(&ast);
     let mut v_slot_wrapper = VSlotWrapper::new(&ast);
     let mut attributes = ast.vec();
@@ -124,18 +138,7 @@ impl<'a> ParserImpl<'a> {
 
     v_for_wrapper.wrap(ast.jsx_element(
       location_span,
-      ast.jsx_opening_element(
-        open_element_span,
-        ast.jsx_element_name_identifier(
-          Span::new(
-            open_element_span.start + 1,
-            open_element_span.start + 1 + node.tag_name.len() as u32,
-          ),
-          ast.atom(node.tag_name),
-        ),
-        NONE,
-        attributes,
-      ),
+      ast.jsx_opening_element(open_element_span, element_name, NONE, attributes),
       children,
       if end_element_span.eq(&location_span) {
         None

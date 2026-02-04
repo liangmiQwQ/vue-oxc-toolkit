@@ -380,13 +380,16 @@ Program {
                                                                                                                                 start: 62,
                                                                                                                                 end: 87,
                                                                                                                             },
-                                                                                                                            name: Identifier(
-                                                                                                                                JSXIdentifier {
+                                                                                                                            name: IdentifierReference(
+                                                                                                                                IdentifierReference {
                                                                                                                                     span: Span {
                                                                                                                                         start: 63,
                                                                                                                                         end: 67,
                                                                                                                                     },
                                                                                                                                     name: "Some",
+                                                                                                                                    reference_id: Cell {
+                                                                                                                                        value: None,
+                                                                                                                                    },
                                                                                                                                 },
                                                                                                                             ),
                                                                                                                             type_arguments: None,
@@ -740,13 +743,16 @@ Program {
                                                                                                                                 start: 117,
                                                                                                                                 end: 146,
                                                                                                                             },
-                                                                                                                            name: Identifier(
-                                                                                                                                JSXIdentifier {
+                                                                                                                            name: IdentifierReference(
+                                                                                                                                IdentifierReference {
                                                                                                                                     span: Span {
                                                                                                                                         start: 118,
                                                                                                                                         end: 122,
                                                                                                                                     },
                                                                                                                                     name: "Some",
+                                                                                                                                    reference_id: Cell {
+                                                                                                                                        value: None,
+                                                                                                                                    },
                                                                                                                                 },
                                                                                                                             ),
                                                                                                                             type_arguments: None,
@@ -1042,7 +1048,7 @@ Type: JSXOpeningElement;
 
 Slice: "Some"; 
 Span: (63, 67); 
-Type: JSXIdentifier; 
+Type: IdentifierReference; 
 
 Slice: "#default=\"{ a }\""; 
 Span: (68, 84); 
@@ -1142,7 +1148,7 @@ Type: JSXOpeningElement;
 
 Slice: "Some"; 
 Span: (118, 122); 
-Type: JSXIdentifier; 
+Type: IdentifierReference; 
 
 Slice: "v-bind:some.none=\"1\""; 
 Span: (123, 143); 
