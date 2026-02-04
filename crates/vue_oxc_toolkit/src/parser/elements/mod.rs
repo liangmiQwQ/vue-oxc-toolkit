@@ -114,6 +114,7 @@ impl<'a> ParserImpl<'a> {
       );
       let name = ast.atom(node.tag_name);
       if node.is_component() {
+        // TODO: transform component name (like `keep-alive` to `KeepAlive`)
         ast.jsx_element_name_identifier_reference(name_span, name)
       } else {
         ast.jsx_element_name_identifier(name_span, name)
