@@ -1,9 +1,9 @@
-use oxc_allocator::{TakeIn, Vec as ArenaVec};
+use oxc_allocator::{CloneIn, TakeIn, Vec as ArenaVec};
 use oxc_ast::{
   Comment, CommentKind, NONE,
   ast::{Expression, JSXAttributeItem, JSXChild, JSXExpression, PropertyKind, Statement},
 };
-use oxc_span::{SPAN, Span};
+use oxc_span::{GetSpanMut, SPAN, Span};
 use vue_compiler_core::parser::{
   AstNode, Directive, DirectiveArg, ElemProp, Element, SourceNode, TextNode,
 };
@@ -101,8 +101,51 @@ impl<'a> ParserImpl<'a> {
         node.location.span()
       } else {
         let end = node.location.end.offset;
+        // TODO: use memchr to find < instead of use +3 magic number (for </div     >)
         let start = self.roffset(end).saturating_sub(tag_name.len() + 3) as u32;
         Span::new(start, end as u32)
+      }
+    };
+
+    // Use different JSXElementName for component and normal element
+    let mut element_name = {
+      let name_span = Span::new(
+        open_element_span.start + 1,
+        open_element_span.start + 1 + node.tag_name.len() as u32,
+      );
+
+      if tag_name.contains('.')
+        // Directly call oxc_parser because it's too complex to process <a.b.c.d.e />
+        && let Some(expr) = self.parse_expression(
+          self.ast.atom(&format!("<{tag_name}/>")).as_str(),
+          name_span.start as usize - 1,
+        )
+        && let Expression::JSXElement(mut jsx_element) = expr
+      {
+        // For namespace tag name, e.g. <motion.div />
+        jsx_element.opening_element.name.take_in(self.allocator)
+      } else if tag_name.contains('-') {
+        // For <keep-alive />
+        let name = tag_name
+          .split('-')
+          .map(|s| {
+            // SAFETY to use ascii and not check bytes length
+            let mut bytes = s.as_bytes().to_vec();
+            bytes[0] = bytes[0].to_ascii_uppercase();
+            String::from_utf8(bytes).unwrap()
+          })
+          .collect::<String>();
+
+        ast.jsx_element_name_identifier_reference(name_span, ast.atom(&name))
+      } else {
+        let name = ast.atom(node.tag_name);
+        if node.is_component() {
+          // For <KeepAlive />
+          ast.jsx_element_name_identifier_reference(name_span, name)
+        } else {
+          // For normal element, like <div>, use identifier
+          ast.jsx_element_name_identifier(name_span, name)
+        }
       }
     };
 
@@ -126,13 +169,7 @@ impl<'a> ParserImpl<'a> {
       location_span,
       ast.jsx_opening_element(
         open_element_span,
-        ast.jsx_element_name_identifier(
-          Span::new(
-            open_element_span.start + 1,
-            open_element_span.start + 1 + node.tag_name.len() as u32,
-          ),
-          ast.atom(node.tag_name),
-        ),
+        element_name.clone_in(self.allocator),
         NONE,
         attributes,
       ),
@@ -140,16 +177,14 @@ impl<'a> ParserImpl<'a> {
       if end_element_span.eq(&location_span) {
         None
       } else {
-        Some(ast.jsx_closing_element(
-          end_element_span,
-          ast.jsx_element_name_identifier(
-            Span::new(
-              end_element_span.start + 2,
-              end_element_span.start + 2 + node.tag_name.len() as u32,
-            ),
-            ast.atom(node.tag_name),
-          ),
-        ))
+        Some(ast.jsx_closing_element(end_element_span, {
+          let span = Span::new(
+            end_element_span.start + 2,
+            end_element_span.start + 2 + node.tag_name.len() as u32,
+          );
+          *element_name.span_mut() = span;
+          element_name
+        }))
       },
     ))
   }
