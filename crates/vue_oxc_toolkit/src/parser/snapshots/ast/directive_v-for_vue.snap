@@ -2848,6 +2848,18 @@ Program {
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
+                                                                                                Text(
+                                                                                                    JSXText {
+                                                                                                        span: Span {
+                                                                                                            start: 506,
+                                                                                                            end: 507,
+                                                                                                        },
+                                                                                                        value: "\n",
+                                                                                                        raw: Some(
+                                                                                                            "\n",
+                                                                                                        ),
+                                                                                                    },
+                                                                                                ),
                                                                                             ],
                                                                                         ),
                                                                                         closing_fragment: JSXClosingFragment {
@@ -2916,7 +2928,8 @@ export default { setup() {
   {someObj7((key7, value7, index7) => <div v-for:={} />)}
   {someIter8(([item8, index8]) => <div v-for:={} />)}
   {someIter9(([item9 = "hi", index9]) => <div v-for:={} />)}
-</template></>;
+</template>
+</>;
 } };
 
 
@@ -3575,4 +3588,8 @@ Type: JSXClosingElement;
 
 Slice: "template"; 
 Span: (497, 505); 
-Type: JSXIdentifier;
+Type: JSXIdentifier; 
+
+Slice: "\n"; 
+Span: (506, 507); 
+Type: JSXText;

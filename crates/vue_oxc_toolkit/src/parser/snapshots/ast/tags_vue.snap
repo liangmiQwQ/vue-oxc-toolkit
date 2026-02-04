@@ -543,6 +543,18 @@ Program {
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
+                                                                                                Text(
+                                                                                                    JSXText {
+                                                                                                        span: Span {
+                                                                                                            start: 132,
+                                                                                                            end: 133,
+                                                                                                        },
+                                                                                                        value: "\n",
+                                                                                                        raw: Some(
+                                                                                                            "\n",
+                                                                                                        ),
+                                                                                                    },
+                                                                                                ),
                                                                                             ],
                                                                                         ),
                                                                                         closing_fragment: JSXClosingFragment {
@@ -607,7 +619,8 @@ export default { setup() {
   <main class="1" />
   <img />
   <br />
-</template></>;
+</template>
+</>;
 } };
 
 
@@ -786,4 +799,8 @@ Type: JSXClosingElement;
 
 Slice: "template"; 
 Span: (123, 131); 
-Type: JSXIdentifier;
+Type: JSXIdentifier; 
+
+Slice: "\n"; 
+Span: (132, 133); 
+Type: JSXText;

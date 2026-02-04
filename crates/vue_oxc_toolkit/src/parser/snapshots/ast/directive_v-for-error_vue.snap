@@ -620,6 +620,18 @@ Program {
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
+                                                                                                Text(
+                                                                                                    JSXText {
+                                                                                                        span: Span {
+                                                                                                            start: 207,
+                                                                                                            end: 208,
+                                                                                                        },
+                                                                                                        value: "\n",
+                                                                                                        raw: Some(
+                                                                                                            "\n",
+                                                                                                        ),
+                                                                                                    },
+                                                                                                ),
                                                                                             ],
                                                                                         ),
                                                                                         closing_fragment: JSXClosingFragment {
@@ -819,7 +831,8 @@ export default { setup() {
   <div v-for:={} />
   <div v-for:={} />
   <div v-for:={} />
-</template></>;
+</template>
+</>;
 } };
 
 
@@ -1006,4 +1019,8 @@ Type: JSXClosingElement;
 
 Slice: "template"; 
 Span: (198, 206); 
-Type: JSXIdentifier;
+Type: JSXIdentifier; 
+
+Slice: "\n"; 
+Span: (207, 208); 
+Type: JSXText;

@@ -2,7 +2,7 @@ use std::cell::RefCell;
 
 use oxc_allocator::{self, Dummy, TakeIn, Vec as ArenaVec};
 use oxc_ast::ast::{
-  ExportDefaultDeclarationKind, Expression, FormalParameterKind, FunctionType, Program,
+  ExportDefaultDeclarationKind, Expression, FormalParameterKind, FunctionType, JSXChild, Program,
   PropertyKind, Statement,
 };
 use oxc_ast::{AstBuilder, NONE};
@@ -65,6 +65,13 @@ impl<'a> ParserImpl<'a> {
     }
   }
 
+  fn push_text_child(&self, children: &mut ArenaVec<'a, JSXChild<'a>>, span: Span) {
+    if !span.is_empty() {
+      let atom = self.ast.atom(span.source_text(self.source_text));
+      children.push(self.ast.jsx_child_text(span, atom, Some(atom)));
+    }
+  }
+
   fn analyze(&mut self) -> RetParse<()> {
     let parser = Parser::new(ParseOption {
       whitespace: WhitespaceStrategy::Preserve,
@@ -85,26 +92,27 @@ impl<'a> ParserImpl<'a> {
     }
 
     let mut children = self.ast.vec();
+    let mut text_start: u32 = 0;
     for child in result.children {
-      #[allow(clippy::single_match)]
-      match child {
-        AstNode::Element(node) => {
-          if node.tag_name == "script" {
-            // Fill self.setup, self.statements
-            if let Some(child) = self.parse_script(node)? {
-              children.push(child);
-            }
-          } else if node.tag_name == "template" {
-            children.push(self.parse_element(node, None));
+      if let AstNode::Element(node) = child {
+        // Process the texts between last element and current element
+        self
+          .push_text_child(&mut children, Span::new(text_start, node.location.start.offset as u32));
+        text_start = node.location.end.offset as u32;
+
+        if node.tag_name == "script" {
+          // Fill self.setup, self.statements
+          if let Some(child) = self.parse_script(node)? {
+            children.push(child);
           }
+        } else if node.tag_name == "template" {
+          children.push(self.parse_element(node, None));
         }
-        // TODO: Do not add comment, interpolation nodes for root elements, regard all of them as texts
-        // AstNode::Text(text) => children.push(self.parse_text(&text)),
-        // AstNode::Comment(comment) => children.push(self.parse_comment(&comment)),
-        // AstNode::Interpolation(interp) => children.push(self.parse_interpolation(&interp)?),
-        _ => (),
+        // TODO: handle <style> or other possible tags
       }
     }
+    // Process the texts after last element
+    self.push_text_child(&mut children, Span::new(text_start, self.source_text.len() as u32));
 
     self.sfc_return = Some(Statement::ReturnStatement(self.ast.alloc_return_statement(
       SPAN,
@@ -209,6 +217,7 @@ mod tests {
     test_ast!("typescript.vue");
     test_ast!("void.vue");
     test_ast!("tags.vue");
+    test_ast!("root_texts.vue");
   }
 
   #[test]
