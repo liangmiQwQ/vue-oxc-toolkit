@@ -106,6 +106,12 @@ impl<'a> ParserImpl<'a> {
         }
       }
     }
+    // Process the texts after last element
+    let span = Span::new(text_start, self.source_text.len() as u32);
+    if !span.is_empty() {
+      let atom = self.ast.atom(span.source_text(self.source_text));
+      children.push(self.ast.jsx_child_text(span, atom, Some(atom)));
+    }
 
     self.sfc_return = Some(Statement::ReturnStatement(self.ast.alloc_return_statement(
       SPAN,

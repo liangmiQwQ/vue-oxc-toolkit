@@ -331,6 +331,18 @@ Program {
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
+                                                                                                Text(
+                                                                                                    JSXText {
+                                                                                                        span: Span {
+                                                                                                            start: 71,
+                                                                                                            end: 73,
+                                                                                                        },
+                                                                                                        value: "\n\n",
+                                                                                                        raw: Some(
+                                                                                                            "\n\n",
+                                                                                                        ),
+                                                                                                    },
+                                                                                                ),
                                                                                                 Element(
                                                                                                     JSXElement {
                                                                                                         span: Span {
@@ -559,6 +571,18 @@ Program {
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
+                                                                                                Text(
+                                                                                                    JSXText {
+                                                                                                        span: Span {
+                                                                                                            start: 160,
+                                                                                                            end: 161,
+                                                                                                        },
+                                                                                                        value: "\n",
+                                                                                                        raw: Some(
+                                                                                                            "\n",
+                                                                                                        ),
+                                                                                                    },
+                                                                                                ),
                                                                                             ],
                                                                                         ),
                                                                                         closing_fragment: JSXClosingFragment {
@@ -619,10 +643,13 @@ export default { setup() {
 	const a = someFunction<{
 		msg: 1;
 	}>();
-	return <><script lang="ts" setup></script><template>
+	return <><script lang="ts" setup></script>
+
+<template>
   <div>{a.msg}</div>
   <div> I think 1 < 2, isn't it? </div>
-</template></>;
+</template>
+</>;
 } };
 
 
@@ -719,6 +746,10 @@ Slice: "script";
 Span: (64, 70); 
 Type: JSXIdentifier; 
 
+Slice: "\n\n"; 
+Span: (71, 73); 
+Type: JSXText; 
+
 Slice: "<template>\n  <div>{{ a.msg }}</div>\n  <d..[OMIT]..hink 1 < 2, isn't it? </div>\n</template>"; 
 Span: (73, 160); 
 Type: JSXElement; 
@@ -809,4 +840,8 @@ Type: JSXClosingElement;
 
 Slice: "template"; 
 Span: (151, 159); 
-Type: JSXIdentifier;
+Type: JSXIdentifier; 
+
+Slice: "\n"; 
+Span: (160, 161); 
+Type: JSXText;

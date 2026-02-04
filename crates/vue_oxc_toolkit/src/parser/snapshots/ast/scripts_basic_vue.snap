@@ -412,6 +412,18 @@ Program {
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
+                                                                                                Text(
+                                                                                                    JSXText {
+                                                                                                        span: Span {
+                                                                                                            start: 44,
+                                                                                                            end: 46,
+                                                                                                        },
+                                                                                                        value: "\n\n",
+                                                                                                        raw: Some(
+                                                                                                            "\n\n",
+                                                                                                        ),
+                                                                                                    },
+                                                                                                ),
                                                                                                 Element(
                                                                                                     JSXElement {
                                                                                                         span: Span {
@@ -456,6 +468,18 @@ Program {
                                                                                                                     },
                                                                                                                 ),
                                                                                                             },
+                                                                                                        ),
+                                                                                                    },
+                                                                                                ),
+                                                                                                Text(
+                                                                                                    JSXText {
+                                                                                                        span: Span {
+                                                                                                            start: 146,
+                                                                                                            end: 148,
+                                                                                                        },
+                                                                                                        value: "\n\n",
+                                                                                                        raw: Some(
+                                                                                                            "\n\n",
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
@@ -523,7 +547,11 @@ export default {
 	setup() {
 		return <><template>
   <div></div>
-</template><script></script></>;
+</template>
+
+<script></script>
+
+</>;
 	}
 };
 
@@ -645,6 +673,10 @@ Slice: "template";
 Span: (35, 43); 
 Type: JSXIdentifier; 
 
+Slice: "\n\n"; 
+Span: (44, 46); 
+Type: JSXText; 
+
 Slice: "<script>\nconst count = 0\n\nexport default..[OMIT]..turn {\n      count\n    }\n  }\n}\n</script>"; 
 Span: (46, 146); 
 Type: JSXElement; 
@@ -663,4 +695,8 @@ Type: JSXClosingElement;
 
 Slice: "script"; 
 Span: (139, 145); 
-Type: JSXIdentifier;
+Type: JSXIdentifier; 
+
+Slice: "\n\n"; 
+Span: (146, 148); 
+Type: JSXText;

@@ -2461,6 +2461,18 @@ Program {
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
+                                                                                                Text(
+                                                                                                    JSXText {
+                                                                                                        span: Span {
+                                                                                                            start: 411,
+                                                                                                            end: 412,
+                                                                                                        },
+                                                                                                        value: "\n",
+                                                                                                        raw: Some(
+                                                                                                            "\n",
+                                                                                                        ),
+                                                                                                    },
+                                                                                                ),
                                                                                             ],
                                                                                         ),
                                                                                         closing_fragment: JSXClosingFragment {
@@ -2537,7 +2549,8 @@ export default { setup() {
   <Comp v-slot:header={}>{{ header: (user) => <>
     {user.name}
   </> }}</Comp>
-</template></>;
+</template>
+</>;
 } };
 
 
@@ -3136,4 +3149,8 @@ Type: JSXClosingElement;
 
 Slice: "template"; 
 Span: (402, 410); 
-Type: JSXIdentifier;
+Type: JSXIdentifier; 
+
+Slice: "\n"; 
+Span: (411, 412); 
+Type: JSXText;

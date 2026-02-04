@@ -369,6 +369,18 @@ Program {
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
+                                                                                                Text(
+                                                                                                    JSXText {
+                                                                                                        span: Span {
+                                                                                                            start: 101,
+                                                                                                            end: 103,
+                                                                                                        },
+                                                                                                        value: "\n\n",
+                                                                                                        raw: Some(
+                                                                                                            "\n\n",
+                                                                                                        ),
+                                                                                                    },
+                                                                                                ),
                                                                                                 Element(
                                                                                                     JSXElement {
                                                                                                         span: Span {
@@ -444,6 +456,18 @@ Program {
                                                                                                                     },
                                                                                                                 ),
                                                                                                             },
+                                                                                                        ),
+                                                                                                    },
+                                                                                                ),
+                                                                                                Text(
+                                                                                                    JSXText {
+                                                                                                        span: Span {
+                                                                                                            start: 222,
+                                                                                                            end: 224,
+                                                                                                        },
+                                                                                                        value: "\n\n",
+                                                                                                        raw: Some(
+                                                                                                            "\n\n",
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
@@ -543,6 +567,18 @@ Program {
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
+                                                                                                Text(
+                                                                                                    JSXText {
+                                                                                                        span: Span {
+                                                                                                            start: 281,
+                                                                                                            end: 282,
+                                                                                                        },
+                                                                                                        value: "\n",
+                                                                                                        raw: Some(
+                                                                                                            "\n",
+                                                                                                        ),
+                                                                                                    },
+                                                                                                ),
                                                                                             ],
                                                                                         ),
                                                                                         closing_fragment: JSXClosingFragment {
@@ -602,7 +638,12 @@ JS:
 export default { setup() {
 	return <><template>
   <div v-bind:key={1}>{}</div>
-</template><script lang="ts"></script><script lang="ts" setup></script></>;
+</template>
+
+<script lang="ts"></script>
+
+<script lang="ts" setup></script>
+</>;
 } };
 
 
@@ -687,6 +728,10 @@ Slice: "template";
 Span: (92, 100); 
 Type: JSXIdentifier; 
 
+Slice: "\n\n"; 
+Span: (101, 103); 
+Type: JSXText; 
+
 Slice: "<script lang=\"ts\">\n// Hello, everyone\n/*..[OMIT]..nd Rust!\n  What about you?\n */\n</script>"; 
 Span: (103, 222); 
 Type: JSXElement; 
@@ -718,6 +763,10 @@ Type: JSXClosingElement;
 Slice: "script"; 
 Span: (215, 221); 
 Type: JSXIdentifier; 
+
+Slice: "\n\n"; 
+Span: (222, 224); 
+Type: JSXText; 
 
 Slice: "<script lang=\"ts\" setup>\n// Hello\n/* Me too! */\n</script>"; 
 Span: (224, 281); 
@@ -757,4 +806,8 @@ Type: JSXClosingElement;
 
 Slice: "script"; 
 Span: (274, 280); 
-Type: JSXIdentifier;
+Type: JSXIdentifier; 
+
+Slice: "\n"; 
+Span: (281, 282); 
+Type: JSXText;
