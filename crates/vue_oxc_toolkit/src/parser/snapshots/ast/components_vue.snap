@@ -304,7 +304,7 @@ Program {
                                                                                                                                         start: 34,
                                                                                                                                         end: 48,
                                                                                                                                     },
-                                                                                                                                    name: "some-component",
+                                                                                                                                    name: "SomeComponent",
                                                                                                                                     reference_id: Cell {
                                                                                                                                         value: None,
                                                                                                                                     },
@@ -760,7 +760,7 @@ import { motion } from "motion-v";
 export default { setup() {
 	return <><template>
   <SomeComponent />
-  <some-component />
+  <SomeComponent />
   <Transition></Transition>
   <component></component>
   <motion.div></motion.div>

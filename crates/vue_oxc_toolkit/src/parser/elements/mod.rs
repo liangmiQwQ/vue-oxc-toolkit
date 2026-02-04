@@ -124,10 +124,25 @@ impl<'a> ParserImpl<'a> {
       {
         // For namespace tag name, e.g. <motion.div />
         jsx_element.opening_element.name.take_in(self.allocator)
+      } else if tag_name.contains('-') {
+        // For <keep-alive />
+        let name = tag_name
+          .split('-')
+          .map(|s| {
+            if s.is_empty() {
+              return String::new();
+            }
+            let mut bytes = s.as_bytes().to_vec();
+            bytes[0] = bytes[0].to_ascii_uppercase();
+            String::from_utf8(bytes).unwrap()
+          })
+          .collect::<String>();
+
+        ast.jsx_element_name_identifier_reference(name_span, ast.atom(&name))
       } else {
         let name = ast.atom(node.tag_name);
-        if node.is_component() || tag_name.contains('-') {
-          // TODO: transform component name (like `keep-alive` to `KeepAlive`)
+        if node.is_component() {
+          // For <KeepAlive />
           ast.jsx_element_name_identifier_reference(name_span, name)
         } else {
           // For normal element, like <div>, use identifier
