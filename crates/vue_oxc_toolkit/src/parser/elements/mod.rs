@@ -1,9 +1,9 @@
-use oxc_allocator::{TakeIn, Vec as ArenaVec};
+use oxc_allocator::{CloneIn, TakeIn, Vec as ArenaVec};
 use oxc_ast::{
   Comment, CommentKind, NONE,
   ast::{Expression, JSXAttributeItem, JSXChild, JSXExpression, PropertyKind, Statement},
 };
-use oxc_span::{SPAN, Span};
+use oxc_span::{GetSpanMut, SPAN, Span};
 use vue_compiler_core::parser::{
   AstNode, Directive, DirectiveArg, ElemProp, Element, SourceNode, TextNode,
 };
@@ -107,7 +107,7 @@ impl<'a> ParserImpl<'a> {
     };
 
     // Use different JSXElementName for component and normal element
-    let element_name = {
+    let mut element_name = {
       let name_span = Span::new(
         open_element_span.start + 1,
         open_element_span.start + 1 + node.tag_name.len() as u32,
@@ -139,21 +139,24 @@ impl<'a> ParserImpl<'a> {
 
     v_for_wrapper.wrap(ast.jsx_element(
       location_span,
-      ast.jsx_opening_element(open_element_span, element_name, NONE, attributes),
+      ast.jsx_opening_element(
+        open_element_span,
+        element_name.clone_in(self.allocator),
+        NONE,
+        attributes,
+      ),
       children,
       if end_element_span.eq(&location_span) {
         None
       } else {
-        Some(ast.jsx_closing_element(
-          end_element_span,
-          ast.jsx_element_name_identifier(
-            Span::new(
-              end_element_span.start + 2,
-              end_element_span.start + 2 + node.tag_name.len() as u32,
-            ),
-            ast.atom(node.tag_name),
-          ),
-        ))
+        Some(ast.jsx_closing_element(end_element_span, {
+          let span = Span::new(
+            end_element_span.start + 2,
+            end_element_span.start + 2 + node.tag_name.len() as u32,
+          );
+          *element_name.span_mut() = span;
+          element_name
+        }))
       },
     ))
   }
