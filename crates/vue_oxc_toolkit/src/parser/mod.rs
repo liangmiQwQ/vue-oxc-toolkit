@@ -77,7 +77,6 @@ impl<'a> ParserImpl<'a> {
 
     self.errors.append(&mut ret.errors);
     if ret.panicked {
-      // TODO: do not panic for js parsing error
       None
     } else {
       self.comments.append(&mut ret.program.comments);
