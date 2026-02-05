@@ -237,6 +237,9 @@ impl<'a> ParserImpl<'a> {
           self.analyze_v_slot(&dir, v_slot_wrapper, &dir_name);
         } else if dir.name == "for" {
           self.analyze_v_for(&dir, v_for_wrapper);
+        } else if dir.name == "else" {
+          // v-else can have no expression
+          *v_if_state = Some(VIf::Else);
         }
         let value = if let Some(expr) = &dir.expression {
           // +1 to skip the opening quote
@@ -247,10 +250,14 @@ impl<'a> ParserImpl<'a> {
               // TODO: v-if / v-else-if / v-else transforming for cfg semantic
               ((|| {
                 // Use placeholder for v-for and v-slot
-                if matches!(dir.name, "for" | "slot") {
+                if matches!(dir.name, "for" | "slot" | "else") {
                   None
-                } else if matches!(dir.name, "if" | "else-if" | "else") {
+                } else if dir.name == "if" {
                   *v_if_state = self.parse_expression(expr.content.raw, expr_start).map(VIf::If);
+                  None
+                } else if dir.name == "else-if" {
+                  *v_if_state =
+                    self.parse_expression(expr.content.raw, expr_start).map(VIf::ElseIf);
                   None
                 } else {
                   // For possible dynamic arguments
