@@ -106,7 +106,7 @@ impl<'a> ParserImpl<'a> {
             children.push(child);
           }
         } else if node.tag_name == "template" {
-          children.push(self.parse_element(node, None));
+          children.push(self.parse_element(node, None).0);
         } else {
           // Process other tags like <style>
           let text = if let Some(first) = node.children.first() {
@@ -122,7 +122,7 @@ impl<'a> ParserImpl<'a> {
             self.ast.vec()
           };
 
-          children.push(self.parse_element(node, Some(text)));
+          children.push(self.parse_element(node, Some(text)).0);
         }
       }
     }

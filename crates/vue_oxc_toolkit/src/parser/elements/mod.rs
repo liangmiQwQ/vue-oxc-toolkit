@@ -12,13 +12,14 @@ use crate::{
   is_void_tag,
   parser::{
     ParserImpl,
-    elements::{v_for::VForWrapper, v_slot::VSlotWrapper},
+    elements::{v_for::VForWrapper, v_if::VIf, v_slot::VSlotWrapper},
     parse::SourceLocatonSpan,
   },
 };
 
 mod directive;
 mod v_for;
+mod v_if;
 mod v_slot;
 
 impl<'a> ParserImpl<'a> {
@@ -57,7 +58,7 @@ impl<'a> ParserImpl<'a> {
 
     for child in children {
       result.push(match child {
-        AstNode::Element(node) => self.parse_element(node, None),
+        AstNode::Element(node) => self.parse_element(node, None).0,
         AstNode::Text(text) => self.parse_text(&text),
         AstNode::Comment(comment) => self.parse_comment(&comment),
         AstNode::Interpolation(interp) => self.parse_interpolation(&interp),
@@ -75,7 +76,7 @@ impl<'a> ParserImpl<'a> {
     &mut self,
     node: Element<'a>,
     children: Option<ArenaVec<'a, JSXChild<'a>>>,
-  ) -> JSXChild<'a> {
+  ) -> (JSXChild<'a>, Option<VIf<'a>>) {
     let ast = self.ast;
 
     let open_element_span = {
@@ -151,9 +152,15 @@ impl<'a> ParserImpl<'a> {
 
     let mut v_for_wrapper = VForWrapper::new(&ast);
     let mut v_slot_wrapper = VSlotWrapper::new(&ast);
+    let mut v_if_state: Option<VIf<'a>> = None;
     let mut attributes = ast.vec();
     for prop in node.properties {
-      attributes.push(self.parse_prop(prop, &mut v_for_wrapper, &mut v_slot_wrapper));
+      attributes.push(self.parse_prop(
+        prop,
+        &mut v_for_wrapper,
+        &mut v_slot_wrapper,
+        &mut v_if_state,
+      ));
     }
 
     let children = match children {
@@ -165,28 +172,31 @@ impl<'a> ParserImpl<'a> {
       )),
     };
 
-    v_for_wrapper.wrap(ast.jsx_element(
-      location_span,
-      ast.jsx_opening_element(
-        open_element_span,
-        element_name.clone_in(self.allocator),
-        NONE,
-        attributes,
-      ),
-      children,
-      if end_element_span.eq(&location_span) {
-        None
-      } else {
-        Some(ast.jsx_closing_element(end_element_span, {
-          let span = Span::new(
-            end_element_span.start + 2,
-            end_element_span.start + 2 + node.tag_name.len() as u32,
-          );
-          *element_name.span_mut() = span;
-          element_name
-        }))
-      },
-    ))
+    (
+      v_for_wrapper.wrap(ast.jsx_element(
+        location_span,
+        ast.jsx_opening_element(
+          open_element_span,
+          element_name.clone_in(self.allocator),
+          NONE,
+          attributes,
+        ),
+        children,
+        if end_element_span.eq(&location_span) {
+          None
+        } else {
+          Some(ast.jsx_closing_element(end_element_span, {
+            let span = Span::new(
+              end_element_span.start + 2,
+              end_element_span.start + 2 + node.tag_name.len() as u32,
+            );
+            *element_name.span_mut() = span;
+            element_name
+          }))
+        },
+      )),
+      v_if_state,
+    )
   }
 
   fn parse_prop(
@@ -194,6 +204,7 @@ impl<'a> ParserImpl<'a> {
     prop: ElemProp<'a>,
     v_for_wrapper: &mut VForWrapper<'_, 'a>,
     v_slot_wrapper: &mut VSlotWrapper<'_, 'a>,
+    v_if_state: &mut Option<VIf<'a>>,
   ) -> JSXAttributeItem<'a> {
     let ast = self.ast;
     match prop {
@@ -237,6 +248,9 @@ impl<'a> ParserImpl<'a> {
               ((|| {
                 // Use placeholder for v-for and v-slot
                 if matches!(dir.name, "for" | "slot") {
+                  None
+                } else if matches!(dir.name, "if" | "else-if" | "else") {
+                  *v_if_state = self.parse_expression(expr.content.raw, expr_start).map(VIf::If);
                   None
                 } else {
                   // For possible dynamic arguments
