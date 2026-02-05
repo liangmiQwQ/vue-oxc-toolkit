@@ -12,7 +12,11 @@ use crate::{
   is_void_tag,
   parser::{
     ParserImpl,
-    elements::{v_for::VForWrapper, v_if::VIf, v_slot::VSlotWrapper},
+    elements::{
+      v_for::VForWrapper,
+      v_if::{VIf, VIfManager},
+      v_slot::VSlotWrapper,
+    },
     parse::SourceLocatonSpan,
   },
 };
@@ -56,15 +60,29 @@ impl<'a> ParserImpl<'a> {
       None
     };
 
+    let mut v_if_manager = VIfManager::new(&ast);
     for child in children {
-      result.push(match child {
-        AstNode::Element(node) => self.parse_element(node, None).0,
-        AstNode::Text(text) => self.parse_text(&text),
-        AstNode::Comment(comment) => self.parse_comment(&comment),
-        AstNode::Interpolation(interp) => self.parse_interpolation(&interp),
-      });
+      let (child, v_if) = match child {
+        // TODO: handle v-if / v-else-if / v-else
+        AstNode::Element(node) => self.parse_element(node, None),
+        AstNode::Text(text) => (self.parse_text(&text), None),
+        AstNode::Comment(comment) => (self.parse_comment(&comment), None),
+        AstNode::Interpolation(interp) => (self.parse_interpolation(&interp), None),
+      };
+
+      if let Some(v_if) = v_if {
+        if let Some(child) = v_if_manager.add(child, v_if) {
+          // If meet v-else with no v-if, v_if_manager's chain will be still empty, so add it to result there
+          result.push(child);
+        }
+      } else {
+        result.push(v_if_manager.get_and_clear());
+        result.push(child);
+      }
     }
 
+    // If the last element is v-if / v-else-if / v-else, push all the children
+    result.push(v_if_manager.get_and_clear());
     if let Some(last) = last {
       result.push(last);
     }
@@ -247,7 +265,6 @@ impl<'a> ParserImpl<'a> {
           Some(
             ast.jsx_attribute_value_expression_container(
               Span::new(expr_start as u32, dir_end - 1),
-              // TODO: v-if / v-else-if / v-else transforming for cfg semantic
               ((|| {
                 // Use placeholder for v-for and v-slot
                 if matches!(dir.name, "for" | "slot" | "else") {
