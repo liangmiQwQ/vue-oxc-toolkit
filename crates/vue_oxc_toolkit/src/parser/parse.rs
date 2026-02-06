@@ -1,21 +1,17 @@
 use std::cell::RefCell;
 
-use oxc_allocator::{self, Dummy, TakeIn, Vec as ArenaVec};
-use oxc_ast::ast::{
-  ExportDefaultDeclarationKind, Expression, FormalParameterKind, FunctionType, JSXChild, Program,
-  PropertyKind, Statement,
-};
-use oxc_ast::{AstBuilder, NONE};
+use oxc_allocator::{self, Dummy, Vec as ArenaVec};
+use oxc_ast::AstBuilder;
+use oxc_ast::ast::{JSXChild, Program, Statement};
 
-use oxc_diagnostics::OxcDiagnostic;
-use oxc_span::{GetSpan, SPAN, Span};
+use oxc_span::{SPAN, Span};
 use oxc_syntax::module_record::ModuleRecord;
 use vue_compiler_core::SourceLocation;
 use vue_compiler_core::parser::{AstNode, ParseOption, Parser, WhitespaceStrategy};
 use vue_compiler_core::scanner::{ScanOption, Scanner};
 
 use crate::is_void_tag;
-use crate::parser::error::{self, OxcErrorHandler};
+use crate::parser::error::OxcErrorHandler;
 use crate::parser::{RetParse, RetParseExt};
 
 use super::ParserImpl;
@@ -34,10 +30,10 @@ impl<'a> ParserImpl<'a> {
           module_record,
           source_type,
           comments,
-          mut errors,
+          errors,
           setup,
           statements,
-          sfc_return,
+          sfc_struct_jsx_statement: sfc_return,
           ..
         } = self;
 
@@ -49,7 +45,7 @@ impl<'a> ParserImpl<'a> {
             comments,
             None, // no hashbang needed for vue files
             ast.vec(),
-            Self::get_body_statements(statements, setup, sfc_return, ast, &mut errors),
+            Self::get_body_statements(statements, setup, sfc_return, ast),
           ),
           fatal: false,
           errors,
@@ -129,79 +125,31 @@ impl<'a> ParserImpl<'a> {
     // Process the texts after last element
     self.push_text_child(&mut children, Span::new(text_start, self.source_text.len() as u32));
 
-    self.sfc_return = Some(Statement::ReturnStatement(self.ast.alloc_return_statement(
+    self.sfc_struct_jsx_statement = Some(self.ast.statement_expression(
       SPAN,
-      Some(self.ast.expression_jsx_fragment(
+      self.ast.expression_jsx_fragment(
         SPAN,
         self.ast.jsx_opening_fragment(SPAN),
         children,
         self.ast.jsx_closing_fragment(SPAN),
-      )),
-    )));
+      ),
+    ));
 
     RetParse::success(())
   }
 
-  fn get_body_statements<'b>(
+  fn get_body_statements(
     mut statements: ArenaVec<'a, Statement<'a>>,
     mut setup: ArenaVec<'a, Statement<'a>>,
     sfc_return: Option<Statement<'a>>,
     ast: AstBuilder<'a>,
-    errors: &'b mut Vec<OxcDiagnostic>,
   ) -> ArenaVec<'a, Statement<'a>> {
-    let setup_property = ast.object_property_kind_object_property(
-      SPAN,
-      PropertyKind::Init,
-      ast.property_key_static_identifier(SPAN, "setup"),
-      Expression::FunctionExpression(ast.alloc_function(
-        SPAN,
-        FunctionType::FunctionExpression,
-        None,
-        false,
-        false,
-        false,
-        NONE,
-        NONE,
-        ast.alloc_formal_parameters(
-          SPAN,
-          FormalParameterKind::UniqueFormalParameters,
-          ast.vec(),
-          NONE,
-        ),
-        NONE,
-        Some(ast.function_body(SPAN, ast.vec(), {
-          if let Some(ret) = sfc_return {
-            setup.push(ret);
-          }
-          setup
-        })),
-      )),
-      true,
-      false,
-      false,
-    );
-
-    match statements.iter_mut().find_map(|statement| {
-      if let Statement::ExportDefaultDeclaration(decl) = statement { Some(decl) } else { None }
-    }) {
-      Some(export_default) => match export_default.declaration.as_expression_mut() {
-        Some(expr) => {
-          let property =
-            ast.object_property_kind_spread_property(SPAN, expr.take_in(ast.allocator));
-
-          *expr = ast.expression_object(SPAN, ast.vec_from_array([property, setup_property]));
-        }
-        None => error::export_default_must_be_expression(errors, export_default.declaration.span()),
-      },
-      None => {
-        statements.push(Statement::ExportDefaultDeclaration(ast.alloc_export_default_declaration(
-          SPAN,
-          ExportDefaultDeclarationKind::ObjectExpression(
-            ast.alloc_object_expression(SPAN, ast.vec1(setup_property)),
-          ),
-        )));
+    statements.push(Statement::BlockStatement(ast.alloc_block_statement(SPAN, {
+      if let Some(ret) = sfc_return {
+        setup.push(ret);
       }
-    }
+      setup
+    })));
 
     statements
   }

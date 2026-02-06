@@ -89,15 +89,6 @@ pub fn v_else_without_adjacent_if(errors: &mut Vec<OxcDiagnostic>, span: Span) {
 }
 
 #[cold]
-pub fn export_default_must_be_expression(errors: &mut Vec<OxcDiagnostic>, span: Span) {
-  errors.push(
-    OxcDiagnostic::error("Vue SFC export default must be an expression.")
-      .with_help("Use `export default { ... }` (options object) instead of declarations.")
-      .with_label(span),
-  );
-}
-
-#[cold]
 pub fn invalid_v_for_expression(errors: &mut Vec<OxcDiagnostic>, span: Span) {
   errors.push(OxcDiagnostic::error("Invalid v-for expression").with_label(span));
 }
