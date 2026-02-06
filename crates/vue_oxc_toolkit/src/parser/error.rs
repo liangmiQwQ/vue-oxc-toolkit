@@ -1,4 +1,4 @@
-use std::{cell::RefCell, collections::HashSet};
+use std::cell::RefCell;
 
 use oxc_span::Span;
 
@@ -71,14 +71,13 @@ const fn should_panic(error: &CompilationError) -> bool {
 
 #[cold]
 pub fn unexpected_script_lang(errors: &mut Vec<OxcDiagnostic>, lang: &str) {
-  errors.push(OxcDiagnostic::error(format!("Unsupported script language: {lang}")));
+  errors.push(OxcDiagnostic::error(format!("Unsupported lang {lang} in <script> blocks.")));
 }
 
 #[cold]
-pub fn multiple_script_tags(errors: &mut Vec<OxcDiagnostic>, source_types: &HashSet<&str>) {
-  errors.push(OxcDiagnostic::error(format!(
-    "Multiple script tags with different languages: {source_types:?}"
-  )));
+pub fn multiple_script_tags(errors: &mut Vec<OxcDiagnostic>) {
+  errors
+    .push(OxcDiagnostic::error("<script> and <script setup> must have the same language type."));
 }
 
 #[cold]
@@ -90,5 +89,5 @@ pub fn v_else_without_adjacent_if(errors: &mut Vec<OxcDiagnostic>, span: Span) {
 
 #[cold]
 pub fn invalid_v_for_expression(errors: &mut Vec<OxcDiagnostic>, span: Span) {
-  errors.push(OxcDiagnostic::error("Invalid v-for expression").with_label(span));
+  errors.push(OxcDiagnostic::error("v-for has invalid expression.").with_label(span));
 }

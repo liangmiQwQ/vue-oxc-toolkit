@@ -27,7 +27,7 @@ impl<'a> ParserImpl<'a> {
     source_types.insert(lang);
 
     if source_types.len() > 1 {
-      error::multiple_script_tags(&mut self.errors, &source_types);
+      error::multiple_script_tags(&mut self.errors);
       return RetParse::panic();
     }
 
