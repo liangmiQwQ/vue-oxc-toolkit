@@ -21,6 +21,7 @@ impl<'a> Into<Expression<'a>> for VIf<'a> {
   fn into(self) -> Expression<'a> {
     match self {
       VIf::If(e) | VIf::ElseIf(e) => e,
+      // SAFETY: v-else should be processed as the last element
       VIf::Else => panic!("VIf::Else::into() called. v-else has no expression"),
     }
   }
