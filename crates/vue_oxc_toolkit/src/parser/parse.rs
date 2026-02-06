@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 
 use oxc_allocator::{self, Dummy, Vec as ArenaVec};
-use oxc_ast::ast::{Expression, FormalParameterKind, FunctionType, JSXChild, Program, Statement};
+use oxc_ast::ast::{Expression, FormalParameterKind, JSXChild, Program, Statement};
 use oxc_ast::{AstBuilder, NONE};
 
 use oxc_span::{SPAN, Span};
