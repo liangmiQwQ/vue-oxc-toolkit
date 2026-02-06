@@ -6,12 +6,12 @@ use oxc_ast::{
     ParenthesizedExpression, Statement,
   },
 };
-use oxc_diagnostics::OxcDiagnostic;
+
 use oxc_span::{SPAN, Span};
 use regex::Regex;
 use vue_compiler_core::parser::Directive;
 
-use crate::parser::{ParserImpl, parse::SourceLocatonSpan};
+use crate::parser::{ParserImpl, error, parse::SourceLocatonSpan};
 
 pub struct VForWrapper<'a, 'b> {
   ast: &'a AstBuilder<'b>,
@@ -21,7 +21,7 @@ pub struct VForWrapper<'a, 'b> {
 
 impl<'a> ParserImpl<'a> {
   fn invalid_v_for_expression(&mut self, span: Span) -> Option<()> {
-    self.errors.push(OxcDiagnostic::error("Invalid v-for expression").with_label(span));
+    error::invalid_v_for_expression(&mut self.errors, span);
     None
   }
 

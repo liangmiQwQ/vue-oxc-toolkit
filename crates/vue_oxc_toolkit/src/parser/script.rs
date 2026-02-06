@@ -2,14 +2,16 @@ use std::collections::HashSet;
 
 use oxc_allocator::Vec as ArenaVec;
 use oxc_ast::ast::{JSXChild, Statement};
-use oxc_diagnostics::OxcDiagnostic;
+
 use oxc_span::SourceType;
 use vue_compiler_core::{
   parser::{ElemProp, Element},
   util::{find_prop, prop_finder},
 };
 
-use crate::parser::{ParserImpl, RetParse, RetParseExt, modules::Merge, parse::SourceLocatonSpan};
+use crate::parser::{
+  ParserImpl, RetParse, RetParseExt, error, modules::Merge, parse::SourceLocatonSpan,
+};
 
 impl<'a> ParserImpl<'a> {
   pub fn parse_script(&mut self, node: Element<'a>) -> RetParse<Option<JSXChild<'a>>> {
@@ -25,9 +27,7 @@ impl<'a> ParserImpl<'a> {
     source_types.insert(lang);
 
     if source_types.len() > 1 {
-      self.errors.push(OxcDiagnostic::error(format!(
-        "Multiple script tags with different languages: {source_types:?}"
-      )));
+      error::multiple_script_tags(&mut self.errors, &source_types);
       return RetParse::panic();
     }
 
@@ -36,7 +36,7 @@ impl<'a> ParserImpl<'a> {
     } else if lang.starts_with("ts") {
       SourceType::tsx()
     } else {
-      self.errors.push(OxcDiagnostic::error(format!("Unsupported script language: {lang}")));
+      error::unexpected_script_lang(&mut self.errors, lang);
       return RetParse::panic();
     };
 

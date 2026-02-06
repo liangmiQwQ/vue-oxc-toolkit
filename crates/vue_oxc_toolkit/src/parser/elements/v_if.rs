@@ -4,10 +4,10 @@ use oxc_ast::{
   AstBuilder,
   ast::{Expression, JSXChild},
 };
-use oxc_diagnostics::OxcDiagnostic;
+
 use oxc_span::{GetSpan, SPAN};
 
-use crate::parser::ParserImpl;
+use crate::parser::{ParserImpl, error};
 
 pub enum VIf<'a> {
   If(Expression<'a>),
@@ -53,10 +53,7 @@ impl<'a> ParserImpl<'a> {
     } else if manager.chain.is_empty() {
       // Orphan v-else-if / v-else
       // https://play.vuejs.org/#eNp9kLFuwjAQhl/FuhnC0E4ordRWDO3QVi2jlyg5gsGxLd85REJ5d2wjAgNis/7v8+m/O8Kbc0UfEJZQMnZOV4yv0ghRNqoX/Rw14VxtXiSwDyhBLCItF5MKM2CqrdmottiRNXHOMX2XUNvOKY3+x7GyhiQsRSaJVVrbw1fO0tjZJa+3WO/v5DsaUibh1yOh72ORiXHlW+QzXv1/4xDfE+xsE3S0H8A/JKtD6njW3oNpYu0bL7f97Jz1rEy7ptXAaOiyVL5LNMfsS4jH/Hiw+rXuU/Gc/0kzwngCD9Z/dQ==
-      self.errors.push(
-        OxcDiagnostic::error("v-else/v-else-if has no adjacent v-if or v-else-if.")
-          .with_label(child.span()),
-      );
+      error::v_else_without_adjacent_if(&mut self.errors, child.span());
       Some(child)
     } else if matches!(v_if, VIf::Else) {
       manager.chain.push((child, v_if));

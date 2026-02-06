@@ -15,7 +15,7 @@ use vue_compiler_core::parser::{AstNode, ParseOption, Parser, WhitespaceStrategy
 use vue_compiler_core::scanner::{ScanOption, Scanner};
 
 use crate::is_void_tag;
-use crate::parser::error::OxcErrorHandler;
+use crate::parser::error::{self, OxcErrorHandler};
 use crate::parser::{RetParse, RetParseExt};
 
 use super::ParserImpl;
@@ -191,11 +191,7 @@ impl<'a> ParserImpl<'a> {
 
           *expr = ast.expression_object(SPAN, ast.vec_from_array([property, setup_property]));
         }
-        None => errors.push(
-          OxcDiagnostic::error("Vue SFC export default must be an expression.")
-            .with_help("Use `export default { ... }` (options object) instead of declarations.")
-            .with_label(export_default.declaration.span()),
-        ),
+        None => error::export_default_must_be_expression(errors, export_default.declaration.span()),
       },
       None => {
         statements.push(Statement::ExportDefaultDeclaration(ast.alloc_export_default_declaration(
