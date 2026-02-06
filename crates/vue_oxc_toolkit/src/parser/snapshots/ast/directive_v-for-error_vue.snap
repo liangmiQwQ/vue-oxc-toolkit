@@ -613,7 +613,7 @@ Program {
 [
     OxcDiagnostic {
         inner: OxcDiagnosticInner {
-            message: "Invalid v-for expression",
+            message: "v-for has invalid expression.",
             labels: Some(
                 [
                     LabeledSpan {
@@ -640,7 +640,7 @@ Program {
     },
     OxcDiagnostic {
         inner: OxcDiagnosticInner {
-            message: "Invalid v-for expression",
+            message: "v-for has invalid expression.",
             labels: Some(
                 [
                     LabeledSpan {
@@ -667,7 +667,7 @@ Program {
     },
     OxcDiagnostic {
         inner: OxcDiagnosticInner {
-            message: "Invalid v-for expression",
+            message: "v-for has invalid expression.",
             labels: Some(
                 [
                     LabeledSpan {
@@ -694,7 +694,7 @@ Program {
     },
     OxcDiagnostic {
         inner: OxcDiagnosticInner {
-            message: "Invalid v-for expression",
+            message: "v-for has invalid expression.",
             labels: Some(
                 [
                     LabeledSpan {
