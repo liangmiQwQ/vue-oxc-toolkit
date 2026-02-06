@@ -696,7 +696,7 @@ Program {
                             scope_id: Cell {
                                 value: None,
                             },
-                            expression: true,
+                            expression: false,
                             async: false,
                             pure: false,
                             pife: false,
@@ -725,7 +725,17 @@ const count = 0;
 export default { data() {
 	return { count };
 } };
-() => ;
+() => {
+	const number = ref(-1);
+	return <><template>
+  <div></div>
+</template>
+
+<script setup></script>
+
+<script></script>
+</>;
+};
 
 
 ===============  Spans  ===============

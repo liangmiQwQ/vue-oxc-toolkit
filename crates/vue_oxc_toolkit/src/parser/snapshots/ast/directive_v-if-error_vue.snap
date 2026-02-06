@@ -489,7 +489,7 @@ Program {
                             scope_id: Cell {
                                 value: None,
                             },
-                            expression: true,
+                            expression: false,
                             async: false,
                             pure: false,
                             pife: false,
@@ -568,7 +568,16 @@ Program {
 ]
 
 =============== Codegen ===============
-() => ;
+() => {
+	return <><template>
+  <div v-else-if:={} />
+  <div v-else: />
+
+  {1 ? <><div v-if:={} /></> : undefined}
+</template>
+
+</>;
+};
 
 
 ===============  Spans  ===============

@@ -2511,7 +2511,7 @@ Program {
                             scope_id: Cell {
                                 value: None,
                             },
-                            expression: true,
+                            expression: false,
                             async: false,
                             pure: false,
                             pife: false,
@@ -2535,7 +2535,29 @@ Program {
 []
 
 =============== Codegen ===============
-() => ;
+() => {
+	return <><template>
+  <Comp v-slot:={}>{{ default: ({ message }) => <></> }}</Comp>
+  <Comp v-slot:header={}>{{ header: ({ message }) => <>
+    {message}
+  </> }}</Comp>
+  <Comp v-slot:abc>{{ abc: () => <> abc </> }}</Comp>
+  <Comp v-slot: />{{ default: () => <></> }}
+  <Comp v-slot:header={}>{{ header: ({ message }) => <>
+    {message}
+  </> }}</Comp>
+  <Comp v-slot:={}>{{ default: ({ message }) => <>
+    {message}
+  </> }}</Comp>
+  <Comp v-slot:[key]={}>{{ [key]: ({ message }) => <>
+    {message}
+  </> }}</Comp>
+  <Comp v-slot:header={}>{{ header: (user) => <>
+    {user.name}
+  </> }}</Comp>
+</template>
+</>;
+};
 
 
 ===============  Spans  ===============

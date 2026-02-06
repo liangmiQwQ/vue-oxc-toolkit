@@ -476,7 +476,7 @@ Program {
                             scope_id: Cell {
                                 value: None,
                             },
-                            expression: true,
+                            expression: false,
                             async: false,
                             pure: false,
                             pife: false,
@@ -504,7 +504,15 @@ const count = 0;
 export default { data() {
 	return { count };
 } };
-() => ;
+() => {
+	return <><template>
+  <div></div>
+</template>
+
+<script></script>
+
+</>;
+};
 
 
 ===============  Spans  ===============

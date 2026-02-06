@@ -858,7 +858,7 @@ Program {
                             scope_id: Cell {
                                 value: None,
                             },
-                            expression: true,
+                            expression: false,
                             async: false,
                             pure: false,
                             pife: false,
@@ -882,7 +882,16 @@ Program {
 []
 
 =============== Codegen ===============
-() => ;
+() => {
+	return <><template>
+  <div v-bind:class={"w-100"} />
+  <div v-bind:[some]={{ [some]: 2 }} />
+  <Some v-slot:default={} />{{ default: ({ a }) => <></> }}
+  <input v-model:={text} />
+  <Some v-bind:some.none={1} />
+</template>
+</>;
+};
 
 
 ===============  Spans  ===============

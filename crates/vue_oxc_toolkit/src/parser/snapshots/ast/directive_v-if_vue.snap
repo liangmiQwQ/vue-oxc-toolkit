@@ -1704,7 +1704,7 @@ Program {
                             scope_id: Cell {
                                 value: None,
                             },
-                            expression: true,
+                            expression: false,
                             async: false,
                             pure: false,
                             pife: false,
@@ -1728,7 +1728,23 @@ Program {
 []
 
 =============== Codegen ===============
-() => ;
+() => {
+	return <><template>
+  
+  
+  
+  
+  {a ? <><div v-if:={}>A</div></> : b ? <><div v-else-if:={}>B</div></> : c ? <><div v-else-if:={}>C</div></> : d ? <><div v-else-if:={}>D</div></> : <><div v-else:>E</div></>}
+  
+  
+  {x ? <><div v-if:={}>X</div></> : <><div v-else:>Y</div></>}
+  
+  
+  {z ? <><div v-if:={}>Z</div></> : undefined}
+  {w ? <><div v-if:={}>W</div></> : undefined}<div>K</div>
+</template>
+</>;
+};
 
 
 ===============  Spans  ===============

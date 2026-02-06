@@ -148,7 +148,7 @@ impl<'a> ParserImpl<'a> {
       SPAN,
       Expression::ArrowFunctionExpression(ast.alloc_arrow_function_expression(
         SPAN,
-        true,
+        false,
         false,
         NONE,
         ast.alloc_formal_parameters(

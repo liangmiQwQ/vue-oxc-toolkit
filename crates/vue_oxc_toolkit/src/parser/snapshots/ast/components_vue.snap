@@ -692,7 +692,7 @@ Program {
                             scope_id: Cell {
                                 value: None,
                             },
-                            expression: true,
+                            expression: false,
                             async: false,
                             pure: false,
                             pife: false,
@@ -718,7 +718,18 @@ Program {
 =============== Codegen ===============
 import SomeComponent from "./SomeComponent.vue";
 import { motion } from "motion-v";
-() => ;
+() => {
+	return <><template>
+  <SomeComponent />
+  <SomeComponent />
+  <Transition></Transition>
+  <component></component>
+  <motion.div></motion.div>
+</template>
+
+<script lang="ts" setup></script>
+</>;
+};
 
 
 ===============  Spans  ===============

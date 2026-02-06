@@ -625,7 +625,7 @@ Program {
                             scope_id: Cell {
                                 value: None,
                             },
-                            expression: true,
+                            expression: false,
                             async: false,
                             pure: false,
                             pife: false,
@@ -785,7 +785,16 @@ Program {
 ]
 
 =============== Codegen ===============
-() => ;
+() => {
+	return <><template>
+  <div v-for:={} />
+  <div v-for:={} />
+  <div v-for:={} />
+  <div v-for:={} />
+  <div v-for:={} />
+</template>
+</>;
+};
 
 
 ===============  Spans  ===============

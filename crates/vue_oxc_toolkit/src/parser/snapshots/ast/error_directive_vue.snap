@@ -669,7 +669,7 @@ Program {
                             scope_id: Cell {
                                 value: None,
                             },
-                            expression: true,
+                            expression: false,
                             async: false,
                             pure: false,
                             pife: false,
@@ -793,7 +793,22 @@ Program {
 ]
 
 =============== Codegen ===============
-() => ;
+() => {
+	return <><template>
+  <div v-bind:key={(() => {
+		return {
+			a,
+			b
+		};
+	})}></div>
+  <div v-bind:key={}></div>
+</template>
+
+<script lang="ts" setup></script>
+
+<style></style>
+</>;
+};
 
 
 ===============  Spans  ===============

@@ -576,7 +576,7 @@ Program {
                             scope_id: Cell {
                                 value: None,
                             },
-                            expression: true,
+                            expression: false,
                             async: false,
                             pure: false,
                             pife: false,
@@ -600,7 +600,18 @@ Program {
 []
 
 =============== Codegen ===============
-() => ;
+() => {
+	const a = someFunction<{
+		msg: 1;
+	}>();
+	return <><script lang="ts" setup></script>
+
+<template>
+  <div>{a.msg}</div>
+  <div> I think 1 < 2, isn't it? </div>
+</template>
+</>;
+};
 
 
 ===============  Spans  ===============
