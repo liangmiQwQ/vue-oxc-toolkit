@@ -68,9 +68,10 @@ impl<'a> ParserImpl<'a> {
 
           if let Some(v_if) = v_if {
             if let Some(child) = self.add_v_if(child, v_if, &mut v_if_manager) {
-              // There are two cases to return Some(child) for add_v_if function
+              // There are three cases to return Some(child) for add_v_if function
               // 1. meet v-else, means the v-if/v-else-if chain is finished
-              // 2. meet v-else/v-else-if with no v-if, v_if_manager won't add it to the chain, so add it to result there
+              // 2. meet v-if while the v_if_manager is not empty, means the previous v-if/v-else-if chain is finished
+              // 3. meet v-else/v-else-if with no v-if, v_if_manager won't add it to the chain, so add it to result there
               result.push(child);
             }
           } else {

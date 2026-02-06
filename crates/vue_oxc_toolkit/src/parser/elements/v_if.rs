@@ -40,8 +40,15 @@ impl<'a> ParserImpl<'a> {
     manager: &mut VIfManager<'_, 'a>,
   ) -> Option<JSXChild<'a>> {
     if matches!(v_if, VIf::If(_)) {
-      manager.chain.push((child, v_if));
-      None
+      if manager.chain.is_empty() {
+        manager.chain.push((child, v_if));
+        None
+      } else {
+        // The previous v-if/v-else-if chain is finished
+        let result = manager.take_chain();
+        manager.chain.push((child, v_if));
+        result
+      }
     } else if manager.chain.is_empty() {
       // Orphan v-else-if / v-else
       // https://play.vuejs.org/#eNp9kLFuwjAQhl/FuhnC0E4ordRWDO3QVi2jlyg5gsGxLd85REJ5d2wjAgNis/7v8+m/O8Kbc0UfEJZQMnZOV4yv0ghRNqoX/Rw14VxtXiSwDyhBLCItF5MKM2CqrdmottiRNXHOMX2XUNvOKY3+x7GyhiQsRSaJVVrbw1fO0tjZJa+3WO/v5DsaUibh1yOh72ORiXHlW+QzXv1/4xDfE+xsE3S0H8A/JKtD6njW3oNpYu0bL7f97Jz1rEy7ptXAaOiyVL5LNMfsS4jH/Hiw+rXuU/Gc/0kzwngCD9Z/dQ==
@@ -112,5 +119,6 @@ mod tests {
   #[test]
   fn v_if() {
     test_ast!("directive/v-if.vue");
+    test_ast!("directive/v-if-error.vue", true, false);
   }
 }
