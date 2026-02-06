@@ -31,9 +31,9 @@ impl<'a> ParserImpl<'a> {
       return RetParse::panic();
     }
 
-    self.source_type = if lang.starts_with("js") {
+    self.source_type = if matches!(lang, "js" | "jsx") {
       SourceType::jsx()
-    } else if lang.starts_with("ts") {
+    } else if matches!(lang, "ts" | "tsx") {
       SourceType::tsx()
     } else {
       error::unexpected_script_lang(&mut self.errors, lang);
