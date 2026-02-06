@@ -12,13 +12,18 @@ use crate::{
   is_void_tag,
   parser::{
     ParserImpl,
-    elements::{v_for::VForWrapper, v_slot::VSlotWrapper},
+    elements::{
+      v_for::VForWrapper,
+      v_if::{VIf, VIfManager},
+      v_slot::VSlotWrapper,
+    },
     parse::SourceLocatonSpan,
   },
 };
 
 mod directive;
 mod v_for;
+mod v_if;
 mod v_slot;
 
 impl<'a> ParserImpl<'a> {
@@ -55,15 +60,37 @@ impl<'a> ParserImpl<'a> {
       None
     };
 
+    let mut v_if_manager = VIfManager::new(&ast);
     for child in children {
-      result.push(match child {
-        AstNode::Element(node) => self.parse_element(node, None),
-        AstNode::Text(text) => self.parse_text(&text),
-        AstNode::Comment(comment) => self.parse_comment(&comment),
-        AstNode::Interpolation(interp) => self.parse_interpolation(&interp),
-      });
+      match child {
+        AstNode::Element(node) => {
+          let (child, v_if) = self.parse_element(node, None);
+
+          if let Some(v_if) = v_if {
+            if let Some(child) = self.add_v_if(child, v_if, &mut v_if_manager) {
+              // There are three cases to return Some(child) for add_v_if function
+              // 1. meet v-else, means the v-if/v-else-if chain is finished
+              // 2. meet v-if while the v_if_manager is not empty, means the previous v-if/v-else-if chain is finished
+              // 3. meet v-else/v-else-if with no v-if, v_if_manager won't add it to the chain, so add it to result there
+              result.push(child);
+            }
+          } else {
+            if let Some(chain) = v_if_manager.take_chain() {
+              result.push(chain);
+            }
+            result.push(child);
+          }
+        }
+        AstNode::Text(text) => result.push(self.parse_text(&text)),
+        AstNode::Comment(comment) => result.push(self.parse_comment(&comment)),
+        AstNode::Interpolation(interp) => result.push(self.parse_interpolation(&interp)),
+      }
     }
 
+    if let Some(chain) = v_if_manager.take_chain() {
+      // If the last element is v-if / v-else-if / v-else, push all the children
+      result.push(chain);
+    }
     if let Some(last) = last {
       result.push(last);
     }
@@ -75,7 +102,7 @@ impl<'a> ParserImpl<'a> {
     &mut self,
     node: Element<'a>,
     children: Option<ArenaVec<'a, JSXChild<'a>>>,
-  ) -> JSXChild<'a> {
+  ) -> (JSXChild<'a>, Option<VIf<'a>>) {
     let ast = self.ast;
 
     let open_element_span = {
@@ -151,9 +178,15 @@ impl<'a> ParserImpl<'a> {
 
     let mut v_for_wrapper = VForWrapper::new(&ast);
     let mut v_slot_wrapper = VSlotWrapper::new(&ast);
+    let mut v_if_state: Option<VIf<'a>> = None;
     let mut attributes = ast.vec();
     for prop in node.properties {
-      attributes.push(self.parse_prop(prop, &mut v_for_wrapper, &mut v_slot_wrapper));
+      attributes.push(self.parse_prop(
+        prop,
+        &mut v_for_wrapper,
+        &mut v_slot_wrapper,
+        &mut v_if_state,
+      ));
     }
 
     let children = match children {
@@ -165,28 +198,31 @@ impl<'a> ParserImpl<'a> {
       )),
     };
 
-    v_for_wrapper.wrap(ast.jsx_element(
-      location_span,
-      ast.jsx_opening_element(
-        open_element_span,
-        element_name.clone_in(self.allocator),
-        NONE,
-        attributes,
-      ),
-      children,
-      if end_element_span.eq(&location_span) {
-        None
-      } else {
-        Some(ast.jsx_closing_element(end_element_span, {
-          let span = Span::new(
-            end_element_span.start + 2,
-            end_element_span.start + 2 + node.tag_name.len() as u32,
-          );
-          *element_name.span_mut() = span;
-          element_name
-        }))
-      },
-    ))
+    (
+      v_for_wrapper.wrap(ast.jsx_element(
+        location_span,
+        ast.jsx_opening_element(
+          open_element_span,
+          element_name.clone_in(self.allocator),
+          NONE,
+          attributes,
+        ),
+        children,
+        if end_element_span.eq(&location_span) {
+          None
+        } else {
+          Some(ast.jsx_closing_element(end_element_span, {
+            let span = Span::new(
+              end_element_span.start + 2,
+              end_element_span.start + 2 + node.tag_name.len() as u32,
+            );
+            *element_name.span_mut() = span;
+            element_name
+          }))
+        },
+      )),
+      v_if_state,
+    )
   }
 
   fn parse_prop(
@@ -194,6 +230,7 @@ impl<'a> ParserImpl<'a> {
     prop: ElemProp<'a>,
     v_for_wrapper: &mut VForWrapper<'_, 'a>,
     v_slot_wrapper: &mut VSlotWrapper<'_, 'a>,
+    v_if_state: &mut Option<VIf<'a>>,
   ) -> JSXAttributeItem<'a> {
     let ast = self.ast;
     match prop {
@@ -226,6 +263,9 @@ impl<'a> ParserImpl<'a> {
           self.analyze_v_slot(&dir, v_slot_wrapper, &dir_name);
         } else if dir.name == "for" {
           self.analyze_v_for(&dir, v_for_wrapper);
+        } else if dir.name == "else" {
+          // v-else can have no expression
+          *v_if_state = Some(VIf::Else);
         }
         let value = if let Some(expr) = &dir.expression {
           // +1 to skip the opening quote
@@ -233,10 +273,16 @@ impl<'a> ParserImpl<'a> {
           Some(
             ast.jsx_attribute_value_expression_container(
               Span::new(expr_start as u32, dir_end - 1),
-              // TODO: v-if / v-else-if / v-else transforming for cfg semantic
               ((|| {
                 // Use placeholder for v-for and v-slot
-                if matches!(dir.name, "for" | "slot") {
+                if matches!(dir.name, "for" | "slot" | "else") {
+                  None
+                } else if dir.name == "if" {
+                  *v_if_state = self.parse_expression(expr.content.raw, expr_start).map(VIf::If);
+                  None
+                } else if dir.name == "else-if" {
+                  *v_if_state =
+                    self.parse_expression(expr.content.raw, expr_start).map(VIf::ElseIf);
                   None
                 } else {
                   // For possible dynamic arguments
