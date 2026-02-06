@@ -6,10 +6,7 @@ This document explains how Vue template nodes are transformed into [Oxc](https:/
 
 A Vue Single File Component (SFC) is transformed into a standard `Program`.
 
-- **`<script>`**: Parsed as standard JavaScript/TypeScript statements in the top-level scope.
-- **`<script setup>`**: Parsed as JavaScript statements, move the `import` statements to the top-level scope, and keep the rest of the code in a `setup` function in the `export default` object.
-- **`<template>`**: Transformed into a `JSXFragment` returned by `setup` function mentioned above.
-- **`<style>`**: Treated as a normal element containing raw text.
+<!-- TODO: explain the sfc program struct -->
 
 ### Example
 
@@ -39,22 +36,23 @@ const count = ref(0);
 import { ref } from 'vue';
 
 export default {
-  ...{ data() {
+  data() {
     return {
       count: 0
     };
-  } },
-  setup() {
-    const count = ref(0);
-    return <>
-      <script></script>
-      <script setup></script>
-      <template>
-        <div>{ count }</div>
-      </template>
-    </>;
-  }
-}
+  } 
+};
+
+{
+  const count = ref(0);
+  <>
+    <script></script>
+    <script setup></script>
+    <template>
+      <div>{ count }</div>
+    </template>
+  </>;
+};
 ```
 
 ## Elements and Components

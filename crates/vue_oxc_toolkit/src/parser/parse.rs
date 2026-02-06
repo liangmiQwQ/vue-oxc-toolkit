@@ -1,8 +1,8 @@
 use std::cell::RefCell;
 
 use oxc_allocator::{self, Dummy, Vec as ArenaVec};
-use oxc_ast::ast::{Expression, FormalParameterKind, JSXChild, Program, Statement};
-use oxc_ast::{AstBuilder, NONE};
+use oxc_ast::AstBuilder;
+use oxc_ast::ast::{JSXChild, Program, Statement};
 
 use oxc_span::{SPAN, Span};
 use oxc_syntax::module_record::ModuleRecord;
@@ -33,7 +33,7 @@ impl<'a> ParserImpl<'a> {
           errors,
           setup,
           statements,
-          sfc_return,
+          sfc_struct_jsx_statement: sfc_return,
           ..
         } = self;
 
@@ -125,15 +125,15 @@ impl<'a> ParserImpl<'a> {
     // Process the texts after last element
     self.push_text_child(&mut children, Span::new(text_start, self.source_text.len() as u32));
 
-    self.sfc_return = Some(Statement::ReturnStatement(self.ast.alloc_return_statement(
+    self.sfc_struct_jsx_statement = Some(self.ast.statement_expression(
       SPAN,
-      Some(self.ast.expression_jsx_fragment(
+      self.ast.expression_jsx_fragment(
         SPAN,
         self.ast.jsx_opening_fragment(SPAN),
         children,
         self.ast.jsx_closing_fragment(SPAN),
-      )),
-    )));
+      ),
+    ));
 
     RetParse::success(())
   }
@@ -144,28 +144,12 @@ impl<'a> ParserImpl<'a> {
     sfc_return: Option<Statement<'a>>,
     ast: AstBuilder<'a>,
   ) -> ArenaVec<'a, Statement<'a>> {
-    statements.push(Statement::ExpressionStatement(ast.alloc_expression_statement(
-      SPAN,
-      Expression::ArrowFunctionExpression(ast.alloc_arrow_function_expression(
-        SPAN,
-        false,
-        false,
-        NONE,
-        ast.alloc_formal_parameters(
-          SPAN,
-          FormalParameterKind::ArrowFormalParameters,
-          ast.vec(),
-          NONE,
-        ),
-        NONE,
-        ast.function_body(SPAN, ast.vec(), {
-          if let Some(ret) = sfc_return {
-            setup.push(ret);
-          }
-          setup
-        }),
-      )),
-    )));
+    statements.push(Statement::BlockStatement(ast.alloc_block_statement(SPAN, {
+      if let Some(ret) = sfc_return {
+        setup.push(ret);
+      }
+      setup
+    })));
 
     statements
   }
