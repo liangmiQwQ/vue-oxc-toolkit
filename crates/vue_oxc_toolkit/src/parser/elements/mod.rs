@@ -17,6 +17,7 @@ use crate::{
       v_if::{VIf, VIfManager},
       v_slot::VSlotWrapper,
     },
+    error,
     parse::SourceLocatonSpan,
   },
 };
@@ -267,6 +268,11 @@ impl<'a> ParserImpl<'a> {
           // v-else can have no expression
           *v_if_state = Some(VIf::Else);
         }
+
+        if matches!(dir.name, "if" | "else-if") && dir.has_empty_expr() {
+          error::v_if_else_without_expression(&mut self.errors, dir.location.span());
+        }
+
         let value = if let Some(expr) = &dir.expression {
           // +1 to skip the opening quote
           let expr_start = expr.location.start.offset + 1;
@@ -277,17 +283,18 @@ impl<'a> ParserImpl<'a> {
                 // Use placeholder for v-for and v-slot
                 if matches!(dir.name, "for" | "slot" | "else") {
                   None
-                } else if dir.name == "if" {
-                  *v_if_state = self.parse_expression(expr.content.raw, expr_start).map(VIf::If);
-                  None
-                } else if dir.name == "else-if" {
-                  *v_if_state =
-                    self.parse_expression(expr.content.raw, expr_start).map(VIf::ElseIf);
-                  None
                 } else {
-                  // For possible dynamic arguments
-                  let expr = self.parse_expression(expr.content.raw, expr_start)?;
-                  Some(JSXExpression::from(self.parse_dynamic_argument(&dir, expr)?))
+                  let expr = self.parse_expression(expr.content.raw, expr_start);
+                  if dir.name == "if" {
+                    *v_if_state = expr.map(VIf::If);
+                    None
+                  } else if dir.name == "else-if" {
+                    *v_if_state = expr.map(VIf::ElseIf);
+                    None
+                  } else {
+                    // For possible dynamic arguments
+                    Some(JSXExpression::from(self.parse_dynamic_argument(&dir, expr?)?))
+                  }
                 }
               })())
               .unwrap_or_else(|| JSXExpression::EmptyExpression(ast.jsx_empty_expression(SPAN))),
