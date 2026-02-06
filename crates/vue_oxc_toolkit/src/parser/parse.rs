@@ -144,12 +144,12 @@ impl<'a> ParserImpl<'a> {
     sfc_return: Option<Statement<'a>>,
     ast: AstBuilder<'a>,
   ) -> ArenaVec<'a, Statement<'a>> {
-    statements.push(Statement::BlockStatement(ast.alloc_block_statement(SPAN, {
+    statements.push(ast.statement_block(SPAN, {
       if let Some(ret) = sfc_return {
         setup.push(ret);
       }
       setup
-    })));
+    }));
 
     statements
   }

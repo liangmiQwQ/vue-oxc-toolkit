@@ -3,7 +3,7 @@ use oxc_ast::{
   AstBuilder, NONE,
   ast::{
     Argument, Expression, FormalParameters, JSXChild, JSXElement, JSXExpression,
-    ParenthesizedExpression, Statement,
+    ParenthesizedExpression,
   },
 };
 
@@ -100,13 +100,10 @@ impl<'a, 'b> VForWrapper<'a, 'b> {
             ast.function_body(
               SPAN,
               ast.vec(),
-              ast.vec1(Statement::ExpressionStatement(ast.alloc_expression_statement(
+              ast.vec1(ast.statement_expression(
                 SPAN,
-                Expression::ParenthesizedExpression(ast.alloc_parenthesized_expression(
-                  SPAN,
-                  Expression::JSXElement(self.ast.alloc(element)),
-                )),
-              ))),
+                ast.expression_parenthesized(SPAN, Expression::JSXElement(self.ast.alloc(element))),
+              )),
             ),
           ))),
           false,

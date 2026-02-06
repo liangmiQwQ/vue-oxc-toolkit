@@ -3,7 +3,7 @@ use oxc_ast::{
   AstBuilder, NONE,
   ast::{
     Expression, FormalParameterKind, FormalParameters, JSXAttributeName, JSXChild, JSXExpression,
-    ObjectPropertyKind, PropertyKey, PropertyKind, Statement,
+    ObjectPropertyKind, PropertyKey, PropertyKind,
   },
 };
 use oxc_span::SPAN;
@@ -108,7 +108,7 @@ impl<'a, 'b> VSlotWrapper<'a, 'b> {
             SPAN,
             PropertyKind::Init,
             key,
-            Expression::ArrowFunctionExpression(ast.alloc_arrow_function_expression(
+            ast.expression_arrow_function(
               SPAN,
               true,
               false,
@@ -118,17 +118,17 @@ impl<'a, 'b> VSlotWrapper<'a, 'b> {
               ast.alloc_function_body(
                 SPAN,
                 ast.vec(),
-                ast.vec1(Statement::ExpressionStatement(ast.alloc_expression_statement(
+                ast.vec1(ast.statement_expression(
                   SPAN,
-                  Expression::JSXFragment(ast.alloc_jsx_fragment(
+                  ast.expression_jsx_fragment(
                     SPAN,
                     ast.jsx_opening_fragment(SPAN),
                     children,
                     ast.jsx_closing_fragment(SPAN),
-                  )),
-                ))),
+                  ),
+                )),
               ),
-            )),
+            ),
             false,
             false,
             is_computed,

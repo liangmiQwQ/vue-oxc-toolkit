@@ -101,12 +101,12 @@ impl<'a, 'b> VIfManager<'a, 'b> {
   }
 
   fn build_jsx_fragment_expression(&self, child: JSXChild<'b>) -> Expression<'b> {
-    Expression::JSXFragment(self.ast.alloc_jsx_fragment(
+    self.ast.expression_jsx_fragment(
       SPAN,
       self.ast.jsx_opening_fragment(SPAN),
       self.ast.vec1(child),
       self.ast.jsx_closing_fragment(SPAN),
-    ))
+    )
   }
 }
 
