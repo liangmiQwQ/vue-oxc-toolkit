@@ -62,27 +62,30 @@ impl<'a> ParserImpl<'a> {
 
     let mut v_if_manager = VIfManager::new(&ast);
     for child in children {
-      let (child, v_if) = match child {
-        // TODO: handle v-if / v-else-if / v-else
-        AstNode::Element(node) => self.parse_element(node, None),
-        AstNode::Text(text) => (self.parse_text(&text), None),
-        AstNode::Comment(comment) => (self.parse_comment(&comment), None),
-        AstNode::Interpolation(interp) => (self.parse_interpolation(&interp), None),
-      };
+      match child {
+        AstNode::Element(node) => {
+          let (child, v_if) = self.parse_element(node, None);
 
-      if let Some(v_if) = v_if {
-        if let Some(orphan_else_node) = self.add_v_if(child, v_if, &mut v_if_manager) {
-          // If meet v-else with no v-if, v_if_manager's chain will be still empty, so add it to result there
-          result.push(orphan_else_node);
+          if let Some(v_if) = v_if {
+            if let Some(child) = self.add_v_if(child, v_if, &mut v_if_manager) {
+              // There are two cases to return Some(child) for add_v_if function
+              // 1. meet v-else, means the v-if/v-else-if chain is finished
+              // 2. meet v-else/v-else-if with no v-if, v_if_manager won't add it to the chain, so add it to result there
+              result.push(child);
+            }
+          } else {
+            result.push(v_if_manager.take_chain());
+            result.push(child);
+          }
         }
-      } else {
-        result.push(v_if_manager.get_and_clear());
-        result.push(child);
+        AstNode::Text(text) => result.push(self.parse_text(&text)),
+        AstNode::Comment(comment) => result.push(self.parse_comment(&comment)),
+        AstNode::Interpolation(interp) => result.push(self.parse_interpolation(&interp)),
       }
     }
 
     // If the last element is v-if / v-else-if / v-else, push all the children
-    result.push(v_if_manager.get_and_clear());
+    result.push(v_if_manager.take_chain());
     if let Some(last) = last {
       result.push(last);
     }
