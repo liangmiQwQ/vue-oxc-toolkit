@@ -71,9 +71,9 @@ impl<'a> ParserImpl<'a> {
       };
 
       if let Some(v_if) = v_if {
-        if let Some(child) = v_if_manager.add(child, v_if) {
+        if let Some(orphan_else_node) = self.add_v_if(child, v_if, &mut v_if_manager) {
           // If meet v-else with no v-if, v_if_manager's chain will be still empty, so add it to result there
-          result.push(child);
+          result.push(orphan_else_node);
         }
       } else {
         result.push(v_if_manager.get_and_clear());
