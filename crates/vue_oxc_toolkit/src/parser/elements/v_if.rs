@@ -5,7 +5,7 @@ use oxc_ast::{
   ast::{Expression, JSXChild},
 };
 use oxc_diagnostics::OxcDiagnostic;
-use oxc_span::GetSpan;
+use oxc_span::{GetSpan, SPAN};
 
 use crate::parser::ParserImpl;
 
@@ -13,6 +13,17 @@ pub enum VIf<'a> {
   If(Expression<'a>),
   ElseIf(Expression<'a>),
   Else,
+}
+
+// We only use .into function.
+#[allow(clippy::from_over_into)]
+impl<'a> Into<Expression<'a>> for VIf<'a> {
+  fn into(self) -> Expression<'a> {
+    match self {
+      VIf::If(e) | VIf::ElseIf(e) => e,
+      VIf::Else => panic!("VIf::Else::into() called. v-else has no expression"),
+    }
+  }
 }
 
 // The manager of v-if / v-else-if / v-else, different from the wrapper, it works across multiple elements
@@ -42,7 +53,7 @@ impl<'a> ParserImpl<'a> {
     } else if matches!(v_if, VIf::Else) {
       manager.chain.push((child, v_if));
       // The chain is finished, return the result directly, for possible next node
-      Some(manager.take_chain())
+      manager.take_chain()
     } else {
       manager.chain.push((child, v_if));
       None
@@ -55,9 +66,42 @@ impl<'a, 'b> VIfManager<'a, 'b> {
     Self { ast, chain: vec![] }
   }
 
-  pub fn take_chain(&mut self) -> JSXChild<'b> {
-    let rev_stack = take(&mut self.chain).reverse();
-    todo!();
+  pub fn take_chain(&mut self) -> Option<JSXChild<'b>> {
+    if self.chain.is_empty() {
+      // No chain exists
+      return None;
+    }
+    let ast = self.ast;
+
+    let mut chain_stack = take(&mut self.chain);
+
+    // SAFETY: chain_stack is not empty
+    let last = if matches!(chain_stack.last().unwrap().1, VIf::Else) {
+      self.build_jsx_fragment_expression(chain_stack.pop().unwrap().0)
+    } else {
+      ast.expression_identifier(SPAN, "undefined")
+    };
+
+    let mut result = last;
+    while let Some((child, v_if)) = chain_stack.pop() {
+      result = ast.expression_conditional(
+        SPAN,
+        v_if.into(),
+        self.build_jsx_fragment_expression(child),
+        result,
+      );
+    }
+
+    Some(ast.jsx_child_expression_container(SPAN, result.into()))
+  }
+
+  fn build_jsx_fragment_expression(&self, child: JSXChild<'b>) -> Expression<'b> {
+    Expression::JSXFragment(self.ast.alloc_jsx_fragment(
+      SPAN,
+      self.ast.jsx_opening_fragment(SPAN),
+      self.ast.vec1(child),
+      self.ast.jsx_closing_fragment(SPAN),
+    ))
   }
 }
 

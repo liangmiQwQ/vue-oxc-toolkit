@@ -74,7 +74,9 @@ impl<'a> ParserImpl<'a> {
               result.push(child);
             }
           } else {
-            result.push(v_if_manager.take_chain());
+            if let Some(chain) = v_if_manager.take_chain() {
+              result.push(chain);
+            }
             result.push(child);
           }
         }
@@ -84,8 +86,10 @@ impl<'a> ParserImpl<'a> {
       }
     }
 
-    // If the last element is v-if / v-else-if / v-else, push all the children
-    result.push(v_if_manager.take_chain());
+    if let Some(chain) = v_if_manager.take_chain() {
+      // If the last element is v-if / v-else-if / v-else, push all the children
+      result.push(chain);
+    }
     if let Some(last) = last {
       result.push(last);
     }
