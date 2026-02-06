@@ -4,9 +4,18 @@ This document explains how Vue template nodes are transformed into [Oxc](https:/
 
 ## SFC Structure
 
-A Vue Single File Component (SFC) is transformed into a standard `Program`.
+A Vue Single File Component (SFC) is transformed into a standard `Program`. The `Program.body` follows a specific structure:
 
-<!-- TODO: explain the sfc program struct -->
+1. **Top-level Statements**: Contains all imports from both `<script>` and `<script setup>`, as well as all statements from the normal `<script>` block.
+2. **Inner Block Statement**: A single `BlockStatement` that encapsulates the scope of `<script setup>`. It is always the last statement in the `Program.body` and it contains:
+   - **Local Bindings**: All non-import statements from the `<script setup>` block.
+   - **Structural JSX Fragment**: The last statement in the block, which is an expression statement containing a `JSXFragment` that represents the physical structure of the SFC.
+
+The **Structural JSX Fragment** serves as the "return" of the component's structure, containing:
+
+- Placeholder elements for `<script>` and `<script setup>` to maintain source mapping.
+- The `<template>` content, transformed into JSX.
+- Other blocks like `<style>` if present.
 
 ### Example
 
