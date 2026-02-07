@@ -10,11 +10,11 @@ use vue_compiler_core::{
 };
 
 use crate::parser::{
-  ParserImpl, RetParse, RetParseExt, error, modules::Merge, parse::SourceLocatonSpan,
+  ParserImpl, ResParse, ResParseExt, error, modules::Merge, parse::SourceLocatonSpan,
 };
 
 impl<'a> ParserImpl<'a> {
-  pub fn parse_script(&mut self, node: Element<'a>) -> RetParse<Option<JSXChild<'a>>> {
+  pub fn parse_script(&mut self, node: Element<'a>) -> ResParse<Option<JSXChild<'a>>> {
     let mut source_types: HashSet<&str> = HashSet::new();
 
     let lang = find_prop(&node, "lang")
@@ -28,7 +28,7 @@ impl<'a> ParserImpl<'a> {
 
     if source_types.len() > 1 {
       error::multiple_script_tags(&mut self.errors);
-      return RetParse::panic();
+      return ResParse::panic();
     }
 
     self.source_type = if matches!(lang, "js" | "jsx") {
@@ -37,7 +37,7 @@ impl<'a> ParserImpl<'a> {
       SourceType::tsx()
     } else {
       error::unexpected_script_lang(&mut self.errors, lang);
-      return RetParse::panic();
+      return ResParse::panic();
     };
 
     if let Some(child) = node.children.first() {
@@ -83,6 +83,6 @@ impl<'a> ParserImpl<'a> {
       }
     }
 
-    RetParse::success(Some(self.parse_element(node, Some(self.ast.vec())).0))
+    ResParse::success(Some(self.parse_element(node, Some(self.ast.vec())).0))
   }
 }

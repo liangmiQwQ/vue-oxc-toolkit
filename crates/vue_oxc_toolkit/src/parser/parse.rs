@@ -12,7 +12,7 @@ use vue_compiler_core::scanner::{ScanOption, Scanner};
 
 use crate::is_void_tag;
 use crate::parser::error::OxcErrorHandler;
-use crate::parser::{RetParse, RetParseExt};
+use crate::parser::{ResParse, ResParseExt};
 
 use super::ParserImpl;
 use super::ParserImplReturn;
@@ -68,7 +68,7 @@ impl<'a> ParserImpl<'a> {
     }
   }
 
-  fn analyze(&mut self) -> RetParse<()> {
+  fn analyze(&mut self) -> ResParse<()> {
     let parser = Parser::new(ParseOption {
       whitespace: WhitespaceStrategy::Preserve,
       is_void_tag: |name| is_void_tag!(name),
@@ -84,7 +84,7 @@ impl<'a> ParserImpl<'a> {
     let result = parser.parse(tokens, OxcErrorHandler::new(&errors, &panicked));
 
     if *panicked.borrow() {
-      return RetParse::panic();
+      return ResParse::panic();
     }
 
     let mut children = self.ast.vec();
@@ -135,7 +135,7 @@ impl<'a> ParserImpl<'a> {
       ),
     ));
 
-    RetParse::success(())
+    ResParse::success(())
   }
 
   fn get_body_statements(
