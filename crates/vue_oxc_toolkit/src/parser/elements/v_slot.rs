@@ -62,7 +62,7 @@ impl<'a> ParserImpl<'a> {
       }
 
       // --- Process Params ---
-      // As vue use arrow function to wrap the slot content, we use it as well to prevent some edge cases
+      // As vue use arrow function to wrap the slot content, we use it as well to deal with some edge cases
       // https://play.vuejs.org/#eNp9kD1PwzAQhv+KdXNJB5iigASoAwyAgNFLlBxpir/kO4dIkf87tquGDsBmvc9z9utb4Na5agoINTSM2qmW8UYaIZp7q52YLkhZrvfY9uivJSxCI1E7oIgSiifEchbGMrrNs4k22/VK2ABTZ83HOFQHsia9t2RXQpfcUaF/djxaQxJqUUhmrVL267Fk7ANuTnm3x+7zl/xAc84kvHgk9BNKWBm3fkA+4t3bE87pvEJt+6CS/Q98RbIq5I5H7S6YPtU+80rbB+2s59EM77SbGQ2dPpWLZjMWX0Jael7TX1//qXtZXZU5aSLEbzFYjTA=
       if dir.has_empty_expr() {
         wrapper.set_params(self.ast.formal_parameters(
