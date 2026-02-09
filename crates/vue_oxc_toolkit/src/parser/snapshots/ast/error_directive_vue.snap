@@ -648,7 +648,7 @@ Program {
     },
     source_type: SourceType {
         language: TypeScript,
-        module_kind: Module,
+        module_kind: Unambiguous,
         variant: Jsx,
     },
 }

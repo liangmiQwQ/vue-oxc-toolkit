@@ -31,25 +31,18 @@ impl<'a> ParserImpl<'a> {
       return ResParse::panic();
     }
 
-    self.source_type = if matches!(lang, "js" | "jsx") {
-      SourceType::jsx()
-    } else if matches!(lang, "ts" | "tsx") {
-      SourceType::tsx()
+    if let Ok(source_type) = SourceType::from_extension(lang) {
+      self.source_type = source_type;
     } else {
       error::unexpected_script_lang(&mut self.errors, lang);
       return ResParse::panic();
-    };
+    }
 
     if let Some(child) = node.children.first() {
       let span = child.get_location().span();
       let source = span.source_text(self.source_text);
 
-      let Some((mut body, module_record)) = self.oxc_parse(
-        source,
-        // SAFETY: lang is validated above to be "js" or "ts" based extensions which are valid for from_extension
-        SourceType::from_extension(lang).unwrap(),
-        span.start as usize,
-      ) else {
+      let Some((mut body, module_record)) = self.oxc_parse(source, span.start as usize) else {
         return Ok(None);
       };
 

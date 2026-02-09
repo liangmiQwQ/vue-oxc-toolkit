@@ -393,8 +393,8 @@ impl<'a> ParserImpl<'a> {
   }
 
   pub fn parse_expression(&mut self, source: &'a str, start: usize) -> Option<Expression<'a>> {
-    let (mut body, _) =
-      self.oxc_parse(&format!("({source})"), self.source_type, start.saturating_sub(1))?;
+    // The only purpose to not use [`oxc_parser::Parser::parse_expression`] is to keep the code comments in it
+    let (mut body, _) = self.oxc_parse(&format!("({source})"), start.saturating_sub(1))?;
 
     let Some(Statement::ExpressionStatement(stmt)) = body.get_mut(0) else {
       // SAFETY: We always wrap the source in parentheses, so it should always be an expression statement.

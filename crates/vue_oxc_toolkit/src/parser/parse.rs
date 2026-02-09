@@ -40,7 +40,7 @@ impl<'a> ParserImpl<'a> {
         ParserImplReturn {
           program: ast.program(
             Span::new(0, self.source_text.len() as u32),
-            source_type,
+            source_type.with_jsx(true),
             source_text,
             comments,
             None, // no hashbang needed for vue files

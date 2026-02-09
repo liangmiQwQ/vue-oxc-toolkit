@@ -67,11 +67,10 @@ impl<'a> ParserImpl<'a> {
   pub fn oxc_parse(
     &mut self,
     source: &str,
-    source_type: SourceType,
     start: usize,
   ) -> Option<(ArenaVec<'a, Statement<'a>>, ModuleRecord<'a>)> {
     let source_text = self.ast.atom(&self.pad_source(source, start));
-    let mut ret = oxc_parser::Parser::new(self.allocator, source_text.as_str(), source_type)
+    let mut ret = oxc_parser::Parser::new(self.allocator, source_text.as_str(), self.source_type)
       .with_options(self.options)
       .parse();
 
