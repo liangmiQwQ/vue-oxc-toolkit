@@ -26,8 +26,11 @@ pub struct ParserImpl<'a> {
   comments: ArenaVec<'a, Comment>,
   errors: Vec<OxcDiagnostic>,
 
-  setup: ArenaVec<'a, Statement<'a>>,
+  script_set: bool,
+  setup_set: bool,
+
   statements: JavaScriptBody<'a>,
+  setup: ArenaVec<'a, Statement<'a>>,
   sfc_struct_jsx_statement: Option<Statement<'a>>,
 }
 
@@ -47,8 +50,11 @@ impl<'a> ParserImpl<'a> {
       empty_str: " ".repeat(source_text.len()),
       options,
 
-      setup: ast.vec(),
+      script_set: false,
+      setup_set: false,
+
       statements: JavaScriptBody::new(ast.vec(), ast.vec()),
+      setup: ast.vec(),
       sfc_struct_jsx_statement: None,
     }
   }

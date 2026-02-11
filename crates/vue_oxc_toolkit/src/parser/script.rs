@@ -29,7 +29,7 @@ impl<'a> ParserImpl<'a> {
     source_types.insert(lang);
 
     if source_types.len() > 1 {
-      error::multiple_script_tags(&mut self.errors);
+      error::multiple_script_langs(&mut self.errors);
       return ResParse::panic();
     }
 
@@ -40,7 +40,24 @@ impl<'a> ParserImpl<'a> {
       return ResParse::panic();
     }
 
+    // If there is at least one statements in the box
     if let Some(child) = node.children.first() {
+      let is_setup = prop_finder(&node, "setup").allow_empty().find().is_some();
+      // Handle error if there are multiple script tags
+      if is_setup {
+        self.setup_set = true;
+        if self.setup_set {
+          error::multiple_script_setup_tags(&mut self.errors, node.location.span());
+          return ResParse::panic();
+        }
+      } else {
+        self.script_set = true;
+        if self.script_set {
+          error::multiple_script_tags(&mut self.errors, node.location.span());
+          return ResParse::panic();
+        }
+      }
+
       let span = child.get_location().span();
       let source = span.source_text(self.source_text);
 
@@ -51,8 +68,6 @@ impl<'a> ParserImpl<'a> {
       };
 
       // Deal with modules record there
-      let is_setup = prop_finder(&node, "setup").allow_empty().find().is_some();
-
       if is_setup {
         // Only merge imports, as exports are not allowed in <script setup>
         self.module_record.merge_imports(module_record);
