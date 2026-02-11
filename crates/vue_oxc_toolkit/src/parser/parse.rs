@@ -195,7 +195,9 @@ mod tests {
     test_ast!("error/directive.vue", true, false);
     test_ast!("error/script.vue", true, false);
     test_ast!("error/directive.vue", true, false);
-    test_ast!("error/mutiple_langs.vue", true, true);
+    test_ast!("error/multiple_langs.vue", true, true);
+    test_ast!("error/multiple_scripts.vue", true, true);
+    test_ast!("error/empty_multiple_scripts.vue");
   }
 
   #[test]

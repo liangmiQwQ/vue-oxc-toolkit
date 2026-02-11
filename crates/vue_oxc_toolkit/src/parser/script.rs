@@ -45,17 +45,17 @@ impl<'a> ParserImpl<'a> {
       let is_setup = prop_finder(&node, "setup").allow_empty().find().is_some();
       // Handle error if there are multiple script tags
       if is_setup {
-        self.setup_set = true;
         if self.setup_set {
           error::multiple_script_setup_tags(&mut self.errors, node.location.span());
           return ResParse::panic();
         }
+        self.setup_set = true;
       } else {
-        self.script_set = true;
         if self.script_set {
           error::multiple_script_tags(&mut self.errors, node.location.span());
           return ResParse::panic();
         }
+        self.script_set = true;
       }
 
       let span = child.get_location().span();
