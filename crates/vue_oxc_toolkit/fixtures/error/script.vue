@@ -2,7 +2,7 @@
   <div></div>
 </template>
 
-<script lang="ts" setup>
+<script setup>
 const a = { b = 1, c = 1 };
 </script>
 

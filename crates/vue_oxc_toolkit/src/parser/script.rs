@@ -14,9 +14,11 @@ use crate::parser::{
 };
 
 impl<'a> ParserImpl<'a> {
-  pub fn parse_script(&mut self, node: Element<'a>) -> ResParse<Option<JSXChild<'a>>> {
-    let mut source_types: HashSet<&str> = HashSet::new();
-
+  pub fn parse_script(
+    &mut self,
+    node: Element<'a>,
+    source_types: &mut HashSet<&'a str>,
+  ) -> ResParse<Option<JSXChild<'a>>> {
     let lang = find_prop(&node, "lang")
       .and_then(|p| match p.get_ref() {
         ElemProp::Attr(p) => p.value.as_ref().map(|value| value.content.raw),

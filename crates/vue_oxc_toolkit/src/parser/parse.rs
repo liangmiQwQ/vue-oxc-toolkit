@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::collections::HashSet;
 
 use oxc_allocator::{self, Dummy, Vec as ArenaVec};
 use oxc_ast::AstBuilder;
@@ -89,6 +90,7 @@ impl<'a> ParserImpl<'a> {
 
     let mut children = self.ast.vec();
     let mut text_start: u32 = 0;
+    let mut source_types: HashSet<&str> = HashSet::new();
     for child in result.children {
       if let AstNode::Element(node) = child {
         // Process the texts between last element and current element
@@ -98,7 +100,7 @@ impl<'a> ParserImpl<'a> {
 
         if node.tag_name == "script" {
           // Fill self.setup, self.statements
-          if let Some(child) = self.parse_script(node)? {
+          if let Some(child) = self.parse_script(node, &mut source_types)? {
             children.push(child);
           }
         } else if node.tag_name == "template" {
@@ -193,6 +195,7 @@ mod tests {
     test_ast!("error/directive.vue", true, false);
     test_ast!("error/script.vue", true, false);
     test_ast!("error/directive.vue", true, false);
+    test_ast!("error/mutiple_langs.vue", true, true);
   }
 
   #[test]
