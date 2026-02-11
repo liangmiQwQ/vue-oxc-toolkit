@@ -44,8 +44,8 @@ impl<'a> ParserImpl<'a> {
             source_text,
             comments,
             None, // no hashbang needed for vue files
-            ast.vec(),
-            Self::get_body_statements(statements, setup, sfc_return, ast),
+            statements.directives,
+            Self::get_body_statements(statements.statements, setup, sfc_return, ast),
           ),
           fatal: false,
           errors,
