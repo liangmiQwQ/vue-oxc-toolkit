@@ -1,7 +1,7 @@
 use oxc_allocator::{Allocator, Vec as ArenaVec};
 use oxc_ast::{
   AstBuilder, Comment,
-  ast::{Program, Statement},
+  ast::{Directive, Program, Statement},
 };
 use oxc_diagnostics::OxcDiagnostic;
 use oxc_parser::ParseOptions;
@@ -26,8 +26,11 @@ pub struct ParserImpl<'a> {
   comments: ArenaVec<'a, Comment>,
   errors: Vec<OxcDiagnostic>,
 
+  script_set: bool,
+  setup_set: bool,
+
+  statements: JavaScriptBody<'a>,
   setup: ArenaVec<'a, Statement<'a>>,
-  statements: ArenaVec<'a, Statement<'a>>,
   sfc_struct_jsx_statement: Option<Statement<'a>>,
 }
 
@@ -47,8 +50,11 @@ impl<'a> ParserImpl<'a> {
       empty_str: " ".repeat(source_text.len()),
       options,
 
+      script_set: false,
+      setup_set: false,
+
+      statements: JavaScriptBody::new(ast.vec(), ast.vec()),
       setup: ast.vec(),
-      statements: ast.vec(),
       sfc_struct_jsx_statement: None,
     }
   }
@@ -68,7 +74,7 @@ impl<'a> ParserImpl<'a> {
     &mut self,
     source: &str,
     start: usize,
-  ) -> Option<(ArenaVec<'a, Statement<'a>>, ModuleRecord<'a>)> {
+  ) -> Option<(ArenaVec<'a, Directive<'a>>, ArenaVec<'a, Statement<'a>>, ModuleRecord<'a>)> {
     let source_text = self.ast.atom(&self.pad_source(source, start));
     let mut ret = oxc_parser::Parser::new(self.allocator, source_text.as_str(), self.source_type)
       .with_options(self.options)
@@ -79,7 +85,7 @@ impl<'a> ParserImpl<'a> {
       None
     } else {
       self.comments.append(&mut ret.program.comments);
-      Some((ret.program.body, ret.module_record))
+      Some((ret.program.directives, ret.program.body, ret.module_record))
     }
   }
 
@@ -87,6 +93,20 @@ impl<'a> ParserImpl<'a> {
   /// Use placeholder to make the location AST returned correct
   pub fn pad_source(&self, source: &str, start: usize) -> String {
     format!("{}{source}", &self.empty_str[..start])
+  }
+}
+
+pub struct JavaScriptBody<'a> {
+  directives: ArenaVec<'a, Directive<'a>>,
+  statements: ArenaVec<'a, Statement<'a>>,
+}
+
+impl<'a> JavaScriptBody<'a> {
+  const fn new(
+    directives: ArenaVec<'a, Directive<'a>>,
+    statements: ArenaVec<'a, Statement<'a>>,
+  ) -> Self {
+    Self { directives, statements }
   }
 }
 

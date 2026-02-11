@@ -75,9 +75,25 @@ pub fn unexpected_script_lang(errors: &mut Vec<OxcDiagnostic>, lang: &str) {
 }
 
 #[cold]
-pub fn multiple_script_tags(errors: &mut Vec<OxcDiagnostic>) {
+pub fn multiple_script_langs(errors: &mut Vec<OxcDiagnostic>) {
   errors
     .push(OxcDiagnostic::error("<script> and <script setup> must have the same language type."));
+}
+
+#[cold]
+pub fn multiple_script_tags(errors: &mut Vec<OxcDiagnostic>, span: Span) {
+  errors.push(
+    OxcDiagnostic::error("Single file component can contain only one <script> element.")
+      .with_label(span),
+  );
+}
+
+#[cold]
+pub fn multiple_script_setup_tags(errors: &mut Vec<OxcDiagnostic>, span: Span) {
+  errors.push(
+    OxcDiagnostic::error("Single file component can contain only one <script setup> element.")
+      .with_label(span),
+  );
 }
 
 #[cold]

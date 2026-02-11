@@ -1,0 +1,6 @@
+<script>
+const a = 1;
+</script>
+<script>
+const b = 2;
+</script>
