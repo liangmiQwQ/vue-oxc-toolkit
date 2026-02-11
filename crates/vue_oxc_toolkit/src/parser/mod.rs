@@ -26,8 +26,8 @@ pub struct ParserImpl<'a> {
   comments: ArenaVec<'a, Comment>,
   errors: Vec<OxcDiagnostic>,
 
-  setup: ArenaVec<'a, Statement<'a>>,
-  statements: ArenaVec<'a, Statement<'a>>,
+  setup: JavaScriptBody<'a>,
+  statements: JavaScriptBody<'a>,
   sfc_struct_jsx_statement: Option<Statement<'a>>,
 }
 
@@ -47,8 +47,8 @@ impl<'a> ParserImpl<'a> {
       empty_str: " ".repeat(source_text.len()),
       options,
 
-      setup: ast.vec(),
-      statements: ast.vec(),
+      setup: JavaScriptBody::new(ast.vec(), ast.vec()),
+      statements: JavaScriptBody::new(ast.vec(), ast.vec()),
       sfc_struct_jsx_statement: None,
     }
   }
@@ -87,6 +87,17 @@ impl<'a> ParserImpl<'a> {
   /// Use placeholder to make the location AST returned correct
   pub fn pad_source(&self, source: &str, start: usize) -> String {
     format!("{}{source}", &self.empty_str[..start])
+  }
+}
+
+pub struct JavaScriptBody<'a> {
+  directives: ArenaVec<'a, Statement<'a>>,
+  statements: ArenaVec<'a, Statement<'a>>,
+}
+
+impl<'a> JavaScriptBody<'a> {
+  fn new(directives: ArenaVec<'a, Statement<'a>>, statements: ArenaVec<'a, Statement<'a>>) -> Self {
+    Self { directives, statements }
   }
 }
 
