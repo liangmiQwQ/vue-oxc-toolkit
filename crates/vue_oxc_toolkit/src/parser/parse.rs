@@ -201,6 +201,7 @@ mod tests {
     test_ast!("scripts/setup.vue");
     test_ast!("scripts/both.vue");
     test_ast!("scripts/empty.vue");
+    test_ast!("scripts/directives.vue");
     test_ast!("scripts/invaild-export.vue", true, false);
   }
 }

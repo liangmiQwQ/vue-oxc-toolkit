@@ -96,7 +96,10 @@ pub struct JavaScriptBody<'a> {
 }
 
 impl<'a> JavaScriptBody<'a> {
-  fn new(directives: ArenaVec<'a, Directive<'a>>, statements: ArenaVec<'a, Statement<'a>>) -> Self {
+  const fn new(
+    directives: ArenaVec<'a, Directive<'a>>,
+    statements: ArenaVec<'a, Statement<'a>>,
+  ) -> Self {
     Self { directives, statements }
   }
 }
