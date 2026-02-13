@@ -45,5 +45,8 @@ lint:
 build:
   cargo build
 
+bench:
+  cargo bench -p benchmark
+
 bump:
   cargo workspaces version -y -m "chore: release v%v" --no-individual-tags
