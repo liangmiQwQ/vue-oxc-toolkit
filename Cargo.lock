@@ -85,6 +85,8 @@ name = "benchmark"
 version = "0.6.0"
 dependencies = [
  "criterion",
+ "oxc_allocator",
+ "vue_oxc_toolkit",
 ]
 
 [[package]]
