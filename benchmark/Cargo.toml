@@ -1,0 +1,23 @@
+[package]
+name = "benchmark"
+version.workspace = true
+authors.workspace = true
+categories.workspace = true
+edition.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description.workspace = true
+
+[[bench]]
+name = "parse"
+harness = false
+
+[dev-dependencies]
+criterion = { workspace = true }
+oxc_allocator = { workspace = true }
+vue_oxc_toolkit = { workspace = true }
+
+[lints]
+workspace = true
