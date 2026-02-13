@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["crates/*"]
+members = ["benchmark", "crates/*"]
 
 [workspace.package]
 version = "0.6.0"
@@ -40,6 +40,7 @@ oxc_semantic = ">=0.112.0"
 oxc_span = ">=0.112.0"
 oxc_syntax = ">=0.112.0"
 
+criterion = "0.8.2"
 memchr = "2.7.6"
 regex = "1.12.3"
 vue-compiler-core = "0.1.0"
