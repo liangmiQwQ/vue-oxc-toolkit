@@ -91,7 +91,7 @@ impl<'a> ParserImpl<'a> {
 
   /// A workaround
   /// Use placeholder to make the location AST returned correct
-  pub fn pad_source(&self, source: &str, start: usize) -> String {
+  fn pad_source(&self, source: &str, start: usize) -> String {
     format!("{}{source}", &self.empty_str[..start])
   }
 }
