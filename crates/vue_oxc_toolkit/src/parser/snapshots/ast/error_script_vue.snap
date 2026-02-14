@@ -469,6 +469,9 @@ Program {
         language: JavaScript,
         module_kind: Unambiguous,
         variant: Jsx,
+        extension: Some(
+            Js,
+        ),
     },
 }
 

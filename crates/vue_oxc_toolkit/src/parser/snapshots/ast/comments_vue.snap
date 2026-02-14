@@ -553,6 +553,9 @@ Program {
         language: TypeScript,
         module_kind: Unambiguous,
         variant: Jsx,
+        extension: Some(
+            Ts,
+        ),
     },
 }
 

@@ -4,11 +4,7 @@ expression: result
 ---
 Module Record: ModuleRecord {
     has_module_syntax: true,
-    requested_modules: HashMap(
-        ManuallyDrop {
-            value: {},
-        },
-    ),
+    requested_modules: {},
     import_entries: Vec(
         [],
     ),
@@ -42,11 +38,7 @@ Module Record: ModuleRecord {
     star_export_entries: Vec(
         [],
     ),
-    exported_bindings: HashMap(
-        ManuallyDrop {
-            value: {},
-        },
-    ),
+    exported_bindings: {},
     dynamic_imports: Vec(
         [],
     ),

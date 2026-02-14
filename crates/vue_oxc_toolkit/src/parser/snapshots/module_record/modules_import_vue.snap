@@ -4,28 +4,24 @@ expression: result
 ---
 Module Record: ModuleRecord {
     has_module_syntax: true,
-    requested_modules: HashMap(
-        ManuallyDrop {
-            value: {
-                "vue": Vec(
-                    [
-                        RequestedModule {
-                            statement_span: Span {
-                                start: 51,
-                                end: 77,
-                            },
-                            span: Span {
-                                start: 71,
-                                end: 76,
-                            },
-                            is_type: false,
-                            is_import: true,
-                        },
-                    ],
-                ),
-            },
-        },
-    ),
+    requested_modules: {
+        "vue": Vec(
+            [
+                RequestedModule {
+                    statement_span: Span {
+                        start: 51,
+                        end: 77,
+                    },
+                    span: Span {
+                        start: 71,
+                        end: 76,
+                    },
+                    is_type: false,
+                    is_import: true,
+                },
+            ],
+        ),
+    },
     import_entries: Vec(
         [
             ImportEntry {
@@ -90,11 +86,7 @@ Module Record: ModuleRecord {
     star_export_entries: Vec(
         [],
     ),
-    exported_bindings: HashMap(
-        ManuallyDrop {
-            value: {},
-        },
-    ),
+    exported_bindings: {},
     dynamic_imports: Vec(
         [],
     ),

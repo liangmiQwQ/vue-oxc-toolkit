@@ -26,6 +26,7 @@ Program {
         language: JavaScript,
         module_kind: Script,
         variant: Standard,
+        extension: None,
     },
 }
 

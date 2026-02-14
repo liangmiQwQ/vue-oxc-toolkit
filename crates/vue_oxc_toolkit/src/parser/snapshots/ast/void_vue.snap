@@ -275,6 +275,7 @@ Program {
         language: JavaScript,
         module_kind: Module,
         variant: Jsx,
+        extension: None,
     },
 }
 
