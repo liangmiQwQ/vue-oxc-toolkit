@@ -33,6 +33,7 @@ impl<'a> ParserImpl<'a> {
           comments,
           errors,
           setup,
+          directives,
           statements,
           sfc_struct_jsx_statement: sfc_return,
           ..
@@ -45,8 +46,8 @@ impl<'a> ParserImpl<'a> {
             source_text,
             comments,
             None, // no hashbang needed for vue files
-            statements.directives,
-            Self::get_body_statements(statements.statements, setup, sfc_return, ast),
+            directives,
+            Self::get_body_statements(statements, setup, sfc_return, ast),
           ),
           fatal: false,
           errors,

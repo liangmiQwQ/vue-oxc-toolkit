@@ -29,7 +29,8 @@ pub struct ParserImpl<'a> {
   script_set: bool,
   setup_set: bool,
 
-  statements: JavaScriptBody<'a>,
+  directives: ArenaVec<'a, Directive<'a>>,
+  statements: ArenaVec<'a, Statement<'a>>,
   setup: ArenaVec<'a, Statement<'a>>,
   sfc_struct_jsx_statement: Option<Statement<'a>>,
 }
@@ -53,7 +54,8 @@ impl<'a> ParserImpl<'a> {
       script_set: false,
       setup_set: false,
 
-      statements: JavaScriptBody::new(ast.vec(), ast.vec()),
+      directives: ast.vec(),
+      statements: ast.vec(),
       setup: ast.vec(),
       sfc_struct_jsx_statement: None,
     }
@@ -93,20 +95,6 @@ impl<'a> ParserImpl<'a> {
   /// Use placeholder to make the location AST returned correct
   fn pad_source(&self, source: &str, start: usize) -> String {
     format!("{}{source}", &self.empty_str[..start])
-  }
-}
-
-pub struct JavaScriptBody<'a> {
-  directives: ArenaVec<'a, Directive<'a>>,
-  statements: ArenaVec<'a, Statement<'a>>,
-}
-
-impl<'a> JavaScriptBody<'a> {
-  const fn new(
-    directives: ArenaVec<'a, Directive<'a>>,
-    statements: ArenaVec<'a, Statement<'a>>,
-  ) -> Self {
-    Self { directives, statements }
   }
 }
 

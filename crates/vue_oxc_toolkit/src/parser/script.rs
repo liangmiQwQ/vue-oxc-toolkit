@@ -84,15 +84,15 @@ impl<'a> ParserImpl<'a> {
         }
 
         // Append imports to self.statements (top level)
-        imports.append(&mut self.statements.statements);
-        self.statements.statements = imports;
+        imports.append(&mut self.statements);
+        self.statements = imports;
         // Replace self.setup with the rest (inside function).
         self.setup = statements;
       } else {
+        self.directives.append(&mut directives);
         self.module_record.merge(module_record);
         // Append all statements, do not replace all as probably exist imports statements
-        self.statements.statements.append(&mut body);
-        self.statements.directives.append(&mut directives);
+        self.statements.append(&mut body);
       }
     }
 
