@@ -18,14 +18,14 @@ pub struct ParserImpl<'a> {
   allocator: &'a Allocator,
   source_text: &'a str,
   options: ParseOptions,
-  empty_str: String,
-  ast: AstBuilder<'a>,
 
-  module_record: ModuleRecord<'a>,
-  source_type: SourceType,
   comments: ArenaVec<'a, Comment>,
+  source_type: SourceType,
+  module_record: ModuleRecord<'a>,
   errors: Vec<OxcDiagnostic>,
 
+  empty_str: String,
+  ast: AstBuilder<'a>,
   script_set: bool,
   setup_set: bool,
 
@@ -42,15 +42,15 @@ impl<'a> ParserImpl<'a> {
     Self {
       allocator,
       source_text,
-      ast,
-      source_type: SourceType::jsx(),
-      comments: ast.vec(),
-
-      module_record: ModuleRecord::new(allocator),
-      errors: vec![],
-      empty_str: " ".repeat(source_text.len()),
       options,
 
+      comments: ast.vec(),
+      source_type: SourceType::jsx(),
+      module_record: ModuleRecord::new(allocator),
+      errors: vec![],
+
+      empty_str: " ".repeat(source_text.len()),
+      ast,
       script_set: false,
       setup_set: false,
 
