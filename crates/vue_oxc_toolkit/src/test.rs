@@ -19,8 +19,19 @@ macro_rules! test_ast {
       let js = Codegen::new().build(&ret.program);
       let source_text = $crate::test::read_file($file_path);
       let node_locations = $crate::test::format_node_locations(&ret.program, &source_text);
-      assert_eq!(!ret.errors.is_empty(), $should_errors);
-      assert_eq!(ret.fatal, $should_panic);
+      assert_eq!(
+        !ret.errors.is_empty(),
+        $should_errors,
+        "Error expectation mismatch for {}. Expected has_errors: {}, but got {}",
+        $file_path,
+        $should_errors,
+        ret.errors.len()
+      );
+      assert_eq!(
+        ret.fatal, $should_panic,
+        "Fatal error expectation mismatch for {}. Expected fatal: {}, but got fatal: {}",
+        $file_path, $should_panic, ret.fatal
+      );
 
       let result = $crate::test::TestResult {
         program: &ret.program,
