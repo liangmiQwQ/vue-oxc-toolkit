@@ -19,6 +19,7 @@ macro_rules! test_ast {
       let js = Codegen::new().build(&ret.program);
       let source_text = $crate::test::read_file($file_path);
       let node_locations = $crate::test::format_node_locations(&ret.program, &source_text);
+      assert_eq!(!ret.errors.is_empty(), $should_errors);
       assert_eq!(ret.fatal, $should_panic);
 
       let result = $crate::test::TestResult {

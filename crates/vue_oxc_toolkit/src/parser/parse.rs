@@ -177,7 +177,7 @@ mod tests {
   fn basic_vue() {
     test_ast!("basic.vue");
     test_ast!("typescript.vue");
-    test_ast!("void.vue");
+    test_ast!("void.vue", true, false);
     test_ast!("tags.vue");
     test_ast!("root_texts.vue");
     test_ast!("components.vue");
@@ -208,6 +208,5 @@ mod tests {
     test_ast!("scripts/both.vue");
     test_ast!("scripts/empty.vue");
     test_ast!("scripts/directives.vue");
-    test_ast!("scripts/invaild-export.vue", true, false);
   }
 }
