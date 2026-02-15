@@ -23,10 +23,10 @@ impl<'a> OxcErrorHandler<'a> {
 
 impl ErrorHandler for OxcErrorHandler<'_> {
   fn on_error(&self, error: CompilationError) {
-    if should_panic(&error) {
-      *self.panicked.borrow_mut() = true;
-    }
-    if !is_warn(&error) {
+    if !is_warn(&error) && !*self.panicked.borrow() {
+      if should_panic(&error) {
+        *self.panicked.borrow_mut() = true;
+      }
       self
         .errors
         .borrow_mut()
