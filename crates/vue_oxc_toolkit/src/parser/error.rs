@@ -5,36 +5,33 @@ use oxc_span::Span;
 use oxc_diagnostics::OxcDiagnostic;
 use vue_compiler_core::error::{CompilationError, CompilationErrorKind, ErrorHandler};
 
-use crate::parser::{ParserImpl, ResParse, ResParseExt, parse::SourceLocatonSpan};
+use crate::parser::parse::SourceLocatonSpan;
 
 pub struct OxcErrorHandler<'a> {
-  errors: &'a RefCell<&'a mut Vec<CompilationError>>,
+  errors: &'a RefCell<&'a mut Vec<OxcDiagnostic>>,
+  panicked: &'a RefCell<bool>,
 }
 
 impl<'a> OxcErrorHandler<'a> {
-  pub const fn new(errors: &'a RefCell<&'a mut Vec<CompilationError>>) -> Self {
-    Self { errors }
+  pub const fn new(
+    errors: &'a RefCell<&'a mut Vec<OxcDiagnostic>>,
+    panicked: &'a RefCell<bool>,
+  ) -> Self {
+    Self { errors, panicked }
   }
 }
 
 impl ErrorHandler for OxcErrorHandler<'_> {
   fn on_error(&self, error: CompilationError) {
-    self.errors.borrow_mut().push(error);
-  }
-}
-
-impl ParserImpl<'_> {
-  pub fn filter_and_append_errors(&mut self, errors: Vec<CompilationError>) -> ResParse<()> {
-    for error in errors {
-      if !is_warn(&error) {
-        self.errors.push(OxcDiagnostic::error(error.to_string()).with_label(error.location.span()));
-      }
-      if should_panic(&error) {
-        return ResParse::panic();
-      }
+    if should_panic(&error) {
+      *self.panicked.borrow_mut() = true;
     }
-
-    Ok(())
+    if !is_warn(&error) {
+      self
+        .errors
+        .borrow_mut()
+        .push(OxcDiagnostic::error(error.to_string()).with_label(error.location.span()));
+    }
   }
 }
 

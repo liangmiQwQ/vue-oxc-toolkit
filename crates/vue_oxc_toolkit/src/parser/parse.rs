@@ -4,10 +4,10 @@ use std::collections::HashSet;
 use oxc_allocator::{self, Dummy, Vec as ArenaVec};
 use oxc_ast::AstBuilder;
 use oxc_ast::ast::{JSXChild, Program, Statement};
+
 use oxc_span::{SPAN, Span};
 use oxc_syntax::module_record::ModuleRecord;
 use vue_compiler_core::SourceLocation;
-use vue_compiler_core::error::CompilationError;
 use vue_compiler_core::parser::{AstNode, ParseOption, Parser, WhitespaceStrategy};
 use vue_compiler_core::scanner::{ScanOption, Scanner};
 
@@ -80,11 +80,14 @@ impl<'a> ParserImpl<'a> {
     // get ast from vue-compiler-core
     let scanner = Scanner::new(ScanOption::default());
     // error processing
-    let mut temp_errors = Vec::<CompilationError>::new();
-    let errors = RefCell::from(&mut temp_errors);
-    let tokens = scanner.scan(self.source_text, OxcErrorHandler::new(&errors));
-    let result = parser.parse(tokens, OxcErrorHandler::new(&errors));
-    self.filter_and_append_errors(temp_errors)?;
+    let errors = RefCell::from(&mut self.errors);
+    let panicked = RefCell::from(false);
+    let tokens = scanner.scan(self.source_text, OxcErrorHandler::new(&errors, &panicked));
+    let result = parser.parse(tokens, OxcErrorHandler::new(&errors, &panicked));
+
+    if *panicked.borrow() {
+      return ResParse::panic();
+    }
 
     let mut children = self.ast.vec();
     let mut text_start: u32 = 0;
