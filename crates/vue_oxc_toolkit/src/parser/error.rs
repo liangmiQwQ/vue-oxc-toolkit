@@ -26,38 +26,43 @@ impl ErrorHandler for OxcErrorHandler<'_> {
 impl ParserImpl<'_> {
   pub fn filter_and_append_errors(&mut self, errors: Vec<CompilationError>) -> ResParse<()> {
     for error in errors {
-      if !is_warn(&error) {
+      if !self.is_warn(&error) {
         self.errors.push(OxcDiagnostic::error(error.to_string()).with_label(error.location.span()));
-      }
-      if should_panic(&error) {
-        return ResParse::panic();
+        // The panic error must not be a warn error
+        if Self::should_panic(&error) {
+          return ResParse::panic();
+        }
       }
     }
 
     Ok(())
   }
-}
 
-#[must_use]
-const fn is_warn(error: &CompilationError) -> bool {
-  matches!(
-    error.kind,
-    CompilationErrorKind::InvalidFirstCharacterOfTagName
-      | CompilationErrorKind::NestedComment
-      | CompilationErrorKind::IncorrectlyClosedComment
-      | CompilationErrorKind::IncorrectlyOpenedComment
-      | CompilationErrorKind::AbruptClosingOfEmptyComment
-      | CompilationErrorKind::MissingWhitespaceBetweenAttributes
-      | CompilationErrorKind::MissingDirectiveArg
-  )
-}
+  #[must_use]
+  fn is_warn(&self, error: &CompilationError) -> bool {
+    // Skip errors in <script> tags
+    if self.script_tags.iter().any(|span| span.contains_inclusive(error.location.span())) {
+      return true;
+    }
 
-#[must_use]
-const fn should_panic(error: &CompilationError) -> bool {
-  matches!(
-    error.kind,
-    // EOF errors - incomplete template structure
-    CompilationErrorKind::EofInTag
+    matches!(
+      error.kind,
+      CompilationErrorKind::InvalidFirstCharacterOfTagName
+        | CompilationErrorKind::NestedComment
+        | CompilationErrorKind::IncorrectlyClosedComment
+        | CompilationErrorKind::IncorrectlyOpenedComment
+        | CompilationErrorKind::AbruptClosingOfEmptyComment
+        | CompilationErrorKind::MissingWhitespaceBetweenAttributes
+        | CompilationErrorKind::MissingDirectiveArg
+    )
+  }
+
+  #[must_use]
+  const fn should_panic(error: &CompilationError) -> bool {
+    matches!(
+      error.kind,
+      // EOF errors - incomplete template structure
+      CompilationErrorKind::EofInTag
       | CompilationErrorKind::EofInComment
       | CompilationErrorKind::EofInCdata
       | CompilationErrorKind::EofBeforeTagName
@@ -69,7 +74,8 @@ const fn should_panic(error: &CompilationError) -> bool {
       // Critical structural issues
       | CompilationErrorKind::UnexpectedNullCharacter
       | CompilationErrorKind::CDataInHtmlContent
-  )
+    )
+  }
 }
 
 #[cold]

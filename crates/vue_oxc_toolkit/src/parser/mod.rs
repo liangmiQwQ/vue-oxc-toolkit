@@ -5,7 +5,7 @@ use oxc_ast::{
 };
 use oxc_diagnostics::OxcDiagnostic;
 use oxc_parser::ParseOptions;
-use oxc_span::SourceType;
+use oxc_span::{SourceType, Span};
 use oxc_syntax::module_record::ModuleRecord;
 
 mod elements;
@@ -28,6 +28,7 @@ pub struct ParserImpl<'a> {
   ast: AstBuilder<'a>,
   script_set: bool,
   setup_set: bool,
+  script_tags: Vec<Span>,
 
   directives: ArenaVec<'a, Directive<'a>>,
   statements: ArenaVec<'a, Statement<'a>>,
@@ -53,6 +54,7 @@ impl<'a> ParserImpl<'a> {
       ast,
       script_set: false,
       setup_set: false,
+      script_tags: vec![],
 
       directives: ast.vec(),
       statements: ast.vec(),
