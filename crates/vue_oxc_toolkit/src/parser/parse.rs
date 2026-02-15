@@ -84,19 +84,6 @@ impl<'a> ParserImpl<'a> {
     let errors = RefCell::from(&mut temp_errors);
     let tokens = scanner.scan(self.source_text, OxcErrorHandler::new(&errors));
     let result = parser.parse(tokens, OxcErrorHandler::new(&errors));
-    // Just mark the <script> tags for error filtering
-    for child in &result.children {
-      if let AstNode::Element(node) = child
-        && node.tag_name == "script"
-        && let Some(first) = node.children.first()
-      {
-        self.script_tags.push(Span::new(
-          first.get_location().start.offset as u32,
-          // SAFETY: if first exists, last must exist
-          node.children.last().unwrap().get_location().end.offset as u32,
-        ));
-      }
-    }
     self.filter_and_append_errors(temp_errors)?;
 
     let mut children = self.ast.vec();
