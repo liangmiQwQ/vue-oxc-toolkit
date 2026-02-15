@@ -9,7 +9,7 @@ use oxc_span::{SPAN, Span};
 use oxc_syntax::module_record::ModuleRecord;
 use vue_compiler_core::SourceLocation;
 use vue_compiler_core::parser::{AstNode, ParseOption, Parser, WhitespaceStrategy};
-use vue_compiler_core::scanner::{ScanOption, Scanner};
+use vue_compiler_core::scanner::{ScanOption, Scanner, TextMode};
 
 use crate::is_void_tag;
 use crate::parser::error::OxcErrorHandler;
@@ -17,6 +17,18 @@ use crate::parser::{ResParse, ResParseExt};
 
 use super::ParserImpl;
 use super::ParserImplReturn;
+
+macro_rules! get_text_mode {
+  ($name: expr) => {
+    match $name {
+      "textarea" => TextMode::RcData,
+      "iframe" | "xmp" | "noembed" | "noframes" | "noscript" | "script" | "style" => {
+        TextMode::RawText
+      }
+      _ => TextMode::Data,
+    }
+  };
+}
 
 impl<'a> ParserImpl<'a> {
   pub fn parse(mut self) -> ParserImplReturn<'a> {
@@ -74,14 +86,16 @@ impl<'a> ParserImpl<'a> {
     let parser = Parser::new(ParseOption {
       whitespace: WhitespaceStrategy::Preserve,
       is_void_tag: |name| is_void_tag!(name),
+      get_text_mode: |name| get_text_mode!(name),
       ..Default::default()
     });
+    let scanner =
+      Scanner::new(ScanOption { get_text_mode: |name| get_text_mode!(name), ..Default::default() });
 
-    // get ast from vue-compiler-core
-    let scanner = Scanner::new(ScanOption::default());
     // error processing
     let errors = RefCell::from(&mut self.errors);
     let panicked = RefCell::from(false);
+    // get ast from vue-compiler-core
     let tokens = scanner.scan(self.source_text, OxcErrorHandler::new(&errors, &panicked));
     let result = parser.parse(tokens, OxcErrorHandler::new(&errors, &panicked));
 

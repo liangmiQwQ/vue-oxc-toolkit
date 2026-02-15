@@ -42,6 +42,13 @@ impl<'a> ParserImpl<'a> {
 
     // If there is at least one statements in the box
     if let Some(child) = node.children.first() {
+      let span = child.get_location().span();
+      let source = span.source_text(self.source_text);
+
+      if source.trim().is_empty() {
+        return Ok(None);
+      }
+
       let is_setup = prop_finder(&node, "setup").allow_empty().find().is_some();
       // Handle error if there are multiple script tags
       if is_setup {
@@ -57,9 +64,6 @@ impl<'a> ParserImpl<'a> {
         }
         self.script_set = true;
       }
-
-      let span = child.get_location().span();
-      let source = span.source_text(self.source_text);
 
       let Some((mut directives, mut body, module_record)) =
         self.oxc_parse(source, span.start as usize)

@@ -6,11 +6,25 @@ expression: result
 Program {
     span: Span {
         start: 0,
-        end: 161,
+        end: 214,
     },
-    source_text: "<script lang=\"ts\" setup>\nconst a = someFunction<{ msg: 1 }>()\n</script>\n\n<template>\n  <div>{{ a.msg }}</div>\n  <div> I think 1 < 2, isn't it? </div>\n</template>\n",
+    source_text: "<script lang=\"ts\" setup>\nconst a = someFunction<{ msg: 1 }>()\nconst b = someFunction<SomeType>() // It's not a tag\n</script>\n\n<template>\n  <div>{{ a.msg }}</div>\n  <div> I think 1 < 2, isn't it? </div>\n</template>\n",
     comments: Vec(
-        [],
+        [
+            Comment {
+                span: Span {
+                    start: 97,
+                    end: 114,
+                },
+                attached_to: 0,
+                kind: Line,
+                position: Trailing,
+                newlines: CommentNewlines(
+                    Trailing,
+                ),
+                content: None,
+            },
+        ],
     ),
     hashbang: None,
     directives: Vec(
@@ -161,6 +175,101 @@ Program {
                                     declare: false,
                                 },
                             ),
+                            VariableDeclaration(
+                                VariableDeclaration {
+                                    span: Span {
+                                        start: 62,
+                                        end: 96,
+                                    },
+                                    declarations: Vec(
+                                        [
+                                            VariableDeclarator {
+                                                span: Span {
+                                                    start: 68,
+                                                    end: 96,
+                                                },
+                                                id: BindingIdentifier(
+                                                    BindingIdentifier {
+                                                        span: Span {
+                                                            start: 68,
+                                                            end: 69,
+                                                        },
+                                                        name: "b",
+                                                        symbol_id: Cell {
+                                                            value: None,
+                                                        },
+                                                    },
+                                                ),
+                                                type_annotation: None,
+                                                init: Some(
+                                                    CallExpression(
+                                                        CallExpression {
+                                                            span: Span {
+                                                                start: 72,
+                                                                end: 96,
+                                                            },
+                                                            callee: Identifier(
+                                                                IdentifierReference {
+                                                                    span: Span {
+                                                                        start: 72,
+                                                                        end: 84,
+                                                                    },
+                                                                    name: "someFunction",
+                                                                    reference_id: Cell {
+                                                                        value: None,
+                                                                    },
+                                                                },
+                                                            ),
+                                                            type_arguments: Some(
+                                                                TSTypeParameterInstantiation {
+                                                                    span: Span {
+                                                                        start: 84,
+                                                                        end: 94,
+                                                                    },
+                                                                    params: Vec(
+                                                                        [
+                                                                            TSTypeReference(
+                                                                                TSTypeReference {
+                                                                                    span: Span {
+                                                                                        start: 85,
+                                                                                        end: 93,
+                                                                                    },
+                                                                                    type_name: IdentifierReference(
+                                                                                        IdentifierReference {
+                                                                                            span: Span {
+                                                                                                start: 85,
+                                                                                                end: 93,
+                                                                                            },
+                                                                                            name: "SomeType",
+                                                                                            reference_id: Cell {
+                                                                                                value: None,
+                                                                                            },
+                                                                                        },
+                                                                                    ),
+                                                                                    type_arguments: None,
+                                                                                },
+                                                                            ),
+                                                                        ],
+                                                                    ),
+                                                                },
+                                                            ),
+                                                            arguments: Vec(
+                                                                [],
+                                                            ),
+                                                            optional: false,
+                                                            pure: false,
+                                                        },
+                                                    ),
+                                                ),
+                                                kind: Const,
+                                                definite: false,
+                                            },
+                                        ],
+                                    ),
+                                    kind: Const,
+                                    declare: false,
+                                },
+                            ),
                             ExpressionStatement(
                                 ExpressionStatement {
                                     span: Span {
@@ -185,7 +294,7 @@ Program {
                                                         JSXElement {
                                                             span: Span {
                                                                 start: 0,
-                                                                end: 71,
+                                                                end: 124,
                                                             },
                                                             opening_element: JSXOpeningElement {
                                                                 span: Span {
@@ -261,14 +370,14 @@ Program {
                                                             closing_element: Some(
                                                                 JSXClosingElement {
                                                                     span: Span {
-                                                                        start: 62,
-                                                                        end: 71,
+                                                                        start: 115,
+                                                                        end: 124,
                                                                     },
                                                                     name: Identifier(
                                                                         JSXIdentifier {
                                                                             span: Span {
-                                                                                start: 64,
-                                                                                end: 70,
+                                                                                start: 117,
+                                                                                end: 123,
                                                                             },
                                                                             name: "script",
                                                                         },
@@ -280,8 +389,8 @@ Program {
                                                     Text(
                                                         JSXText {
                                                             span: Span {
-                                                                start: 71,
-                                                                end: 73,
+                                                                start: 124,
+                                                                end: 126,
                                                             },
                                                             value: "\n\n",
                                                             raw: Some(
@@ -292,19 +401,19 @@ Program {
                                                     Element(
                                                         JSXElement {
                                                             span: Span {
-                                                                start: 73,
-                                                                end: 160,
+                                                                start: 126,
+                                                                end: 213,
                                                             },
                                                             opening_element: JSXOpeningElement {
                                                                 span: Span {
-                                                                    start: 73,
-                                                                    end: 83,
+                                                                    start: 126,
+                                                                    end: 136,
                                                                 },
                                                                 name: Identifier(
                                                                     JSXIdentifier {
                                                                         span: Span {
-                                                                            start: 74,
-                                                                            end: 82,
+                                                                            start: 127,
+                                                                            end: 135,
                                                                         },
                                                                         name: "template",
                                                                     },
@@ -319,8 +428,8 @@ Program {
                                                                     Text(
                                                                         JSXText {
                                                                             span: Span {
-                                                                                start: 83,
-                                                                                end: 86,
+                                                                                start: 136,
+                                                                                end: 139,
                                                                             },
                                                                             value: "\n  ",
                                                                             raw: Some(
@@ -331,19 +440,19 @@ Program {
                                                                     Element(
                                                                         JSXElement {
                                                                             span: Span {
-                                                                                start: 86,
-                                                                                end: 108,
+                                                                                start: 139,
+                                                                                end: 161,
                                                                             },
                                                                             opening_element: JSXOpeningElement {
                                                                                 span: Span {
-                                                                                    start: 86,
-                                                                                    end: 91,
+                                                                                    start: 139,
+                                                                                    end: 144,
                                                                                 },
                                                                                 name: Identifier(
                                                                                     JSXIdentifier {
                                                                                         span: Span {
-                                                                                            start: 87,
-                                                                                            end: 90,
+                                                                                            start: 140,
+                                                                                            end: 143,
                                                                                         },
                                                                                         name: "div",
                                                                                     },
@@ -358,20 +467,20 @@ Program {
                                                                                     ExpressionContainer(
                                                                                         JSXExpressionContainer {
                                                                                             span: Span {
-                                                                                                start: 91,
-                                                                                                end: 102,
+                                                                                                start: 144,
+                                                                                                end: 155,
                                                                                             },
                                                                                             expression: StaticMemberExpression(
                                                                                                 StaticMemberExpression {
                                                                                                     span: Span {
-                                                                                                        start: 94,
-                                                                                                        end: 99,
+                                                                                                        start: 147,
+                                                                                                        end: 152,
                                                                                                     },
                                                                                                     object: Identifier(
                                                                                                         IdentifierReference {
                                                                                                             span: Span {
-                                                                                                                start: 94,
-                                                                                                                end: 95,
+                                                                                                                start: 147,
+                                                                                                                end: 148,
                                                                                                             },
                                                                                                             name: "a",
                                                                                                             reference_id: Cell {
@@ -381,8 +490,8 @@ Program {
                                                                                                     ),
                                                                                                     property: IdentifierName {
                                                                                                         span: Span {
-                                                                                                            start: 96,
-                                                                                                            end: 99,
+                                                                                                            start: 149,
+                                                                                                            end: 152,
                                                                                                         },
                                                                                                         name: "msg",
                                                                                                     },
@@ -396,14 +505,14 @@ Program {
                                                                             closing_element: Some(
                                                                                 JSXClosingElement {
                                                                                     span: Span {
-                                                                                        start: 102,
-                                                                                        end: 108,
+                                                                                        start: 155,
+                                                                                        end: 161,
                                                                                     },
                                                                                     name: Identifier(
                                                                                         JSXIdentifier {
                                                                                             span: Span {
-                                                                                                start: 104,
-                                                                                                end: 107,
+                                                                                                start: 157,
+                                                                                                end: 160,
                                                                                             },
                                                                                             name: "div",
                                                                                         },
@@ -415,8 +524,8 @@ Program {
                                                                     Text(
                                                                         JSXText {
                                                                             span: Span {
-                                                                                start: 108,
-                                                                                end: 111,
+                                                                                start: 161,
+                                                                                end: 164,
                                                                             },
                                                                             value: "\n  ",
                                                                             raw: Some(
@@ -427,19 +536,19 @@ Program {
                                                                     Element(
                                                                         JSXElement {
                                                                             span: Span {
-                                                                                start: 111,
-                                                                                end: 148,
+                                                                                start: 164,
+                                                                                end: 201,
                                                                             },
                                                                             opening_element: JSXOpeningElement {
                                                                                 span: Span {
-                                                                                    start: 111,
-                                                                                    end: 116,
+                                                                                    start: 164,
+                                                                                    end: 169,
                                                                                 },
                                                                                 name: Identifier(
                                                                                     JSXIdentifier {
                                                                                         span: Span {
-                                                                                            start: 112,
-                                                                                            end: 115,
+                                                                                            start: 165,
+                                                                                            end: 168,
                                                                                         },
                                                                                         name: "div",
                                                                                     },
@@ -454,8 +563,8 @@ Program {
                                                                                     Text(
                                                                                         JSXText {
                                                                                             span: Span {
-                                                                                                start: 116,
-                                                                                                end: 142,
+                                                                                                start: 169,
+                                                                                                end: 195,
                                                                                             },
                                                                                             value: " I think 1 < 2, isn't it? ",
                                                                                             raw: Some(
@@ -468,14 +577,14 @@ Program {
                                                                             closing_element: Some(
                                                                                 JSXClosingElement {
                                                                                     span: Span {
-                                                                                        start: 142,
-                                                                                        end: 148,
+                                                                                        start: 195,
+                                                                                        end: 201,
                                                                                     },
                                                                                     name: Identifier(
                                                                                         JSXIdentifier {
                                                                                             span: Span {
-                                                                                                start: 144,
-                                                                                                end: 147,
+                                                                                                start: 197,
+                                                                                                end: 200,
                                                                                             },
                                                                                             name: "div",
                                                                                         },
@@ -487,8 +596,8 @@ Program {
                                                                     Text(
                                                                         JSXText {
                                                                             span: Span {
-                                                                                start: 148,
-                                                                                end: 149,
+                                                                                start: 201,
+                                                                                end: 202,
                                                                             },
                                                                             value: "\n",
                                                                             raw: Some(
@@ -501,14 +610,14 @@ Program {
                                                             closing_element: Some(
                                                                 JSXClosingElement {
                                                                     span: Span {
-                                                                        start: 149,
-                                                                        end: 160,
+                                                                        start: 202,
+                                                                        end: 213,
                                                                     },
                                                                     name: Identifier(
                                                                         JSXIdentifier {
                                                                             span: Span {
-                                                                                start: 151,
-                                                                                end: 159,
+                                                                                start: 204,
+                                                                                end: 212,
                                                                             },
                                                                             name: "template",
                                                                         },
@@ -520,8 +629,8 @@ Program {
                                                     Text(
                                                         JSXText {
                                                             span: Span {
-                                                                start: 160,
-                                                                end: 161,
+                                                                start: 213,
+                                                                end: 214,
                                                             },
                                                             value: "\n",
                                                             raw: Some(
@@ -571,6 +680,7 @@ Program {
 	const a = someFunction<{
 		msg: 1;
 	}>();
+	const b = someFunction<SomeType>();
 	<><script lang="ts" setup></script>
 
 <template>
@@ -583,7 +693,7 @@ Program {
 
 ===============  Spans  ===============
 Slice: "<script lang=\"ts\" setup>\nconst a = someF..[OMIT]..ink 1 < 2, isn't it? </div>\n</template>\n"; 
-Span: (0, 161); 
+Span: (0, 214); 
 Type: Program; 
 
 Slice: "const a = someFunction<{ msg: 1 }>()"; 
@@ -634,8 +744,40 @@ Slice: "1";
 Span: (55, 56); 
 Type: NumericLiteral; 
 
-Slice: "<script lang=\"ts\" setup>\nconst a = someFunction<{ msg: 1 }>()\n</script>"; 
-Span: (0, 71); 
+Slice: "const b = someFunction<SomeType>()"; 
+Span: (62, 96); 
+Type: VariableDeclaration; 
+
+Slice: "b = someFunction<SomeType>()"; 
+Span: (68, 96); 
+Type: VariableDeclarator; 
+
+Slice: "b"; 
+Span: (68, 69); 
+Type: BindingIdentifier; 
+
+Slice: "someFunction<SomeType>()"; 
+Span: (72, 96); 
+Type: CallExpression; 
+
+Slice: "someFunction"; 
+Span: (72, 84); 
+Type: IdentifierReference; 
+
+Slice: "<SomeType>"; 
+Span: (84, 94); 
+Type: TSTypeParameterInstantiation; 
+
+Slice: "SomeType"; 
+Span: (85, 93); 
+Type: TSTypeReference; 
+
+Slice: "SomeType"; 
+Span: (85, 93); 
+Type: IdentifierReference; 
+
+Slice: "<script lang=\"ts\" setup>\nconst a = someF..[OMIT]..<SomeType>() // It's not a tag\n</script>"; 
+Span: (0, 124); 
 Type: JSXElement; 
 
 Slice: "<script lang=\"ts\" setup>"; 
@@ -667,109 +809,109 @@ Span: (18, 23);
 Type: JSXIdentifier; 
 
 Slice: "</script>"; 
-Span: (62, 71); 
+Span: (115, 124); 
 Type: JSXClosingElement; 
 
 Slice: "script"; 
-Span: (64, 70); 
+Span: (117, 123); 
 Type: JSXIdentifier; 
 
 Slice: "\n\n"; 
-Span: (71, 73); 
+Span: (124, 126); 
 Type: JSXText; 
 
 Slice: "<template>\n  <div>{{ a.msg }}</div>\n  <d..[OMIT]..hink 1 < 2, isn't it? </div>\n</template>"; 
-Span: (73, 160); 
+Span: (126, 213); 
 Type: JSXElement; 
 
 Slice: "<template>"; 
-Span: (73, 83); 
+Span: (126, 136); 
 Type: JSXOpeningElement; 
 
 Slice: "template"; 
-Span: (74, 82); 
+Span: (127, 135); 
 Type: JSXIdentifier; 
 
 Slice: "\n  "; 
-Span: (83, 86); 
+Span: (136, 139); 
 Type: JSXText; 
 
 Slice: "<div>{{ a.msg }}</div>"; 
-Span: (86, 108); 
+Span: (139, 161); 
 Type: JSXElement; 
 
 Slice: "<div>"; 
-Span: (86, 91); 
+Span: (139, 144); 
 Type: JSXOpeningElement; 
 
 Slice: "div"; 
-Span: (87, 90); 
+Span: (140, 143); 
 Type: JSXIdentifier; 
 
 Slice: "{{ a.msg }}"; 
-Span: (91, 102); 
+Span: (144, 155); 
 Type: JSXExpressionContainer; 
 
 Slice: "a.msg"; 
-Span: (94, 99); 
+Span: (147, 152); 
 Type: StaticMemberExpression; 
 
 Slice: "a"; 
-Span: (94, 95); 
+Span: (147, 148); 
 Type: IdentifierReference; 
 
 Slice: "msg"; 
-Span: (96, 99); 
+Span: (149, 152); 
 Type: IdentifierName; 
 
 Slice: "</div>"; 
-Span: (102, 108); 
+Span: (155, 161); 
 Type: JSXClosingElement; 
 
 Slice: "div"; 
-Span: (104, 107); 
+Span: (157, 160); 
 Type: JSXIdentifier; 
 
 Slice: "\n  "; 
-Span: (108, 111); 
+Span: (161, 164); 
 Type: JSXText; 
 
 Slice: "<div> I think 1 < 2, isn't it? </div>"; 
-Span: (111, 148); 
+Span: (164, 201); 
 Type: JSXElement; 
 
 Slice: "<div>"; 
-Span: (111, 116); 
+Span: (164, 169); 
 Type: JSXOpeningElement; 
 
 Slice: "div"; 
-Span: (112, 115); 
+Span: (165, 168); 
 Type: JSXIdentifier; 
 
 Slice: " I think 1 < 2, isn't it? "; 
-Span: (116, 142); 
+Span: (169, 195); 
 Type: JSXText; 
 
 Slice: "</div>"; 
-Span: (142, 148); 
+Span: (195, 201); 
 Type: JSXClosingElement; 
 
 Slice: "div"; 
-Span: (144, 147); 
+Span: (197, 200); 
 Type: JSXIdentifier; 
 
 Slice: "\n"; 
-Span: (148, 149); 
+Span: (201, 202); 
 Type: JSXText; 
 
 Slice: "</template>"; 
-Span: (149, 160); 
+Span: (202, 213); 
 Type: JSXClosingElement; 
 
 Slice: "template"; 
-Span: (151, 159); 
+Span: (204, 212); 
 Type: JSXIdentifier; 
 
 Slice: "\n"; 
-Span: (160, 161); 
+Span: (213, 214); 
 Type: JSXText;
