@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 const a = someFunction<{ msg: 1 }>()
+const b = someFunction<SomeType>() // It's not a tag
 </script>
 
 <template>
