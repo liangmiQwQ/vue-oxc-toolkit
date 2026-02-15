@@ -9,7 +9,7 @@ use oxc_span::{SPAN, Span};
 use oxc_syntax::module_record::ModuleRecord;
 use vue_compiler_core::SourceLocation;
 use vue_compiler_core::parser::{AstNode, ParseOption, Parser, WhitespaceStrategy};
-use vue_compiler_core::scanner::{ScanOption, Scanner};
+use vue_compiler_core::scanner::{ScanOption, Scanner, TextMode};
 
 use crate::is_void_tag;
 use crate::parser::error::OxcErrorHandler;
@@ -74,6 +74,13 @@ impl<'a> ParserImpl<'a> {
     let parser = Parser::new(ParseOption {
       whitespace: WhitespaceStrategy::Preserve,
       is_void_tag: |name| is_void_tag!(name),
+      get_text_mode: |name| match name {
+        "textarea" => TextMode::RcData,
+        "iframe" | "xmp" | "noembed" | "noframes" | "noscript" | "script" | "style" => {
+          TextMode::RawText
+        }
+        _ => TextMode::Data,
+      },
       ..Default::default()
     });
 
