@@ -82,7 +82,7 @@ dependencies = [
 
 [[package]]
 name = "benchmark"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "criterion",
  "oxc_allocator",
@@ -1396,7 +1396,7 @@ dependencies = [
 
 [[package]]
 name = "vue_oxc_toolkit"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "insta",
  "memchr",
