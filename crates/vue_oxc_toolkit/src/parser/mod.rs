@@ -1,3 +1,5 @@
+use std::ptr;
+
 use oxc_allocator::{Allocator, Vec as ArenaVec};
 use oxc_ast::{
   AstBuilder, Comment,
@@ -16,7 +18,7 @@ mod script;
 
 pub struct ParserImpl<'a> {
   allocator: &'a Allocator,
-  source_text: &'a str,
+  origin_source_text: &'a str,
   options: ParseOptions,
 
   comments: ArenaVec<'a, Comment>,
@@ -24,7 +26,8 @@ pub struct ParserImpl<'a> {
   module_record: ModuleRecord<'a>,
   errors: Vec<OxcDiagnostic>,
 
-  empty_str: String,
+  source_text: &'a str,
+  mut_ptr_source_text: *mut [u8],
   ast: AstBuilder<'a>,
   script_set: bool,
   setup_set: bool,
@@ -39,9 +42,11 @@ impl<'a> ParserImpl<'a> {
   /// Create a [`ParserImpl`]
   pub fn new(allocator: &'a Allocator, source_text: &'a str, options: ParseOptions) -> Self {
     let ast = AstBuilder::new(allocator);
+    let alloced_str = allocator.alloc_slice_copy(source_text.as_bytes());
+
     Self {
       allocator,
-      source_text,
+      origin_source_text: source_text,
       options,
 
       comments: ast.vec(),
@@ -49,7 +54,8 @@ impl<'a> ParserImpl<'a> {
       module_record: ModuleRecord::new(allocator),
       errors: vec![],
 
-      empty_str: " ".repeat(source_text.len()),
+      mut_ptr_source_text: ptr::from_mut(alloced_str),
+      source_text: unsafe { str::from_utf8_unchecked(alloced_str) },
       ast,
       script_set: false,
       setup_set: false,
@@ -72,13 +78,61 @@ pub struct ParserImplReturn<'a> {
 
 // Some public utils
 impl<'a> ParserImpl<'a> {
+  pub fn sync_source_text(&mut self) {
+    unsafe {
+      ptr::copy_nonoverlapping(
+        self.origin_source_text.as_ptr(),
+        self.mut_ptr_source_text as *mut u8,
+        self.origin_source_text.len(),
+      );
+    }
+  }
+
+  /// Call oxc_parser with a custom wrap
+  /// Everything before `start` and `start_wrap` will be ignored
   pub fn oxc_parse(
     &mut self,
-    source: &str,
-    start: usize,
+    start: u32,
+    end: u32,
+    start_wrap: &[u8],
+    end_wrap: &[u8],
   ) -> Option<(ArenaVec<'a, Directive<'a>>, ArenaVec<'a, Statement<'a>>, ModuleRecord<'a>)> {
-    let source_text = self.ast.atom(&self.pad_source(source, start));
-    let mut ret = oxc_parser::Parser::new(self.allocator, source_text.as_str(), self.source_type)
+    let start = start as usize;
+    let end = end as usize;
+
+    unsafe {
+      let real_start = start - start_wrap.len();
+      let first_byte_ptr = self.mut_ptr_source_text as *mut u8;
+
+      // Copy start_wrap to the front of the source text
+      ptr::copy_nonoverlapping(
+        start_wrap.as_ptr(),
+        first_byte_ptr.add(real_start),
+        start_wrap.len(),
+      );
+      // Copy end_wrap to the end of the source text
+      ptr::copy_nonoverlapping(end_wrap.as_ptr(), first_byte_ptr.add(end), end_wrap.len());
+
+      // Pad source with space
+      for i in 0..real_start {
+        first_byte_ptr.add(i).write(b' ');
+      }
+    }
+
+    let result = self.call_oxc_parse(unsafe {
+      str::from_utf8_unchecked(&self.source_text.as_bytes()[..end + end_wrap.len()])
+    });
+
+    // Reset
+    self.sync_source_text();
+    result
+  }
+
+  fn call_oxc_parse(
+    &mut self,
+    source: &'a str,
+  ) -> Option<(ArenaVec<'a, Directive<'a>>, ArenaVec<'a, Statement<'a>>, ModuleRecord<'a>)> {
+    let mut ret = oxc_parser::Parser::new(self.allocator, source, self.source_type)
       .with_options(self.options)
       .parse();
 
@@ -89,12 +143,6 @@ impl<'a> ParserImpl<'a> {
       self.comments.append(&mut ret.program.comments);
       Some((ret.program.directives, ret.program.body, ret.module_record))
     }
-  }
-
-  /// A workaround
-  /// Use placeholder to make the location AST returned correct
-  fn pad_source(&self, source: &str, start: usize) -> String {
-    format!("{}{source}", &self.empty_str[..start])
   }
 }
 
