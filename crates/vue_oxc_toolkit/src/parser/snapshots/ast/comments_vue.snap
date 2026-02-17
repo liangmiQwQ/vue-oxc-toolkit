@@ -219,8 +219,8 @@ Program {
                                                                                                     ExpressionContainer(
                                                                                                         JSXExpressionContainer {
                                                                                                             span: Span {
-                                                                                                                start: 24,
-                                                                                                                end: 52,
+                                                                                                                start: 23,
+                                                                                                                end: 53,
                                                                                                             },
                                                                                                             expression: NumericLiteral(
                                                                                                                 NumericLiteral {
@@ -624,8 +624,8 @@ Slice: "key";
 Span: (19, 22); 
 Type: JSXIdentifier; 
 
-Slice: "1 /* vue is full of magic */"; 
-Span: (24, 52); 
+Slice: "\"1 /* vue is full of magic */\""; 
+Span: (23, 53); 
 Type: JSXExpressionContainer; 
 
 Slice: "1"; 

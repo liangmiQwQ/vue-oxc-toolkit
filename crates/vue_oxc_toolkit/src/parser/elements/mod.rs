@@ -283,17 +283,15 @@ impl<'a> ParserImpl<'a> {
         let value = if let Some(expr) = &dir.expression {
           // +1 to skip the opening quote
           let expr_start = expr.location.start.offset + 1;
-          let span = Span::new(expr_start as u32, dir_end - 1);
           Some(
             ast.jsx_attribute_value_expression_container(
-              // TODO: this span is incorrect, we should use the span of the whole expression, includes quotes or just SPAN
-              span,
+              Span::new(expr.location.span().start, dir_end),
               ((|| {
                 // Use placeholder for v-for and v-slot
                 if matches!(dir.name, "for" | "slot" | "else") {
                   None
                 } else {
-                  let expr = self.parse_pure_expression(span);
+                  let expr = self.parse_pure_expression(Span::new(expr_start as u32, dir_end - 1));
                   if dir.name == "if" {
                     *v_if_state = expr.map(VIf::If);
                     None

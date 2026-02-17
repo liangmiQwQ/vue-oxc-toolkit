@@ -140,8 +140,8 @@ Program {
                                                                                                     ExpressionContainer(
                                                                                                         JSXExpressionContainer {
                                                                                                             span: Span {
-                                                                                                                start: 29,
-                                                                                                                end: 30,
+                                                                                                                start: 28,
+                                                                                                                end: 31,
                                                                                                             },
                                                                                                             expression: EmptyExpression(
                                                                                                                 JSXEmptyExpression {
@@ -358,8 +358,8 @@ Program {
                                                                                                                                     ExpressionContainer(
                                                                                                                                         JSXExpressionContainer {
                                                                                                                                             span: Span {
-                                                                                                                                                start: 66,
-                                                                                                                                                end: 67,
+                                                                                                                                                start: 65,
+                                                                                                                                                end: 68,
                                                                                                                                             },
                                                                                                                                             expression: EmptyExpression(
                                                                                                                                                 JSXEmptyExpression {
@@ -464,8 +464,8 @@ Program {
                                                                                                     ExpressionContainer(
                                                                                                         JSXExpressionContainer {
                                                                                                             span: Span {
-                                                                                                                start: 85,
-                                                                                                                end: 85,
+                                                                                                                start: 84,
+                                                                                                                end: 86,
                                                                                                             },
                                                                                                             expression: EmptyExpression(
                                                                                                                 JSXEmptyExpression {
@@ -631,8 +631,8 @@ Program {
                                                                                                     ExpressionContainer(
                                                                                                         JSXExpressionContainer {
                                                                                                             span: Span {
-                                                                                                                start: 123,
-                                                                                                                end: 123,
+                                                                                                                start: 122,
+                                                                                                                end: 124,
                                                                                                             },
                                                                                                             expression: EmptyExpression(
                                                                                                                 JSXEmptyExpression {
@@ -1090,8 +1090,8 @@ Slice: "v-else-if";
 Span: (18, 27); 
 Type: JSXIdentifier; 
 
-Slice: "1"; 
-Span: (29, 30); 
+Slice: "\"1\""; 
+Span: (28, 31); 
 Type: JSXExpressionContainer; 
 
 Slice: "\n  "; 
@@ -1158,8 +1158,8 @@ Slice: "v-if";
 Span: (60, 64); 
 Type: JSXIdentifier; 
 
-Slice: "1"; 
-Span: (66, 67); 
+Slice: "\"1\""; 
+Span: (65, 68); 
 Type: JSXExpressionContainer; 
 
 Slice: "<div v-if=\"\" />"; 
@@ -1185,6 +1185,10 @@ Type: JSXNamespacedName;
 Slice: "v-if"; 
 Span: (79, 83); 
 Type: JSXIdentifier; 
+
+Slice: "\"\""; 
+Span: (84, 86); 
+Type: JSXExpressionContainer; 
 
 Slice: "\n  "; 
 Span: (89, 92); 
@@ -1241,6 +1245,10 @@ Type: JSXNamespacedName;
 Slice: "v-else-if"; 
 Span: (112, 121); 
 Type: JSXIdentifier; 
+
+Slice: "\"\""; 
+Span: (122, 124); 
+Type: JSXExpressionContainer; 
 
 Slice: "\n  "; 
 Span: (127, 130); 

@@ -140,8 +140,8 @@ Program {
                                                                                                     ExpressionContainer(
                                                                                                         JSXExpressionContainer {
                                                                                                             span: Span {
-                                                                                                                start: 24,
-                                                                                                                end: 56,
+                                                                                                                start: 23,
+                                                                                                                end: 57,
                                                                                                             },
                                                                                                             expression: ArrowFunctionExpression(
                                                                                                                 ArrowFunctionExpression {
@@ -369,8 +369,8 @@ Program {
                                                                                                     ExpressionContainer(
                                                                                                         JSXExpressionContainer {
                                                                                                             span: Span {
-                                                                                                                start: 78,
-                                                                                                                end: 89,
+                                                                                                                start: 77,
+                                                                                                                end: 90,
                                                                                                             },
                                                                                                             expression: EmptyExpression(
                                                                                                                 JSXEmptyExpression {
@@ -827,8 +827,8 @@ Slice: "key";
 Span: (19, 22); 
 Type: JSXIdentifier; 
 
-Slice: "() => { return { a =1, b = 1 } }"; 
-Span: (24, 56); 
+Slice: "\"() => { return { a =1, b = 1 } }\""; 
+Span: (23, 57); 
 Type: JSXExpressionContainer; 
 
 Slice: "() => { return { a =1, b = 1 } }"; 
@@ -915,8 +915,8 @@ Slice: "key";
 Span: (73, 76); 
 Type: JSXIdentifier; 
 
-Slice: "a 1 )`Hi '`"; 
-Span: (78, 89); 
+Slice: "\"a 1 )`Hi '`\""; 
+Span: (77, 90); 
 Type: JSXExpressionContainer; 
 
 Slice: "</div>"; 
