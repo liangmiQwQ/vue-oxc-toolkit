@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::cmp::Ordering;
 use std::collections::HashSet;
 
 use oxc_allocator::{self, Dummy, Vec as ArenaVec};
@@ -8,7 +9,7 @@ use oxc_ast::ast::{JSXChild, Program, Statement};
 use oxc_span::{SPAN, Span};
 use oxc_syntax::module_record::ModuleRecord;
 use vue_compiler_core::SourceLocation;
-use vue_compiler_core::parser::{AstNode, ParseOption, Parser, WhitespaceStrategy};
+use vue_compiler_core::parser::{AstNode, Element, ParseOption, Parser, WhitespaceStrategy};
 use vue_compiler_core::scanner::{ScanOption, Scanner, TextMode};
 
 use crate::is_void_tag;
@@ -75,13 +76,29 @@ impl<'a> ParserImpl<'a> {
     }
   }
 
-  fn push_text_child(&self, children: &mut ArenaVec<'a, JSXChild<'a>>, span: Span) {
-    if !span.is_empty() {
-      let atom = self.ast.atom(span.source_text(self.source_text));
-      children.push(self.ast.jsx_child_text(span, atom, Some(atom)));
-    }
-  }
+  fn get_body_statements(
+    mut statements: ArenaVec<'a, Statement<'a>>,
+    mut setup: ArenaVec<'a, Statement<'a>>,
+    sfc_return: Option<Statement<'a>>,
+    ast: AstBuilder<'a>,
+  ) -> ArenaVec<'a, Statement<'a>> {
+    statements.push(ast.statement_block(SPAN, {
+      if let Some(ret) = sfc_return {
+        setup.push(ret);
+      }
+      setup
+    }));
 
+    statements
+  }
+}
+
+enum ParsingChild<'a> {
+  Finish(JSXChild<'a>),
+  Skip(Element<'a>),
+}
+
+impl<'a> ParserImpl<'a> {
   fn analyze(&mut self) -> ResParse<()> {
     let parser = Parser::new(ParseOption {
       whitespace: WhitespaceStrategy::Preserve,
@@ -103,43 +120,61 @@ impl<'a> ParserImpl<'a> {
       return ResParse::panic();
     }
 
-    let mut children = self.ast.vec();
+    let mut raw_children = vec![];
     let mut text_start: u32 = 0;
     let mut source_types: HashSet<&str> = HashSet::new();
     for child in result.children {
       if let AstNode::Element(node) = child {
         // Process the texts between last element and current element
-        self
-          .push_text_child(&mut children, Span::new(text_start, node.location.start.offset as u32));
+        self.push_text_child(
+          &mut raw_children,
+          Span::new(text_start, node.location.start.offset as u32),
+        );
         text_start = node.location.end.offset as u32;
 
-        if node.tag_name == "script" {
+        raw_children.push(if node.tag_name == "script" {
           // Fill self.setup, self.statements
           self.parse_script(&node, &mut source_types)?;
-          children.push(self.parse_element(node, Some(self.ast.vec())).0);
-        } else if node.tag_name == "template" {
-          children.push(self.parse_element(node, None).0);
+          ParsingChild::Finish(self.parse_element(node, Some(self.ast.vec())).0)
         } else {
-          // Process other tags like <style>
-          let text = if let Some(first) = node.children.first() {
-            let last = node.children.last().unwrap(); // SAFETY: if first exists, last must exist
-            let span = Span::new(
-              first.get_location().start.offset as u32,
-              last.get_location().end.offset as u32,
-            );
-
-            let atom = self.ast.atom(span.source_text(self.source_text));
-            self.ast.vec1(self.ast.jsx_child_text(span, atom, Some(atom)))
-          } else {
-            self.ast.vec()
-          };
-
-          children.push(self.parse_element(node, Some(text)).0);
-        }
+          ParsingChild::Skip(node)
+        });
       }
     }
     // Process the texts after last element
-    self.push_text_child(&mut children, Span::new(text_start, self.source_text.len() as u32));
+    self.push_text_child(&mut raw_children, Span::new(text_start, self.source_text.len() as u32));
+
+    // Parse the skip ones
+    let mut children: ArenaVec<'a, JSXChild<'a>> = self.ast.vec();
+
+    for child in raw_children {
+      children.push(match child {
+        ParsingChild::Finish(child) => child,
+        ParsingChild::Skip(node) => {
+          if node.tag_name == "template" {
+            self.parse_element(node, None).0
+          } else {
+            // Process other tags like <style>
+            let text = if let Some(first) = node.children.first() {
+              let last = node.children.last().unwrap(); // SAFETY: if first exists, last must exist
+              let span = Span::new(
+                first.get_location().start.offset as u32,
+                last.get_location().end.offset as u32,
+              );
+
+              let atom = self.ast.atom(span.source_text(self.source_text));
+              self.ast.vec1(self.ast.jsx_child_text(span, atom, Some(atom)))
+            } else {
+              self.ast.vec()
+            };
+
+            self.parse_element(node, Some(text)).0
+          }
+        }
+      });
+    }
+
+    self.sort_errors_and_commends();
 
     self.sfc_struct_jsx_statement = Some(self.ast.statement_expression(
       SPAN,
@@ -154,20 +189,24 @@ impl<'a> ParserImpl<'a> {
     ResParse::success(())
   }
 
-  fn get_body_statements(
-    mut statements: ArenaVec<'a, Statement<'a>>,
-    mut setup: ArenaVec<'a, Statement<'a>>,
-    sfc_return: Option<Statement<'a>>,
-    ast: AstBuilder<'a>,
-  ) -> ArenaVec<'a, Statement<'a>> {
-    statements.push(ast.statement_block(SPAN, {
-      if let Some(ret) = sfc_return {
-        setup.push(ret);
-      }
-      setup
-    }));
+  fn sort_errors_and_commends(&mut self) {
+    self.comments.sort_by(|a, b| a.span.start.cmp(&b.span.start));
+    self.errors.sort_by(|a, b| {
+      let Some(a_labels) = &a.labels else { return Ordering::Less };
+      let Some(b_labels) = &b.labels else { return Ordering::Greater };
 
-    statements
+      let Some(a_first) = a_labels.first() else { return Ordering::Less };
+      let Some(b_first) = b_labels.first() else { return Ordering::Greater };
+
+      a_first.offset().cmp(&b_first.offset())
+    });
+  }
+
+  fn push_text_child(&self, children: &mut Vec<ParsingChild<'a>>, span: Span) {
+    if !span.is_empty() {
+      let atom = self.ast.atom(span.source_text(self.source_text));
+      children.push(ParsingChild::Finish(self.ast.jsx_child_text(span, atom, Some(atom))));
+    }
   }
 }
 
