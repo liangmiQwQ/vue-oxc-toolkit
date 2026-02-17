@@ -19,5 +19,3 @@ This project depends on [vue-compiler-rs](https://github.com/HerringtonDarkholme
 ## License
 
 [MIT](./LICENSE) License - see [LICENSE](LICENSE) file for details.
-
-<!-- TODO: Add document for node transform mapping for future integration -->
