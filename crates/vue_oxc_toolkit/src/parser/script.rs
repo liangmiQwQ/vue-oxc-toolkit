@@ -46,7 +46,7 @@ impl<'a> ParserImpl<'a> {
       let source = span.source_text(self.source_text);
 
       if source.trim().is_empty() {
-        return Ok(None);
+        return ResParse::success(None);
       }
 
       let is_setup = prop_finder(&node, "setup").allow_empty().find().is_some();
@@ -66,7 +66,7 @@ impl<'a> ParserImpl<'a> {
       }
 
       let Some((mut directives, mut body, module_record)) = self.oxc_parse(span, &[], &[]) else {
-        return Ok(None);
+        return ResParse::success(None);
       };
 
       // Deal with modules record there
