@@ -143,14 +143,18 @@ impl<'a> ParserImpl<'a> {
       );
 
       if tag_name.contains('.')
-        // Directly call oxc_parser because it's too complex to process <a.b.c.d.e />
-        // SAFETY: use `()` as wrap
-        && let Some(expr) =unsafe{ self.parse_expression(
-          // TODO: there include JSX code, we need to modify `oxc_parse` func to allow it (now use self.source_type, jsx is possible false)
-          name_span,
-          b"(<",
-          b"/>)",
-        )}
+        && let Some(expr) = unsafe {
+          let original_source_type = self.source_type; // source_type implemented [`Copy`] trait
+          self.source_type = self.source_type.with_jsx(true);
+
+          // Directly call oxc_parser because it's too complex to process <a.b.c.d.e />
+          // SAFETY: use `()` as wrap
+          let expr = self.parse_expression(name_span, b"(<", b"/>)");
+
+          self.source_type = original_source_type;
+
+          expr
+        }
         && let Expression::JSXElement(mut jsx_element) = expr
       {
         // For namespace tag name, e.g. <motion.div />
