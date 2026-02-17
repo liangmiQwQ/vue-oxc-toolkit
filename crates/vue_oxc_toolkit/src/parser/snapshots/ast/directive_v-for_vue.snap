@@ -2832,7 +2832,7 @@ Program {
     },
     source_type: SourceType {
         language: JavaScript,
-        module_kind: Module,
+        module_kind: Unambiguous,
         variant: Jsx,
         extension: None,
     },

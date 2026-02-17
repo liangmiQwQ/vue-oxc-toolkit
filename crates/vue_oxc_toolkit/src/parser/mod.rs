@@ -50,7 +50,7 @@ impl<'a> ParserImpl<'a> {
       options,
 
       comments: ast.vec(),
-      source_type: SourceType::jsx(),
+      source_type: SourceType::mjs().with_unambiguous(true),
       module_record: ModuleRecord::new(allocator),
       errors: vec![],
 
