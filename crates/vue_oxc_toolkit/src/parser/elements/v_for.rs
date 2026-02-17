@@ -38,20 +38,27 @@ impl<'a> ParserImpl<'a> {
         && let Some(cap1) = caps.get(1)
         && let Some(cap2) = caps.get(2)
       {
+        let start = expr.location.span().start + 1;
         wrapper.set_data_origin(self.ast.parenthesized_expression(
           SPAN,
-          self.parse_expression(cap2.as_str(), expr.location.start.offset + cap2.start() + 1)?,
+          self.parse_pure_expression(Span::new(
+            start + cap2.start() as u32,
+            start + cap2.end() as u32,
+          ))?,
         ));
 
+        let span = Span::new(start + cap1.start() as u32, start + cap1.end() as u32);
         let params = cap1.as_str();
-        let (str, start, should_dummy_span) =
+        let (mut expr, should_dummy_span) =
           if params.trim().starts_with('(') && params.trim().ends_with(')') {
-            (format!("{params} => 0"), expr.location.start.offset + cap1.start() + 1, false)
+            // SAFETY: use `()` as wrap
+            let expr = unsafe { self.parse_expression(span, b"(", b"=>0)")? };
+            (expr, false)
           } else {
-            (format!("({params}) => 0"), expr.location.start.offset + cap1.start(), true)
+            // SAFETY: use `(` and `)` as wrap
+            let expr = unsafe { self.parse_expression(span, b"((", b")=>0)")? };
+            (expr, true)
           };
-
-        let mut expr = self.parse_expression(self.ast.atom(&str).as_str(), start)?;
 
         let Expression::ArrowFunctionExpression(expression) = &mut expr else {
           unreachable!();

@@ -144,10 +144,13 @@ impl<'a> ParserImpl<'a> {
 
       if tag_name.contains('.')
         // Directly call oxc_parser because it's too complex to process <a.b.c.d.e />
-        && let Some(expr) = self.parse_expression(
-          self.ast.atom(&format!("<{tag_name}/>")).as_str(),
-          name_span.start as usize - 1,
-        )
+        // SAFETY: use `()` as wrap
+        && let Some(expr) =unsafe{ self.parse_expression(
+          // TODO: there include JSX code, we need to modify `oxc_parse` func to allow it (now use self.source_type, jsx is possible false)
+          name_span,
+          b"(<",
+          b"/>)",
+        )}
         && let Expression::JSXElement(mut jsx_element) = expr
       {
         // For namespace tag name, e.g. <motion.div />
@@ -276,15 +279,17 @@ impl<'a> ParserImpl<'a> {
         let value = if let Some(expr) = &dir.expression {
           // +1 to skip the opening quote
           let expr_start = expr.location.start.offset + 1;
+          let span = Span::new(expr_start as u32, dir_end - 1);
           Some(
             ast.jsx_attribute_value_expression_container(
-              Span::new(expr_start as u32, dir_end - 1),
+              // TODO: this span is incorrect, we should use the span of the whole expression, includes quotes or just SPAN
+              span,
               ((|| {
                 // Use placeholder for v-for and v-slot
                 if matches!(dir.name, "for" | "slot" | "else") {
                   None
                 } else {
-                  let expr = self.parse_expression(expr.content.raw, expr_start);
+                  let expr = self.parse_pure_expression(span);
                   if dir.name == "if" {
                     *v_if_state = expr.map(VIf::If);
                     None
@@ -332,14 +337,15 @@ impl<'a> ParserImpl<'a> {
     if let Some(argument) = &dir.argument
       && let DirectiveArg::Dynamic(argument_str) = argument
     {
-      let dynamic_arg_expression = self.parse_expression(
-        argument_str,
-        if head_name.starts_with("v-") {
+      let dynamic_arg_expression = self.parse_pure_expression({
+        let start = if head_name.starts_with("v-") {
           dir_start + 2 + dir.name.len() + 2 // v-bind:[arg] -> skip `:[` (2 chars)
         } else {
           dir_start + 2 // :[arg] -> skip `:[` (2 chars)
-        },
-      )?;
+        } as u32;
+        Span::new(start, start + argument_str.len() as u32)
+      })?;
+
       Some(self.ast.expression_object(
         SPAN,
         self.ast.vec1(self.ast.object_property_kind_object_property(
@@ -387,14 +393,34 @@ impl<'a> ParserImpl<'a> {
     ast.jsx_child_expression_container(
       container_span,
       self
-        .parse_expression(introp.source, expr_start)
+        .parse_pure_expression(Span::new(
+          expr_start as u32,
+          (expr_start + introp.source.len()) as u32,
+        ))
         .map_or_else(|| ast.jsx_expression_empty_expression(SPAN), JSXExpression::from),
     )
   }
 
-  pub fn parse_expression(&mut self, source: &'a str, start: usize) -> Option<Expression<'a>> {
+  pub fn parse_pure_expression(&mut self, span: Span) -> Option<Expression<'a>> {
+    // SAFETY: use `()` as wrap
+    unsafe { self.parse_expression(span, b"(", b")") }
+  }
+
+  /// Parse expression with [`oxc_parser`]
+  /// The reason we don't wrap the expression with `(` and `)` is to avoid unnecessary copy
+  /// `b"(("` and `b")=>{})"` is much more efficient than passing `b"("` `b")=>{}"` and copy it in a [`Vec`] and push and slice
+  ///
+  /// ## Safety
+  /// - `start_wrap` must start with `(`
+  /// - `end_wrap` must end with `)`
+  pub unsafe fn parse_expression(
+    &mut self,
+    span: Span,
+    start_wrap: &[u8],
+    end_wrap: &[u8],
+  ) -> Option<Expression<'a>> {
     // The only purpose to not use [`oxc_parser::Parser::parse_expression`] is to keep the code comments in it
-    let (_, mut body, _) = self.oxc_parse(&format!("({source})"), start.saturating_sub(1))?;
+    let (_, mut body, _) = self.oxc_parse(span, start_wrap, end_wrap)?;
 
     let Some(Statement::ExpressionStatement(stmt)) = body.get_mut(0) else {
       // SAFETY: We always wrap the source in parentheses, so it should always be an expression statement.
