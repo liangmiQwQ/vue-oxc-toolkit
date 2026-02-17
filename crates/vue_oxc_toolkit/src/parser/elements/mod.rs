@@ -144,6 +144,7 @@ impl<'a> ParserImpl<'a> {
 
       if tag_name.contains('.')
         // Directly call oxc_parser because it's too complex to process <a.b.c.d.e />
+        // SAFETY: use `()` as wrap
         && let Some(expr) =unsafe{ self.parse_expression(
           // TODO: there include JSX code, we need to modify `oxc_parse` func to allow it (now use self.source_type, jsx is possible false)
           name_span,
@@ -401,6 +402,7 @@ impl<'a> ParserImpl<'a> {
   }
 
   pub fn parse_pure_expression(&mut self, span: Span) -> Option<Expression<'a>> {
+    // SAFETY: use `()` as wrap
     unsafe { self.parse_expression(span, b"(", b")") }
   }
 

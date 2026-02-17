@@ -51,9 +51,11 @@ impl<'a> ParserImpl<'a> {
         let params = cap1.as_str();
         let (mut expr, should_dummy_span) =
           if params.trim().starts_with('(') && params.trim().ends_with(')') {
+            // SAFETY: use `()` as wrap
             let expr = unsafe { self.parse_expression(span, b"(", b"=>0)")? };
             (expr, false)
           } else {
+            // SAFETY: use `(` and `)` as wrap
             let expr = unsafe { self.parse_expression(span, b"((", b")=>0)")? };
             (expr, true)
           };

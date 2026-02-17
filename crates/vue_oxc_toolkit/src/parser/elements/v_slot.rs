@@ -39,6 +39,7 @@ impl<'a> ParserImpl<'a> {
       } else {
         // Parse with a object expression wrapper
         let Expression::ObjectExpression(mut object_expression) =
+          // SAFETY: warp with `({` and `})`
           (unsafe { self.parse_expression(key_span, b"({", b":0})")? })
         else {
           // SAFETY: We always wrap the source in object expression
@@ -70,6 +71,7 @@ impl<'a> ParserImpl<'a> {
         ));
       } else {
         let expr = dir.expression.as_ref().unwrap();
+        // SAFETY: warp with `((` and `)=>0)`
         let Expression::ArrowFunctionExpression(mut arrow_function_expression) = (unsafe {
           let start = expr.location.span().start + 1;
           self.parse_expression(

@@ -55,6 +55,7 @@ impl<'a> ParserImpl<'a> {
       errors: vec![],
 
       mut_ptr_source_text: ptr::from_mut(alloced_str),
+      // SAFETY: alloced_str is from a `&str`
       source_text: unsafe { str::from_utf8_unchecked(alloced_str) },
       ast,
       script_set: false,
@@ -79,6 +80,7 @@ pub struct ParserImplReturn<'a> {
 // Some public utils
 impl<'a> ParserImpl<'a> {
   pub const fn sync_source_text(&mut self) {
+    // SAFETY: `self.origin_source_text` has the same length as `self.mut_ptr_source_text`, the former's data is in heap, while the latter's data is in arena, so no overlapping
     unsafe {
       ptr::copy_nonoverlapping(
         self.origin_source_text.as_ptr(),
@@ -99,6 +101,7 @@ impl<'a> ParserImpl<'a> {
     let start = span.start as usize;
     let end = span.end as usize;
 
+    // SAFETY: we don't edit between `start` and `end`, and reset before returning
     unsafe {
       let real_start = start - start_wrap.len();
       let first_byte_ptr = self.mut_ptr_source_text.cast::<u8>();
@@ -118,6 +121,7 @@ impl<'a> ParserImpl<'a> {
       }
     }
 
+    // SAFETY: it must be a valid utf-8 string
     let result = self.call_oxc_parse(unsafe {
       str::from_utf8_unchecked(&self.source_text.as_bytes()[..end + end_wrap.len()])
     });
