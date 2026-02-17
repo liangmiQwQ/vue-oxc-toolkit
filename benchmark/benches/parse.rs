@@ -14,6 +14,21 @@ fn bench(c: &mut Criterion) {
   ];
 
   for (name, html) in samples {
+    // Measure memory usage once before the timing benchmark
+    #[allow(clippy::cast_precision_loss)]
+    {
+      let allocator = Allocator::default();
+      let _ = black_box(VueOxcParser::new(&allocator, html).parse());
+      let used = allocator.used_bytes();
+
+      println!(
+        "\nBenchmark: {:<10} | Memory: {:>10} bytes ({:>8.2} KB)",
+        name,
+        used,
+        used as f64 / 1024.0
+      );
+    }
+
     group.bench_function(name, |b| {
       b.iter(|| {
         let allocator = Allocator::new();
