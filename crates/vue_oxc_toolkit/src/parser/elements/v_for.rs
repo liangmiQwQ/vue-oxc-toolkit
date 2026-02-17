@@ -38,25 +38,23 @@ impl<'a> ParserImpl<'a> {
         && let Some(cap1) = caps.get(1)
         && let Some(cap2) = caps.get(2)
       {
+        let start = expr.location.span().start + 1;
         wrapper.set_data_origin(self.ast.parenthesized_expression(
           SPAN,
           self.parse_pure_expression(Span::new(
-            expr.location.span().start + cap2.start() as u32,
-            expr.location.span().start + cap2.end() as u32,
+            start + cap2.start() as u32,
+            start + cap2.end() as u32,
           ))?,
         ));
 
-        let span = Span::new(
-          expr.location.span().start + cap1.start() as u32,
-          expr.location.span().start + cap1.end() as u32,
-        );
+        let span = Span::new(start + cap1.start() as u32, start + cap1.end() as u32);
         let params = cap1.as_str();
         let (mut expr, should_dummy_span) =
           if params.trim().starts_with('(') && params.trim().ends_with(')') {
             let expr = unsafe { self.parse_expression(span, b"(", b"=>0)")? };
             (expr, false)
           } else {
-            let expr = unsafe { self.parse_expression(span, b"((", b") => 0)")? };
+            let expr = unsafe { self.parse_expression(span, b"((", b")=>0)")? };
             (expr, true)
           };
 
