@@ -7,7 +7,7 @@ use oxc_ast::{
 };
 use oxc_diagnostics::OxcDiagnostic;
 use oxc_parser::ParseOptions;
-use oxc_span::SourceType;
+use oxc_span::{SourceType, Span};
 use oxc_syntax::module_record::ModuleRecord;
 
 mod elements;
@@ -78,31 +78,30 @@ pub struct ParserImplReturn<'a> {
 
 // Some public utils
 impl<'a> ParserImpl<'a> {
-  pub fn sync_source_text(&mut self) {
+  pub const fn sync_source_text(&mut self) {
     unsafe {
       ptr::copy_nonoverlapping(
         self.origin_source_text.as_ptr(),
-        self.mut_ptr_source_text as *mut u8,
+        self.mut_ptr_source_text.cast(),
         self.origin_source_text.len(),
       );
     }
   }
 
-  /// Call oxc_parser with a custom wrap
+  /// Call [`oxc_parser::Parser::parse`] with a custom wrap
   /// Everything before `start` and `start_wrap` will be ignored
   pub fn oxc_parse(
     &mut self,
-    start: u32,
-    end: u32,
+    span: Span,
     start_wrap: &[u8],
     end_wrap: &[u8],
   ) -> Option<(ArenaVec<'a, Directive<'a>>, ArenaVec<'a, Statement<'a>>, ModuleRecord<'a>)> {
-    let start = start as usize;
-    let end = end as usize;
+    let start = span.start as usize;
+    let end = span.end as usize;
 
     unsafe {
       let real_start = start - start_wrap.len();
-      let first_byte_ptr = self.mut_ptr_source_text as *mut u8;
+      let first_byte_ptr = self.mut_ptr_source_text.cast::<u8>();
 
       // Copy start_wrap to the front of the source text
       ptr::copy_nonoverlapping(

@@ -6,10 +6,10 @@ use oxc_ast::{
     ObjectPropertyKind, PropertyKey, PropertyKind,
   },
 };
-use oxc_span::SPAN;
+use oxc_span::{SPAN, Span};
 use vue_compiler_core::parser::Directive;
 
-use crate::parser::ParserImpl;
+use crate::parser::{ParserImpl, parse::SourceLocatonSpan};
 
 pub struct VSlotWrapper<'a, 'b> {
   ast: &'a AstBuilder<'b>,
@@ -38,11 +38,8 @@ impl<'a> ParserImpl<'a> {
         wrapper.set_key(self.ast.property_key_static_identifier(SPAN, "default"));
       } else {
         // Parse with a object expression wrapper
-        let str = key_span.source_text(self.source_text);
-        let Expression::ObjectExpression(mut object_expression) = self.parse_expression(
-          self.ast.atom(&format!("{{{str}: 0}}")).as_str(),
-          key_span.start as usize - 1,
-        )?
+        let Expression::ObjectExpression(mut object_expression) =
+          (unsafe { self.parse_expression(key_span, b"({", b":0})")? })
         else {
           // SAFETY: We always wrap the source in object expression
           unreachable!()
@@ -73,10 +70,14 @@ impl<'a> ParserImpl<'a> {
         ));
       } else {
         let expr = dir.expression.as_ref().unwrap();
-        let params = format!("({}) => 0", expr.content.raw);
-        let Expression::ArrowFunctionExpression(mut arrow_function_expression) = self
-          .parse_expression(self.ast.atom(params.as_str()).as_str(), expr.location.start.offset)?
-        else {
+        let Expression::ArrowFunctionExpression(mut arrow_function_expression) = (unsafe {
+          let start = expr.location.span().start + 1;
+          self.parse_expression(
+            Span::new(start, start + expr.content.raw.len() as u32),
+            b"((",
+            b")=>0)",
+          )?
+        }) else {
           // SAFETY: We always wrap the source in arrow function expression
           unreachable!()
         };

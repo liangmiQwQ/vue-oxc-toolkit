@@ -65,9 +65,7 @@ impl<'a> ParserImpl<'a> {
         self.script_set = true;
       }
 
-      let Some((mut directives, mut body, module_record)) =
-        self.oxc_parse(source, span.start as usize)
-      else {
+      let Some((mut directives, mut body, module_record)) = self.oxc_parse(span, &[], &[]) else {
         return Ok(None);
       };
 
