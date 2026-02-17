@@ -370,6 +370,53 @@ Program {
                                                             ),
                                                         },
                                                     ),
+                                                    Element(
+                                                        JSXElement {
+                                                            span: Span {
+                                                                start: 92,
+                                                                end: 137,
+                                                            },
+                                                            opening_element: JSXOpeningElement {
+                                                                span: Span {
+                                                                    start: 92,
+                                                                    end: 100,
+                                                                },
+                                                                name: Identifier(
+                                                                    JSXIdentifier {
+                                                                        span: Span {
+                                                                            start: 93,
+                                                                            end: 99,
+                                                                        },
+                                                                        name: "script",
+                                                                    },
+                                                                ),
+                                                                type_arguments: None,
+                                                                attributes: Vec(
+                                                                    [],
+                                                                ),
+                                                            },
+                                                            children: Vec(
+                                                                [],
+                                                            ),
+                                                            closing_element: Some(
+                                                                JSXClosingElement {
+                                                                    span: Span {
+                                                                        start: 128,
+                                                                        end: 137,
+                                                                    },
+                                                                    name: Identifier(
+                                                                        JSXIdentifier {
+                                                                            span: Span {
+                                                                                start: 130,
+                                                                                end: 136,
+                                                                            },
+                                                                            name: "script",
+                                                                        },
+                                                                    ),
+                                                                },
+                                                            ),
+                                                        },
+                                                    ),
                                                     Text(
                                                         JSXText {
                                                             span: Span {
@@ -576,7 +623,7 @@ Program {
 
 <script setup></script>
 
-
+<script></script>
 
 <style></style>
 </>;
@@ -711,6 +758,26 @@ Type: JSXIdentifier;
 Slice: "\n\n"; 
 Span: (90, 92); 
 Type: JSXText; 
+
+Slice: "<script>\nlet const p { const w p =)\n</script>"; 
+Span: (92, 137); 
+Type: JSXElement; 
+
+Slice: "<script>"; 
+Span: (92, 100); 
+Type: JSXOpeningElement; 
+
+Slice: "script"; 
+Span: (93, 99); 
+Type: JSXIdentifier; 
+
+Slice: "</script>"; 
+Span: (128, 137); 
+Type: JSXClosingElement; 
+
+Slice: "script"; 
+Span: (130, 136); 
+Type: JSXIdentifier; 
 
 Slice: "\n\n"; 
 Span: (137, 139); 

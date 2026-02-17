@@ -115,9 +115,8 @@ impl<'a> ParserImpl<'a> {
 
         if node.tag_name == "script" {
           // Fill self.setup, self.statements
-          if let Some(child) = self.parse_script(node, &mut source_types)? {
-            children.push(child);
-          }
+          self.parse_script(&node, &mut source_types)?;
+          children.push(self.parse_element(node, Some(self.ast.vec())).0);
         } else if node.tag_name == "template" {
           children.push(self.parse_element(node, None).0);
         } else {

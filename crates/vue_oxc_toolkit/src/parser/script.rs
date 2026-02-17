@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use oxc_allocator::Vec as ArenaVec;
-use oxc_ast::ast::{JSXChild, Statement};
+use oxc_ast::ast::Statement;
 
 use oxc_span::SourceType;
 use vue_compiler_core::{
@@ -16,10 +16,10 @@ use crate::parser::{
 impl<'a> ParserImpl<'a> {
   pub fn parse_script(
     &mut self,
-    node: Element<'a>,
+    node: &Element<'a>,
     source_types: &mut HashSet<&'a str>,
-  ) -> ResParse<Option<JSXChild<'a>>> {
-    let lang = find_prop(&node, "lang")
+  ) -> ResParse<()> {
+    let lang = find_prop(node, "lang")
       .and_then(|p| match p.get_ref() {
         ElemProp::Attr(p) => p.value.as_ref().map(|value| value.content.raw),
         ElemProp::Dir(_) => None,
@@ -46,10 +46,10 @@ impl<'a> ParserImpl<'a> {
       let source = span.source_text(self.source_text);
 
       if source.trim().is_empty() {
-        return ResParse::success(None);
+        return ResParse::success(());
       }
 
-      let is_setup = prop_finder(&node, "setup").allow_empty().find().is_some();
+      let is_setup = prop_finder(node, "setup").allow_empty().find().is_some();
       // Handle error if there are multiple script tags
       if is_setup {
         if self.setup_set {
@@ -66,7 +66,7 @@ impl<'a> ParserImpl<'a> {
       }
 
       let Some((mut directives, mut body, module_record)) = self.oxc_parse(span, &[], &[]) else {
-        return ResParse::success(None);
+        return ResParse::success(());
       };
 
       // Deal with modules record there
@@ -98,6 +98,6 @@ impl<'a> ParserImpl<'a> {
       }
     }
 
-    ResParse::success(Some(self.parse_element(node, Some(self.ast.vec())).0))
+    ResParse::success(())
   }
 }
