@@ -1,4 +1,4 @@
-use oxc_allocator::{TakeIn, Vec};
+use oxc_allocator::{Allocator, CloneIn, TakeIn, Vec};
 use oxc_ast::{
   AstBuilder, NONE,
   ast::{
@@ -38,9 +38,10 @@ impl<'a> ParserImpl<'a> {
         wrapper.set_key(self.ast.property_key_static_identifier(SPAN, "default"));
       } else {
         // Parse with a object expression wrapper
+        let allocator = Allocator::new();
         let Expression::ObjectExpression(mut object_expression) =
           // SAFETY: warp with `({` and `})`
-          (unsafe { self.parse_expression(key_span, b"({", b":0})")? })
+          (unsafe { self.parse_expression(key_span, b"({", b":0})", &allocator)? })
         else {
           // SAFETY: We always wrap the source in object expression
           unreachable!()
@@ -56,7 +57,7 @@ impl<'a> ParserImpl<'a> {
         } else {
           wrapper.set_is_computed(true);
         }
-        wrapper.set_key(object_property.key.take_in(self.allocator));
+        wrapper.set_key(object_property.key.clone_in(self.allocator));
       }
 
       // --- Process Params ---
@@ -71,6 +72,7 @@ impl<'a> ParserImpl<'a> {
         ));
       } else {
         let expr = dir.expression.as_ref().unwrap();
+        let allocator = Allocator::new();
         // SAFETY: warp with `((` and `)=>0)`
         let Expression::ArrowFunctionExpression(mut arrow_function_expression) = (unsafe {
           let start = expr.location.span().start + 1;
@@ -78,12 +80,15 @@ impl<'a> ParserImpl<'a> {
             Span::new(start, start + expr.content.raw.len() as u32),
             b"((",
             b")=>0)",
+            &allocator,
           )?
         }) else {
           // SAFETY: We always wrap the source in arrow function expression
           unreachable!()
         };
-        wrapper.set_params(arrow_function_expression.params.take_in(self.allocator));
+        wrapper.set_params(
+          arrow_function_expression.params.take_in(&allocator).clone_in(self.allocator),
+        );
       }
 
       Some(())

@@ -1,6 +1,6 @@
 use std::ptr;
 
-use oxc_allocator::{Allocator, Vec as ArenaVec};
+use oxc_allocator::{Allocator, CloneIn, Vec as ArenaVec};
 use oxc_ast::{
   AstBuilder, Comment,
   ast::{Directive, Program, Statement},
@@ -78,7 +78,10 @@ pub struct ParserImplReturn<'a> {
 }
 
 // Some public utils
-impl<'a> ParserImpl<'a> {
+impl<'a, 'b> ParserImpl<'a>
+where
+  'a: 'b,
+{
   pub const fn sync_source_text(&mut self) {
     // SAFETY: `self.origin_source_text` has the same length as `self.mut_ptr_source_text`, the former's data is in heap, while the latter's data is in arena, so no overlapping
     unsafe {
@@ -92,12 +95,16 @@ impl<'a> ParserImpl<'a> {
 
   /// Call [`oxc_parser::Parser::parse`] with a custom wrap
   /// Everything before `start` and `start_wrap` will be ignored
+  ///
+  /// If you need to parse with any wrapper, it will produce unused AST nodes
+  /// `allocator` param should provided and drop unused AST nodes
   pub fn oxc_parse(
     &mut self,
     span: Span,
     start_wrap: &[u8],
     end_wrap: &[u8],
-  ) -> Option<(ArenaVec<'a, Directive<'a>>, ArenaVec<'a, Statement<'a>>, ModuleRecord<'a>)> {
+    allocator: Option<&'b Allocator>,
+  ) -> Option<(ArenaVec<'b, Directive<'b>>, ArenaVec<'b, Statement<'b>>, ModuleRecord<'b>)> {
     let start = span.start as usize;
     let end = span.end as usize;
 
@@ -122,9 +129,10 @@ impl<'a> ParserImpl<'a> {
     }
 
     // SAFETY: it must be a valid utf-8 string
-    let result = self.call_oxc_parse(unsafe {
-      str::from_utf8_unchecked(&self.source_text.as_bytes()[..end + end_wrap.len()])
-    });
+    let result = self.call_oxc_parse(
+      unsafe { str::from_utf8_unchecked(&self.source_text.as_bytes()[..end + end_wrap.len()]) },
+      allocator.unwrap_or(self.allocator),
+    );
 
     // Reset
     self.sync_source_text();
@@ -134,8 +142,9 @@ impl<'a> ParserImpl<'a> {
   fn call_oxc_parse(
     &mut self,
     source: &'a str,
-  ) -> Option<(ArenaVec<'a, Directive<'a>>, ArenaVec<'a, Statement<'a>>, ModuleRecord<'a>)> {
-    let mut ret = oxc_parser::Parser::new(self.allocator, source, self.source_type)
+    allocator: &'b Allocator,
+  ) -> Option<(ArenaVec<'b, Directive<'b>>, ArenaVec<'b, Statement<'b>>, ModuleRecord<'b>)> {
+    let mut ret = oxc_parser::Parser::new(allocator, source, self.source_type)
       .with_options(self.options)
       .parse();
 
@@ -143,7 +152,8 @@ impl<'a> ParserImpl<'a> {
     if ret.panicked {
       None
     } else {
-      self.comments.append(&mut ret.program.comments);
+      let mut comments = ret.program.comments.clone_in(self.allocator);
+      self.comments.append(&mut comments);
       Some((ret.program.directives, ret.program.body, ret.module_record))
     }
   }

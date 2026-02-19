@@ -1,4 +1,4 @@
-use oxc_allocator::{CloneIn, TakeIn, Vec as ArenaVec};
+use oxc_allocator::{Allocator, CloneIn, TakeIn, Vec as ArenaVec};
 use oxc_ast::{
   Comment, CommentKind, NONE,
   ast::{Expression, JSXAttributeItem, JSXChild, JSXExpression, PropertyKind, Statement},
@@ -27,7 +27,7 @@ mod v_for;
 mod v_if;
 mod v_slot;
 
-impl<'a> ParserImpl<'a> {
+impl<'a: 'b, 'b> ParserImpl<'a> {
   fn parse_children(
     &mut self,
     start: u32,
@@ -136,6 +136,7 @@ impl<'a> ParserImpl<'a> {
     };
 
     // Use different JSXElementName for component and normal element
+    let allocator = Allocator::new();
     let mut element_name = {
       let name_span = Span::new(
         open_element_span.start + 1,
@@ -149,7 +150,7 @@ impl<'a> ParserImpl<'a> {
 
           // Directly call oxc_parser because it's too complex to process <a.b.c.d.e />
           // SAFETY: use `()` as wrap
-          let expr = self.parse_expression(name_span, b"(<", b"/>)");
+          let expr = self.parse_expression(name_span, b"(<", b"/>)", &allocator);
 
           self.source_type = original_source_type;
 
@@ -182,7 +183,8 @@ impl<'a> ParserImpl<'a> {
           ast.jsx_element_name_identifier(name_span, name)
         }
       }
-    };
+    }
+    .clone_in(self.allocator);
 
     let mut v_for_wrapper = VForWrapper::new(&ast);
     let mut v_slot_wrapper = VSlotWrapper::new(&ast);
@@ -404,8 +406,9 @@ impl<'a> ParserImpl<'a> {
   }
 
   pub fn parse_pure_expression(&mut self, span: Span) -> Option<Expression<'a>> {
+    let allocator = Allocator::new();
     // SAFETY: use `()` as wrap
-    unsafe { self.parse_expression(span, b"(", b")") }
+    unsafe { self.parse_expression(span, b"(", b")", &allocator).clone_in(self.allocator) }
   }
 
   /// Parse expression with [`oxc_parser`]
@@ -420,9 +423,10 @@ impl<'a> ParserImpl<'a> {
     span: Span,
     start_wrap: &[u8],
     end_wrap: &[u8],
-  ) -> Option<Expression<'a>> {
+    allocator: &'b Allocator,
+  ) -> Option<Expression<'b>> {
     // The only purpose to not use [`oxc_parser::Parser::parse_expression`] is to keep the code comments in it
-    let (_, mut body, _) = self.oxc_parse(span, start_wrap, end_wrap)?;
+    let (_, mut body, _) = self.oxc_parse(span, start_wrap, end_wrap, Some(allocator))?;
 
     let Some(Statement::ExpressionStatement(stmt)) = body.get_mut(0) else {
       // SAFETY: We always wrap the source in parentheses, so it should always be an expression statement.
