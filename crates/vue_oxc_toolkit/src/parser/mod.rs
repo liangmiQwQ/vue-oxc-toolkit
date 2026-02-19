@@ -1,6 +1,6 @@
 use std::ptr;
 
-use oxc_allocator::{Allocator, CloneIn, TakeIn, Vec as ArenaVec};
+use oxc_allocator::{Allocator, CloneIn, Vec as ArenaVec};
 use oxc_ast::{
   AstBuilder, Comment,
   ast::{Directive, Program, Statement},
@@ -95,12 +95,16 @@ where
 
   /// Call [`oxc_parser::Parser::parse`] with a custom wrap
   /// Everything before `start` and `start_wrap` will be ignored
+  ///
+  /// If you need to parse with any wrapper, it will produce unused AST nodes
+  /// `allocator` param should provided and drop unused AST nodes
   pub fn oxc_parse(
     &mut self,
     span: Span,
     start_wrap: &[u8],
     end_wrap: &[u8],
-  ) -> Option<(ArenaVec<'a, Directive<'a>>, ArenaVec<'a, Statement<'a>>, ModuleRecord<'a>)> {
+    allocator: Option<&'b Allocator>,
+  ) -> Option<(ArenaVec<'b, Directive<'b>>, ArenaVec<'b, Statement<'b>>, ModuleRecord<'b>)> {
     let start = span.start as usize;
     let end = span.end as usize;
 
@@ -125,9 +129,10 @@ where
     }
 
     // SAFETY: it must be a valid utf-8 string
-    let result = self.call_oxc_parse(unsafe {
-      str::from_utf8_unchecked(&self.source_text.as_bytes()[..end + end_wrap.len()])
-    });
+    let result = self.call_oxc_parse(
+      unsafe { str::from_utf8_unchecked(&self.source_text.as_bytes()[..end + end_wrap.len()]) },
+      allocator.unwrap_or(self.allocator),
+    );
 
     // Reset
     self.sync_source_text();
@@ -147,7 +152,7 @@ where
     if ret.panicked {
       None
     } else {
-      let mut comments = ret.program.comments.take_in(allocator);
+      let mut comments = ret.program.comments.clone_in(self.allocator);
       self.comments.append(&mut comments);
       Some((ret.program.directives, ret.program.body, ret.module_record))
     }

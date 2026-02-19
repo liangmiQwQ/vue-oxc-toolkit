@@ -65,7 +65,8 @@ impl<'a> ParserImpl<'a> {
         self.script_set = true;
       }
 
-      let Some((mut directives, mut body, module_record)) = self.oxc_parse(span, &[], &[]) else {
+      let Some((mut directives, mut body, module_record)) = self.oxc_parse(span, &[], &[], None)
+      else {
         return ResParse::success(());
       };
 

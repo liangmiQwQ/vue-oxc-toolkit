@@ -1,4 +1,4 @@
-use oxc_allocator::TakeIn;
+use oxc_allocator::{Allocator, CloneIn, TakeIn};
 use oxc_ast::{
   AstBuilder, NONE,
   ast::{
@@ -49,14 +49,15 @@ impl<'a> ParserImpl<'a> {
 
         let span = Span::new(start + cap1.start() as u32, start + cap1.end() as u32);
         let params = cap1.as_str();
+        let allocator = Allocator::new();
         let (mut expr, should_dummy_span) =
           if params.trim().starts_with('(') && params.trim().ends_with(')') {
             // SAFETY: use `()` as wrap
-            let expr = unsafe { self.parse_expression(span, b"(", b"=>0)")? };
+            let expr = unsafe { self.parse_expression(span, b"(", b"=>0)", &allocator)? };
             (expr, false)
           } else {
             // SAFETY: use `(` and `)` as wrap
-            let expr = unsafe { self.parse_expression(span, b"((", b")=>0)")? };
+            let expr = unsafe { self.parse_expression(span, b"((", b")=>0)", &allocator)? };
             (expr, true)
           };
 
@@ -69,7 +70,7 @@ impl<'a> ParserImpl<'a> {
           params.span = SPAN;
         }
 
-        wrapper.set_params(params);
+        wrapper.set_params(params.clone_in(self.allocator));
       } else {
         self.invalid_v_for_expression(dir.location.span())?;
       }
