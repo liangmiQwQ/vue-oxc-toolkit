@@ -7,7 +7,7 @@ This document explains how Vue template nodes are transformed into [Oxc](https:/
 A Vue Single File Component (SFC) is transformed into a standard `Program`. The `Program.body` follows a specific structure:
 
 1. **Top-level Statements**: Contains all imports from both `<script>` and `<script setup>`, as well as all statements from the normal `<script>` block.
-2. **Inner Block Statement**: A single `BlockStatement` that encapsulates the scope of `<script setup>`. It is always the last statement in the `Program.body` and it contains:
+2. **Inner Arrow Function Expression**: A single `ArrowFunctionExpression` that encapsulates the scope of `<script setup>`. It is always the last statement in the `Program.body` (wrapped in an `ExpressionStatement`) and its body contains:
    - **Local Bindings**: All non-import statements from the `<script setup>` block.
    - **Structural JSX Fragment**: The last statement in the block, which is an expression statement containing a `JSXFragment` that represents the physical structure of the SFC.
 
