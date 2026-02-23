@@ -3,8 +3,8 @@ use std::cmp::Ordering;
 use std::collections::HashSet;
 
 use oxc_allocator::{self, Dummy, Vec as ArenaVec};
-use oxc_ast::AstBuilder;
-use oxc_ast::ast::{JSXChild, Program, Statement};
+use oxc_ast::ast::{Expression, FormalParameterKind, JSXChild, Program, Statement};
+use oxc_ast::{AstBuilder, NONE};
 
 use oxc_span::{SPAN, Span};
 use oxc_syntax::module_record::ModuleRecord;
@@ -82,12 +82,25 @@ impl<'a> ParserImpl<'a> {
     sfc_return: Option<Statement<'a>>,
     ast: AstBuilder<'a>,
   ) -> ArenaVec<'a, Statement<'a>> {
-    statements.push(ast.statement_block(SPAN, {
-      if let Some(ret) = sfc_return {
-        setup.push(ret);
-      }
-      setup
-    }));
+    if let Some(ret) = sfc_return {
+      setup.push(ret);
+    }
+
+    let params = ast.alloc_formal_parameters(
+      SPAN,
+      FormalParameterKind::ArrowFormalParameters,
+      ast.vec(),
+      NONE,
+    );
+
+    let body = ast.alloc_function_body(SPAN, ast.vec(), setup);
+
+    statements.push(ast.statement_expression(
+      SPAN,
+      Expression::ArrowFunctionExpression(
+        ast.alloc_arrow_function_expression(SPAN, false, true, NONE, params, NONE, body),
+      ),
+    ));
 
     statements
   }
