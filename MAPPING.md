@@ -52,7 +52,7 @@ export default {
   } 
 };
 
-{
+async () => {
   const count = ref(0);
   <>
     <script></script>
