@@ -40,6 +40,9 @@ Program {
                                     [],
                                 ),
                                 rest: None,
+                                node_id: Cell {
+                                    value: NodeId(0),
+                                },
                                 kind: ArrowFormalParameters,
                             },
                             return_type: None,
@@ -73,6 +76,9 @@ Program {
                                                                         end: 93,
                                                                     },
                                                                     name: "count",
+                                                                    node_id: Cell {
+                                                                        value: NodeId(0),
+                                                                    },
                                                                     symbol_id: Cell {
                                                                         value: None,
                                                                     },
@@ -90,15 +96,24 @@ Program {
                                                                         raw: Some(
                                                                             "1",
                                                                         ),
+                                                                        node_id: Cell {
+                                                                            value: NodeId(0),
+                                                                        },
                                                                         base: Decimal,
                                                                     },
                                                                 ),
                                                             ),
+                                                            node_id: Cell {
+                                                                value: NodeId(0),
+                                                            },
                                                             kind: Const,
                                                             definite: false,
                                                         },
                                                     ],
                                                 ),
+                                                node_id: Cell {
+                                                    value: NodeId(0),
+                                                },
                                                 kind: Const,
                                                 declare: false,
                                             },
@@ -119,6 +134,9 @@ Program {
                                                             span: Span {
                                                                 start: 0,
                                                                 end: 0,
+                                                            },
+                                                            node_id: Cell {
+                                                                value: NodeId(0),
                                                             },
                                                         },
                                                         children: Vec(
@@ -141,12 +159,18 @@ Program {
                                                                                         end: 9,
                                                                                     },
                                                                                     name: "template",
+                                                                                    node_id: Cell {
+                                                                                        value: NodeId(0),
+                                                                                    },
                                                                                 },
                                                                             ),
                                                                             type_arguments: None,
                                                                             attributes: Vec(
                                                                                 [],
                                                                             ),
+                                                                            node_id: Cell {
+                                                                                value: NodeId(0),
+                                                                            },
                                                                         },
                                                                         children: Vec(
                                                                             [
@@ -160,6 +184,9 @@ Program {
                                                                                         raw: Some(
                                                                                             "\n  ",
                                                                                         ),
+                                                                                        node_id: Cell {
+                                                                                            value: NodeId(0),
+                                                                                        },
                                                                                     },
                                                                                 ),
                                                                                 Element(
@@ -180,12 +207,18 @@ Program {
                                                                                                         end: 17,
                                                                                                     },
                                                                                                     name: "div",
+                                                                                                    node_id: Cell {
+                                                                                                        value: NodeId(0),
+                                                                                                    },
                                                                                                 },
                                                                                             ),
                                                                                             type_arguments: None,
                                                                                             attributes: Vec(
                                                                                                 [],
                                                                                             ),
+                                                                                            node_id: Cell {
+                                                                                                value: NodeId(0),
+                                                                                            },
                                                                                         },
                                                                                         children: Vec(
                                                                                             [
@@ -199,6 +232,9 @@ Program {
                                                                                                         raw: Some(
                                                                                                             "\n    ",
                                                                                                         ),
+                                                                                                        node_id: Cell {
+                                                                                                            value: NodeId(0),
+                                                                                                        },
                                                                                                     },
                                                                                                 ),
                                                                                                 ExpressionContainer(
@@ -214,11 +250,17 @@ Program {
                                                                                                                     end: 31,
                                                                                                                 },
                                                                                                                 name: "count",
+                                                                                                                node_id: Cell {
+                                                                                                                    value: NodeId(0),
+                                                                                                                },
                                                                                                                 reference_id: Cell {
                                                                                                                     value: None,
                                                                                                                 },
                                                                                                             },
                                                                                                         ),
+                                                                                                        node_id: Cell {
+                                                                                                            value: NodeId(0),
+                                                                                                        },
                                                                                                     },
                                                                                                 ),
                                                                                                 Text(
@@ -231,6 +273,9 @@ Program {
                                                                                                         raw: Some(
                                                                                                             "\n  ",
                                                                                                         ),
+                                                                                                        node_id: Cell {
+                                                                                                            value: NodeId(0),
+                                                                                                        },
                                                                                                     },
                                                                                                 ),
                                                                                             ],
@@ -248,10 +293,19 @@ Program {
                                                                                                             end: 42,
                                                                                                         },
                                                                                                         name: "div",
+                                                                                                        node_id: Cell {
+                                                                                                            value: NodeId(0),
+                                                                                                        },
                                                                                                     },
                                                                                                 ),
+                                                                                                node_id: Cell {
+                                                                                                    value: NodeId(0),
+                                                                                                },
                                                                                             },
                                                                                         ),
+                                                                                        node_id: Cell {
+                                                                                            value: NodeId(0),
+                                                                                        },
                                                                                     },
                                                                                 ),
                                                                                 Text(
@@ -264,6 +318,9 @@ Program {
                                                                                         raw: Some(
                                                                                             "\n",
                                                                                         ),
+                                                                                        node_id: Cell {
+                                                                                            value: NodeId(0),
+                                                                                        },
                                                                                     },
                                                                                 ),
                                                                             ],
@@ -281,10 +338,19 @@ Program {
                                                                                             end: 54,
                                                                                         },
                                                                                         name: "template",
+                                                                                        node_id: Cell {
+                                                                                            value: NodeId(0),
+                                                                                        },
                                                                                     },
                                                                                 ),
+                                                                                node_id: Cell {
+                                                                                    value: NodeId(0),
+                                                                                },
                                                                             },
                                                                         ),
+                                                                        node_id: Cell {
+                                                                            value: NodeId(0),
+                                                                        },
                                                                     },
                                                                 ),
                                                                 Text(
@@ -297,6 +363,9 @@ Program {
                                                                         raw: Some(
                                                                             "\n\n",
                                                                         ),
+                                                                        node_id: Cell {
+                                                                            value: NodeId(0),
+                                                                        },
                                                                     },
                                                                 ),
                                                                 Element(
@@ -317,6 +386,9 @@ Program {
                                                                                         end: 64,
                                                                                     },
                                                                                     name: "script",
+                                                                                    node_id: Cell {
+                                                                                        value: NodeId(0),
+                                                                                    },
                                                                                 },
                                                                             ),
                                                                             type_arguments: None,
@@ -335,6 +407,9 @@ Program {
                                                                                                         end: 69,
                                                                                                     },
                                                                                                     name: "lang",
+                                                                                                    node_id: Cell {
+                                                                                                        value: NodeId(0),
+                                                                                                    },
                                                                                                 },
                                                                                             ),
                                                                                             value: Some(
@@ -346,10 +421,16 @@ Program {
                                                                                                         },
                                                                                                         value: "js",
                                                                                                         raw: None,
+                                                                                                        node_id: Cell {
+                                                                                                            value: NodeId(0),
+                                                                                                        },
                                                                                                         lone_surrogates: false,
                                                                                                     },
                                                                                                 ),
                                                                                             ),
+                                                                                            node_id: Cell {
+                                                                                                value: NodeId(0),
+                                                                                            },
                                                                                         },
                                                                                     ),
                                                                                     Attribute(
@@ -365,13 +446,22 @@ Program {
                                                                                                         end: 80,
                                                                                                     },
                                                                                                     name: "setup",
+                                                                                                    node_id: Cell {
+                                                                                                        value: NodeId(0),
+                                                                                                    },
                                                                                                 },
                                                                                             ),
                                                                                             value: None,
+                                                                                            node_id: Cell {
+                                                                                                value: NodeId(0),
+                                                                                            },
                                                                                         },
                                                                                     ),
                                                                                 ],
                                                                             ),
+                                                                            node_id: Cell {
+                                                                                value: NodeId(0),
+                                                                            },
                                                                         },
                                                                         children: Vec(
                                                                             [],
@@ -389,10 +479,19 @@ Program {
                                                                                             end: 107,
                                                                                         },
                                                                                         name: "script",
+                                                                                        node_id: Cell {
+                                                                                            value: NodeId(0),
+                                                                                        },
                                                                                     },
                                                                                 ),
+                                                                                node_id: Cell {
+                                                                                    value: NodeId(0),
+                                                                                },
                                                                             },
                                                                         ),
+                                                                        node_id: Cell {
+                                                                            value: NodeId(0),
+                                                                        },
                                                                     },
                                                                 ),
                                                                 Text(
@@ -405,6 +504,9 @@ Program {
                                                                         raw: Some(
                                                                             "\n\n",
                                                                         ),
+                                                                        node_id: Cell {
+                                                                            value: NodeId(0),
+                                                                        },
                                                                     },
                                                                 ),
                                                                 Element(
@@ -425,12 +527,18 @@ Program {
                                                                                         end: 116,
                                                                                     },
                                                                                     name: "style",
+                                                                                    node_id: Cell {
+                                                                                        value: NodeId(0),
+                                                                                    },
                                                                                 },
                                                                             ),
                                                                             type_arguments: None,
                                                                             attributes: Vec(
                                                                                 [],
                                                                             ),
+                                                                            node_id: Cell {
+                                                                                value: NodeId(0),
+                                                                            },
                                                                         },
                                                                         children: Vec(
                                                                             [
@@ -444,6 +552,9 @@ Program {
                                                                                         raw: Some(
                                                                                             "\ndiv {\n  color: red;\n}\n",
                                                                                         ),
+                                                                                        node_id: Cell {
+                                                                                            value: NodeId(0),
+                                                                                        },
                                                                                     },
                                                                                 ),
                                                                             ],
@@ -461,10 +572,19 @@ Program {
                                                                                             end: 147,
                                                                                         },
                                                                                         name: "style",
+                                                                                        node_id: Cell {
+                                                                                            value: NodeId(0),
+                                                                                        },
                                                                                     },
                                                                                 ),
+                                                                                node_id: Cell {
+                                                                                    value: NodeId(0),
+                                                                                },
                                                                             },
                                                                         ),
+                                                                        node_id: Cell {
+                                                                            value: NodeId(0),
+                                                                        },
                                                                     },
                                                                 ),
                                                                 Text(
@@ -477,6 +597,9 @@ Program {
                                                                         raw: Some(
                                                                             "\n",
                                                                         ),
+                                                                        node_id: Cell {
+                                                                            value: NodeId(0),
+                                                                        },
                                                                     },
                                                                 ),
                                                             ],
@@ -486,13 +609,28 @@ Program {
                                                                 start: 0,
                                                                 end: 0,
                                                             },
+                                                            node_id: Cell {
+                                                                value: NodeId(0),
+                                                            },
+                                                        },
+                                                        node_id: Cell {
+                                                            value: NodeId(0),
                                                         },
                                                     },
                                                 ),
+                                                node_id: Cell {
+                                                    value: NodeId(0),
+                                                },
                                             },
                                         ),
                                     ],
                                 ),
+                                node_id: Cell {
+                                    value: NodeId(0),
+                                },
+                            },
+                            node_id: Cell {
+                                value: NodeId(0),
                             },
                             scope_id: Cell {
                                 value: None,
@@ -503,10 +641,16 @@ Program {
                             pife: false,
                         },
                     ),
+                    node_id: Cell {
+                        value: NodeId(0),
+                    },
                 },
             ),
         ],
     ),
+    node_id: Cell {
+        value: NodeId(0),
+    },
     scope_id: Cell {
         value: None,
     },

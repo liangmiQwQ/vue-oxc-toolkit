@@ -19,6 +19,9 @@ Program {
     body: Vec(
         [],
     ),
+    node_id: Cell {
+        value: NodeId(0),
+    },
     scope_id: Cell {
         value: None,
     },
