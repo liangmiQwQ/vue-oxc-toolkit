@@ -3,7 +3,7 @@ use std::cmp::Ordering;
 use std::collections::HashSet;
 
 use oxc_allocator::{self, Dummy, Vec as ArenaVec};
-use oxc_ast::ast::{Expression, FormalParameterKind, JSXChild, Program, Statement};
+use oxc_ast::ast::{Directive, Expression, FormalParameterKind, JSXChild, Program, Statement};
 use oxc_ast::{AstBuilder, NONE};
 
 use oxc_span::{SPAN, Span};
@@ -45,9 +45,8 @@ impl<'a> ParserImpl<'a> {
           source_type,
           comments,
           errors,
+          global,
           setup,
-          directives,
-          statements,
           sfc_struct_jsx_statement: sfc_return,
           ..
         } = self;
@@ -59,8 +58,14 @@ impl<'a> ParserImpl<'a> {
             source_text,
             comments,
             None, // no hashbang needed for vue files
-            directives,
-            Self::get_body_statements(statements, setup, sfc_return, ast),
+            global.directives,
+            Self::get_body_statements(
+              global.statements,
+              setup.statements,
+              setup.directives,
+              sfc_return,
+              ast,
+            ),
           ),
           fatal: false,
           errors,
@@ -79,6 +84,7 @@ impl<'a> ParserImpl<'a> {
   fn get_body_statements(
     mut statements: ArenaVec<'a, Statement<'a>>,
     mut setup: ArenaVec<'a, Statement<'a>>,
+    setup_directives: ArenaVec<'a, Directive<'a>>,
     sfc_return: Option<Statement<'a>>,
     ast: AstBuilder<'a>,
   ) -> ArenaVec<'a, Statement<'a>> {
@@ -93,7 +99,7 @@ impl<'a> ParserImpl<'a> {
       NONE,
     );
 
-    let body = ast.alloc_function_body(SPAN, ast.vec(), setup);
+    let body = ast.alloc_function_body(SPAN, setup_directives, setup);
 
     statements.push(ast.statement_expression(
       SPAN,
@@ -146,7 +152,7 @@ impl<'a> ParserImpl<'a> {
         text_start = node.location.end.offset as u32;
 
         raw_children.push(if node.tag_name == "script" {
-          // Fill self.setup, self.statements
+          // Fill self.global, self.setup
           self.parse_script(&node, &mut source_types)?;
           ParsingChild::Finish(self.parse_element(node, Some(self.ast.vec())).0)
         } else {

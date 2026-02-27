@@ -75,6 +75,9 @@ impl<'a> ParserImpl<'a> {
         // Only merge imports, as exports are not allowed in <script setup>
         self.module_record.merge_imports(module_record);
 
+        // Append directives to setup block
+        self.setup.directives.append(&mut directives);
+
         // Split imports and other statements
         let mut imports: ArenaVec<Statement<'a>> = self.ast.vec();
         let mut statements: ArenaVec<Statement<'a>> = self.ast.vec();
@@ -86,16 +89,16 @@ impl<'a> ParserImpl<'a> {
           }
         }
 
-        // Append imports to self.statements (top level)
-        imports.append(&mut self.statements);
-        self.statements = imports;
-        // Replace self.setup with the rest (inside function).
-        self.setup = statements;
+        // Append imports to global statements (top level)
+        imports.append(&mut self.global.statements);
+        self.global.statements = imports;
+        // Replace setup statements with the rest (inside function).
+        self.setup.statements = statements;
       } else {
-        self.directives.append(&mut directives);
+        self.global.directives.append(&mut directives);
         self.module_record.merge(module_record);
         // Append all statements, do not replace all as probably exist imports statements
-        self.statements.append(&mut body);
+        self.global.statements.append(&mut body);
       }
     }
 

@@ -6,9 +6,9 @@ expression: result
 Program {
     span: Span {
         start: 0,
-        end: 33,
+        end: 73,
     },
-    source_text: "<script>\n\"use client\";\n</script>\n",
+    source_text: "<script>\n\"use client\";\n</script>\n\n<script setup>\n\"use server\";\n</script>\n",
     comments: Vec(
         [],
     ),
@@ -68,7 +68,26 @@ Program {
                                     end: 0,
                                 },
                                 directives: Vec(
-                                    [],
+                                    [
+                                        Directive {
+                                            span: Span {
+                                                start: 49,
+                                                end: 62,
+                                            },
+                                            expression: StringLiteral {
+                                                span: Span {
+                                                    start: 49,
+                                                    end: 61,
+                                                },
+                                                value: "use server",
+                                                raw: Some(
+                                                    "\"use server\"",
+                                                ),
+                                                lone_surrogates: false,
+                                            },
+                                            directive: "use server",
+                                        },
+                                    ],
                                 ),
                                 statements: Vec(
                                     [
@@ -143,7 +162,85 @@ Program {
                                                                     JSXText {
                                                                         span: Span {
                                                                             start: 32,
-                                                                            end: 33,
+                                                                            end: 34,
+                                                                        },
+                                                                        value: "\n\n",
+                                                                        raw: Some(
+                                                                            "\n\n",
+                                                                        ),
+                                                                    },
+                                                                ),
+                                                                Element(
+                                                                    JSXElement {
+                                                                        span: Span {
+                                                                            start: 34,
+                                                                            end: 72,
+                                                                        },
+                                                                        opening_element: JSXOpeningElement {
+                                                                            span: Span {
+                                                                                start: 34,
+                                                                                end: 48,
+                                                                            },
+                                                                            name: Identifier(
+                                                                                JSXIdentifier {
+                                                                                    span: Span {
+                                                                                        start: 35,
+                                                                                        end: 41,
+                                                                                    },
+                                                                                    name: "script",
+                                                                                },
+                                                                            ),
+                                                                            type_arguments: None,
+                                                                            attributes: Vec(
+                                                                                [
+                                                                                    Attribute(
+                                                                                        JSXAttribute {
+                                                                                            span: Span {
+                                                                                                start: 42,
+                                                                                                end: 47,
+                                                                                            },
+                                                                                            name: Identifier(
+                                                                                                JSXIdentifier {
+                                                                                                    span: Span {
+                                                                                                        start: 42,
+                                                                                                        end: 47,
+                                                                                                    },
+                                                                                                    name: "setup",
+                                                                                                },
+                                                                                            ),
+                                                                                            value: None,
+                                                                                        },
+                                                                                    ),
+                                                                                ],
+                                                                            ),
+                                                                        },
+                                                                        children: Vec(
+                                                                            [],
+                                                                        ),
+                                                                        closing_element: Some(
+                                                                            JSXClosingElement {
+                                                                                span: Span {
+                                                                                    start: 63,
+                                                                                    end: 72,
+                                                                                },
+                                                                                name: Identifier(
+                                                                                    JSXIdentifier {
+                                                                                        span: Span {
+                                                                                            start: 65,
+                                                                                            end: 71,
+                                                                                        },
+                                                                                        name: "script",
+                                                                                    },
+                                                                                ),
+                                                                            },
+                                                                        ),
+                                                                    },
+                                                                ),
+                                                                Text(
+                                                                    JSXText {
+                                                                        span: Span {
+                                                                            start: 72,
+                                                                            end: 73,
                                                                         },
                                                                         value: "\n",
                                                                         raw: Some(
@@ -198,14 +295,17 @@ Program {
 =============== Codegen ===============
 "use client";
 async () => {
+	"use server";
 	<><script></script>
+
+<script setup></script>
 </>;
 };
 
 
 ===============  Spans  ===============
-Slice: "<script>\n\"use client\";\n</script>\n"; 
-Span: (0, 33); 
+Slice: "<script>\n\"use client\";\n</script>\n\n<script setup>\n\"use server\";\n</script>\n"; 
+Span: (0, 73); 
 Type: Program; 
 
 Slice: "\"use client\";"; 
@@ -214,6 +314,14 @@ Type: Directive;
 
 Slice: "\"use client\""; 
 Span: (9, 21); 
+Type: StringLiteral; 
+
+Slice: "\"use server\";"; 
+Span: (49, 62); 
+Type: Directive; 
+
+Slice: "\"use server\""; 
+Span: (49, 61); 
 Type: StringLiteral; 
 
 Slice: "<script>\n\"use client\";\n</script>"; 
@@ -236,6 +344,38 @@ Slice: "script";
 Span: (25, 31); 
 Type: JSXIdentifier; 
 
+Slice: "\n\n"; 
+Span: (32, 34); 
+Type: JSXText; 
+
+Slice: "<script setup>\n\"use server\";\n</script>"; 
+Span: (34, 72); 
+Type: JSXElement; 
+
+Slice: "<script setup>"; 
+Span: (34, 48); 
+Type: JSXOpeningElement; 
+
+Slice: "script"; 
+Span: (35, 41); 
+Type: JSXIdentifier; 
+
+Slice: "setup"; 
+Span: (42, 47); 
+Type: JSXAttribute; 
+
+Slice: "setup"; 
+Span: (42, 47); 
+Type: JSXIdentifier; 
+
+Slice: "</script>"; 
+Span: (63, 72); 
+Type: JSXClosingElement; 
+
+Slice: "script"; 
+Span: (65, 71); 
+Type: JSXIdentifier; 
+
 Slice: "\n"; 
-Span: (32, 33); 
+Span: (72, 73); 
 Type: JSXText;

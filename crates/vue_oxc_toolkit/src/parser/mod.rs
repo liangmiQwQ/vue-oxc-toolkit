@@ -16,6 +16,11 @@ mod modules;
 mod parse;
 mod script;
 
+pub struct ScriptBlock<'a> {
+  directives: ArenaVec<'a, Directive<'a>>,
+  statements: ArenaVec<'a, Statement<'a>>,
+}
+
 pub struct ParserImpl<'a> {
   allocator: &'a Allocator,
   origin_source_text: &'a str,
@@ -32,9 +37,8 @@ pub struct ParserImpl<'a> {
   script_set: bool,
   setup_set: bool,
 
-  directives: ArenaVec<'a, Directive<'a>>,
-  statements: ArenaVec<'a, Statement<'a>>,
-  setup: ArenaVec<'a, Statement<'a>>,
+  global: ScriptBlock<'a>,
+  setup: ScriptBlock<'a>,
   sfc_struct_jsx_statement: Option<Statement<'a>>,
 }
 
@@ -61,9 +65,8 @@ impl<'a> ParserImpl<'a> {
       script_set: false,
       setup_set: false,
 
-      directives: ast.vec(),
-      statements: ast.vec(),
-      setup: ast.vec(),
+      global: ScriptBlock { directives: ast.vec(), statements: ast.vec() },
+      setup: ScriptBlock { directives: ast.vec(), statements: ast.vec() },
       sfc_struct_jsx_statement: None,
     }
   }
