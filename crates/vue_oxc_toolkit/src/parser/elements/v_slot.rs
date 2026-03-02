@@ -75,9 +75,8 @@ impl<'a> ParserImpl<'a> {
         let allocator = Allocator::new();
         // SAFETY: warp with `((` and `)=>0)`
         let Expression::ArrowFunctionExpression(mut arrow_function_expression) = (unsafe {
-          let start = expr.location.span().start + 1;
           self.parse_expression(
-            Span::new(start, start + expr.content.raw.len() as u32),
+            Span::sized(expr.location.span().start + 1, expr.content.raw.len() as u32),
             b"((",
             b")=>0)",
             &allocator,

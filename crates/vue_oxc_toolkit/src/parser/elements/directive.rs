@@ -54,7 +54,7 @@ impl<'a> ParserImpl<'a> {
   ) -> JSXAttributeName<'a> {
     self.ast.jsx_attribute_name_namespaced_name(
       span,
-      self.ast.jsx_identifier(Span::new(span.start, span.start + 1), full_name),
+      self.ast.jsx_identifier(Span::sized(span.start, 1), full_name),
       self.ast.jsx_identifier(Span::new(span.start + 1, span.end), &name[1..]),
     )
   }

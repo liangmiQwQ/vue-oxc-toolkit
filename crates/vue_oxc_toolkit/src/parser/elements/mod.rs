@@ -342,12 +342,14 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
       && let DirectiveArg::Dynamic(argument_str) = argument
     {
       let dynamic_arg_expression = self.parse_pure_expression({
-        let start = if head_name.starts_with("v-") {
-          dir_start + 2 + dir.name.len() + 2 // v-bind:[arg] -> skip `:[` (2 chars)
-        } else {
-          dir_start + 2 // :[arg] -> skip `:[` (2 chars)
-        } as u32;
-        Span::new(start, start + argument_str.len() as u32)
+        Span::sized(
+          if head_name.starts_with("v-") {
+            dir_start + 2 + dir.name.len() + 2 // v-bind:[arg] -> skip `:[` (2 chars)
+          } else {
+            dir_start + 2 // :[arg] -> skip `:[` (2 chars)
+          } as u32,
+          argument_str.len() as u32,
+        )
       })?;
 
       Some(self.ast.expression_object(

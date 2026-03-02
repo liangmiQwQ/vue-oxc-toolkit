@@ -8,7 +8,7 @@ impl VueOxcParser<'_> {
     let mut offset = 0;
     for c in self.source_text.chars() {
       if oxc_syntax::identifier::is_irregular_whitespace(c) {
-        irregular_whitespaces.push(Span::new(offset, offset + c.len_utf8() as u32));
+        irregular_whitespaces.push(Span::sized(offset, c.len_utf8() as u32));
       }
       offset += c.len_utf8() as u32;
     }
