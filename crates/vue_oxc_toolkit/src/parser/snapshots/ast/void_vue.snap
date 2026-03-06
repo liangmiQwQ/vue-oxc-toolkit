@@ -216,7 +216,29 @@ Program {
                                                                                         children: Vec(
                                                                                             [],
                                                                                         ),
-                                                                                        closing_element: None,
+                                                                                        closing_element: Some(
+                                                                                            JSXClosingElement {
+                                                                                                span: Span {
+                                                                                                    start: 0,
+                                                                                                    end: 0,
+                                                                                                },
+                                                                                                name: Identifier(
+                                                                                                    JSXIdentifier {
+                                                                                                        span: Span {
+                                                                                                            start: 0,
+                                                                                                            end: 0,
+                                                                                                        },
+                                                                                                        name: "",
+                                                                                                        node_id: Cell {
+                                                                                                            value: NodeId(0),
+                                                                                                        },
+                                                                                                    },
+                                                                                                ),
+                                                                                                node_id: Cell {
+                                                                                                    value: NodeId(0),
+                                                                                                },
+                                                                                            },
+                                                                                        ),
                                                                                         node_id: Cell {
                                                                                             value: NodeId(0),
                                                                                         },
@@ -432,7 +454,7 @@ Program {
 async () => {
 	<><template>
   <br />
-  <input />
+  <input></>
   <img /></img>
 </template>
 </>;

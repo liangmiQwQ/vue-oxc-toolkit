@@ -208,28 +208,34 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
       )),
     };
 
+    // Clone element_name for opening element (needed because we may consume it in closing element)
+    let opening_element_name = element_name.clone_in(self.allocator);
+
+    // Determine closing element based on tag type:
+    // - Self-closing tags (/>): closing element with empty name
+    // - Void tags without />: None
+    // - Normal tags with </tag>: closing element with tag name
+    let closing_element = if location_span.source_text(self.source_text).ends_with("/>") {
+      // Self-closing tag: create closing element with empty element name
+      Some(ast.jsx_closing_element(SPAN, ast.jsx_element_name_identifier(SPAN, ast.atom(""))))
+    } else if is_void_tag!(tag_name) {
+      // Void tag without />: no closing element
+      None
+    } else {
+      // Normal tag with explicit closing tag
+      Some(ast.jsx_closing_element(end_element_span, {
+        let span = Span::sized(end_element_span.start + 2, node.tag_name.len() as u32);
+        *element_name.span_mut() = span;
+        element_name
+      }))
+    };
+
     (
       v_for_wrapper.wrap(ast.jsx_element(
         location_span,
-        ast.jsx_opening_element(
-          open_element_span,
-          element_name.clone_in(self.allocator),
-          NONE,
-          attributes,
-        ),
+        ast.jsx_opening_element(open_element_span, opening_element_name, NONE, attributes),
         children,
-        if end_element_span.eq(&location_span) {
-          None
-        } else {
-          Some(ast.jsx_closing_element(end_element_span, {
-            let span = Span::new(
-              end_element_span.start + 2,
-              end_element_span.start + 2 + node.tag_name.len() as u32,
-            );
-            *element_name.span_mut() = span;
-            element_name
-          }))
-        },
+        closing_element,
       )),
       v_if_state,
     )

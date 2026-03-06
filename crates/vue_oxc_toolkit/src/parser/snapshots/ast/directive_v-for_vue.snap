@@ -347,7 +347,29 @@ Program {
                                                                                                                                                     children: Vec(
                                                                                                                                                         [],
                                                                                                                                                     ),
-                                                                                                                                                    closing_element: None,
+                                                                                                                                                    closing_element: Some(
+                                                                                                                                                        JSXClosingElement {
+                                                                                                                                                            span: Span {
+                                                                                                                                                                start: 0,
+                                                                                                                                                                end: 0,
+                                                                                                                                                            },
+                                                                                                                                                            name: Identifier(
+                                                                                                                                                                JSXIdentifier {
+                                                                                                                                                                    span: Span {
+                                                                                                                                                                        start: 0,
+                                                                                                                                                                        end: 0,
+                                                                                                                                                                    },
+                                                                                                                                                                    name: "",
+                                                                                                                                                                    node_id: Cell {
+                                                                                                                                                                        value: NodeId(0),
+                                                                                                                                                                    },
+                                                                                                                                                                },
+                                                                                                                                                            ),
+                                                                                                                                                            node_id: Cell {
+                                                                                                                                                                value: NodeId(0),
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    ),
                                                                                                                                                     node_id: Cell {
                                                                                                                                                         value: NodeId(0),
                                                                                                                                                     },
@@ -630,7 +652,29 @@ Program {
                                                                                                                                                     children: Vec(
                                                                                                                                                         [],
                                                                                                                                                     ),
-                                                                                                                                                    closing_element: None,
+                                                                                                                                                    closing_element: Some(
+                                                                                                                                                        JSXClosingElement {
+                                                                                                                                                            span: Span {
+                                                                                                                                                                start: 0,
+                                                                                                                                                                end: 0,
+                                                                                                                                                            },
+                                                                                                                                                            name: Identifier(
+                                                                                                                                                                JSXIdentifier {
+                                                                                                                                                                    span: Span {
+                                                                                                                                                                        start: 0,
+                                                                                                                                                                        end: 0,
+                                                                                                                                                                    },
+                                                                                                                                                                    name: "",
+                                                                                                                                                                    node_id: Cell {
+                                                                                                                                                                        value: NodeId(0),
+                                                                                                                                                                    },
+                                                                                                                                                                },
+                                                                                                                                                            ),
+                                                                                                                                                            node_id: Cell {
+                                                                                                                                                                value: NodeId(0),
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    ),
                                                                                                                                                     node_id: Cell {
                                                                                                                                                         value: NodeId(0),
                                                                                                                                                     },
@@ -946,7 +990,29 @@ Program {
                                                                                                                                                     children: Vec(
                                                                                                                                                         [],
                                                                                                                                                     ),
-                                                                                                                                                    closing_element: None,
+                                                                                                                                                    closing_element: Some(
+                                                                                                                                                        JSXClosingElement {
+                                                                                                                                                            span: Span {
+                                                                                                                                                                start: 0,
+                                                                                                                                                                end: 0,
+                                                                                                                                                            },
+                                                                                                                                                            name: Identifier(
+                                                                                                                                                                JSXIdentifier {
+                                                                                                                                                                    span: Span {
+                                                                                                                                                                        start: 0,
+                                                                                                                                                                        end: 0,
+                                                                                                                                                                    },
+                                                                                                                                                                    name: "",
+                                                                                                                                                                    node_id: Cell {
+                                                                                                                                                                        value: NodeId(0),
+                                                                                                                                                                    },
+                                                                                                                                                                },
+                                                                                                                                                            ),
+                                                                                                                                                            node_id: Cell {
+                                                                                                                                                                value: NodeId(0),
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    ),
                                                                                                                                                     node_id: Cell {
                                                                                                                                                         value: NodeId(0),
                                                                                                                                                     },
@@ -1296,7 +1362,29 @@ Program {
                                                                                                                                                     children: Vec(
                                                                                                                                                         [],
                                                                                                                                                     ),
-                                                                                                                                                    closing_element: None,
+                                                                                                                                                    closing_element: Some(
+                                                                                                                                                        JSXClosingElement {
+                                                                                                                                                            span: Span {
+                                                                                                                                                                start: 0,
+                                                                                                                                                                end: 0,
+                                                                                                                                                            },
+                                                                                                                                                            name: Identifier(
+                                                                                                                                                                JSXIdentifier {
+                                                                                                                                                                    span: Span {
+                                                                                                                                                                        start: 0,
+                                                                                                                                                                        end: 0,
+                                                                                                                                                                    },
+                                                                                                                                                                    name: "",
+                                                                                                                                                                    node_id: Cell {
+                                                                                                                                                                        value: NodeId(0),
+                                                                                                                                                                    },
+                                                                                                                                                                },
+                                                                                                                                                            ),
+                                                                                                                                                            node_id: Cell {
+                                                                                                                                                                value: NodeId(0),
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    ),
                                                                                                                                                     node_id: Cell {
                                                                                                                                                         value: NodeId(0),
                                                                                                                                                     },
@@ -1656,7 +1744,29 @@ Program {
                                                                                                                                                     children: Vec(
                                                                                                                                                         [],
                                                                                                                                                     ),
-                                                                                                                                                    closing_element: None,
+                                                                                                                                                    closing_element: Some(
+                                                                                                                                                        JSXClosingElement {
+                                                                                                                                                            span: Span {
+                                                                                                                                                                start: 0,
+                                                                                                                                                                end: 0,
+                                                                                                                                                            },
+                                                                                                                                                            name: Identifier(
+                                                                                                                                                                JSXIdentifier {
+                                                                                                                                                                    span: Span {
+                                                                                                                                                                        start: 0,
+                                                                                                                                                                        end: 0,
+                                                                                                                                                                    },
+                                                                                                                                                                    name: "",
+                                                                                                                                                                    node_id: Cell {
+                                                                                                                                                                        value: NodeId(0),
+                                                                                                                                                                    },
+                                                                                                                                                                },
+                                                                                                                                                            ),
+                                                                                                                                                            node_id: Cell {
+                                                                                                                                                                value: NodeId(0),
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    ),
                                                                                                                                                     node_id: Cell {
                                                                                                                                                         value: NodeId(0),
                                                                                                                                                     },
@@ -2049,7 +2159,29 @@ Program {
                                                                                                                                                     children: Vec(
                                                                                                                                                         [],
                                                                                                                                                     ),
-                                                                                                                                                    closing_element: None,
+                                                                                                                                                    closing_element: Some(
+                                                                                                                                                        JSXClosingElement {
+                                                                                                                                                            span: Span {
+                                                                                                                                                                start: 0,
+                                                                                                                                                                end: 0,
+                                                                                                                                                            },
+                                                                                                                                                            name: Identifier(
+                                                                                                                                                                JSXIdentifier {
+                                                                                                                                                                    span: Span {
+                                                                                                                                                                        start: 0,
+                                                                                                                                                                        end: 0,
+                                                                                                                                                                    },
+                                                                                                                                                                    name: "",
+                                                                                                                                                                    node_id: Cell {
+                                                                                                                                                                        value: NodeId(0),
+                                                                                                                                                                    },
+                                                                                                                                                                },
+                                                                                                                                                            ),
+                                                                                                                                                            node_id: Cell {
+                                                                                                                                                                value: NodeId(0),
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    ),
                                                                                                                                                     node_id: Cell {
                                                                                                                                                         value: NodeId(0),
                                                                                                                                                     },
@@ -2496,7 +2628,29 @@ Program {
                                                                                                                                                     children: Vec(
                                                                                                                                                         [],
                                                                                                                                                     ),
-                                                                                                                                                    closing_element: None,
+                                                                                                                                                    closing_element: Some(
+                                                                                                                                                        JSXClosingElement {
+                                                                                                                                                            span: Span {
+                                                                                                                                                                start: 0,
+                                                                                                                                                                end: 0,
+                                                                                                                                                            },
+                                                                                                                                                            name: Identifier(
+                                                                                                                                                                JSXIdentifier {
+                                                                                                                                                                    span: Span {
+                                                                                                                                                                        start: 0,
+                                                                                                                                                                        end: 0,
+                                                                                                                                                                    },
+                                                                                                                                                                    name: "",
+                                                                                                                                                                    node_id: Cell {
+                                                                                                                                                                        value: NodeId(0),
+                                                                                                                                                                    },
+                                                                                                                                                                },
+                                                                                                                                                            ),
+                                                                                                                                                            node_id: Cell {
+                                                                                                                                                                value: NodeId(0),
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    ),
                                                                                                                                                     node_id: Cell {
                                                                                                                                                         value: NodeId(0),
                                                                                                                                                     },
@@ -2845,7 +2999,29 @@ Program {
                                                                                                                                                     children: Vec(
                                                                                                                                                         [],
                                                                                                                                                     ),
-                                                                                                                                                    closing_element: None,
+                                                                                                                                                    closing_element: Some(
+                                                                                                                                                        JSXClosingElement {
+                                                                                                                                                            span: Span {
+                                                                                                                                                                start: 0,
+                                                                                                                                                                end: 0,
+                                                                                                                                                            },
+                                                                                                                                                            name: Identifier(
+                                                                                                                                                                JSXIdentifier {
+                                                                                                                                                                    span: Span {
+                                                                                                                                                                        start: 0,
+                                                                                                                                                                        end: 0,
+                                                                                                                                                                    },
+                                                                                                                                                                    name: "",
+                                                                                                                                                                    node_id: Cell {
+                                                                                                                                                                        value: NodeId(0),
+                                                                                                                                                                    },
+                                                                                                                                                                },
+                                                                                                                                                            ),
+                                                                                                                                                            node_id: Cell {
+                                                                                                                                                                value: NodeId(0),
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    ),
                                                                                                                                                     node_id: Cell {
                                                                                                                                                         value: NodeId(0),
                                                                                                                                                     },
@@ -3163,7 +3339,29 @@ Program {
                                                                                                                                                     children: Vec(
                                                                                                                                                         [],
                                                                                                                                                     ),
-                                                                                                                                                    closing_element: None,
+                                                                                                                                                    closing_element: Some(
+                                                                                                                                                        JSXClosingElement {
+                                                                                                                                                            span: Span {
+                                                                                                                                                                start: 0,
+                                                                                                                                                                end: 0,
+                                                                                                                                                            },
+                                                                                                                                                            name: Identifier(
+                                                                                                                                                                JSXIdentifier {
+                                                                                                                                                                    span: Span {
+                                                                                                                                                                        start: 0,
+                                                                                                                                                                        end: 0,
+                                                                                                                                                                    },
+                                                                                                                                                                    name: "",
+                                                                                                                                                                    node_id: Cell {
+                                                                                                                                                                        value: NodeId(0),
+                                                                                                                                                                    },
+                                                                                                                                                                },
+                                                                                                                                                            ),
+                                                                                                                                                            node_id: Cell {
+                                                                                                                                                                value: NodeId(0),
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    ),
                                                                                                                                                     node_id: Cell {
                                                                                                                                                         value: NodeId(0),
                                                                                                                                                     },
@@ -3508,7 +3706,29 @@ Program {
                                                                                                                                                     children: Vec(
                                                                                                                                                         [],
                                                                                                                                                     ),
-                                                                                                                                                    closing_element: None,
+                                                                                                                                                    closing_element: Some(
+                                                                                                                                                        JSXClosingElement {
+                                                                                                                                                            span: Span {
+                                                                                                                                                                start: 0,
+                                                                                                                                                                end: 0,
+                                                                                                                                                            },
+                                                                                                                                                            name: Identifier(
+                                                                                                                                                                JSXIdentifier {
+                                                                                                                                                                    span: Span {
+                                                                                                                                                                        start: 0,
+                                                                                                                                                                        end: 0,
+                                                                                                                                                                    },
+                                                                                                                                                                    name: "",
+                                                                                                                                                                    node_id: Cell {
+                                                                                                                                                                        value: NodeId(0),
+                                                                                                                                                                    },
+                                                                                                                                                                },
+                                                                                                                                                            ),
+                                                                                                                                                            node_id: Cell {
+                                                                                                                                                                value: NodeId(0),
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    ),
                                                                                                                                                     node_id: Cell {
                                                                                                                                                         value: NodeId(0),
                                                                                                                                                     },
@@ -3682,16 +3902,16 @@ Program {
 =============== Codegen ===============
 async () => {
 	<><template>
-  {source((item) => <div v-for:={} />)}
-  {source1((item1) => <div v-for:={} />)}
-  {source2((item2, index2) => <div v-for:={} />)}
-  {source3((item3 = "1", index3 = 99) => <div v-for:={} />)}
-  {users4(({ id4, name4 }) => <div v-for:={} />)}
-  {users5(({ id5, name5 }, index) => <div v-for:={} />)}
-  {users6(({ id6 = 1, name6 = "Liang" }, index) => <div v-for:={} />)}
-  {someObj7((key7, value7, index7) => <div v-for:={} />)}
-  {someIter8(([item8, index8]) => <div v-for:={} />)}
-  {someIter9(([item9 = "hi", index9]) => <div v-for:={} />)}
+  {source((item) => <div v-for:={}></>)}
+  {source1((item1) => <div v-for:={}></>)}
+  {source2((item2, index2) => <div v-for:={}></>)}
+  {source3((item3 = "1", index3 = 99) => <div v-for:={}></>)}
+  {users4(({ id4, name4 }) => <div v-for:={}></>)}
+  {users5(({ id5, name5 }, index) => <div v-for:={}></>)}
+  {users6(({ id6 = 1, name6 = "Liang" }, index) => <div v-for:={}></>)}
+  {someObj7((key7, value7, index7) => <div v-for:={}></>)}
+  {someIter8(([item8, index8]) => <div v-for:={}></>)}
+  {someIter9(([item9 = "hi", index9]) => <div v-for:={}></>)}
 </template>
 </>;
 };

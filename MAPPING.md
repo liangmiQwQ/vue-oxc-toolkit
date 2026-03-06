@@ -73,6 +73,32 @@ Vue elements are mapped to `JSXElement` or `JSXFragment`.
 - **Namespaced Components** (`<motion.div />`): Mapped to `JSXOpeningElement` with a `JSXMemberExpression`.
 - **Kebab-case Components** (`<my-component />`): Transformed to PascalCase (`MyComponent`) as a `JSXIdentifierReference`.
 
+### Closing Elements
+
+The `closing_element` of a `JSXElement` is determined by the tag syntax:
+
+- **Self-Closing Tags** (`<div />`, `<img />`, `<Component />`): Have a `JSXClosingElement` with an **empty element name** (`name: ""`). This distinguishes them from void tags.
+- **Void Tags without Self-Closing Syntax** (`<br>`, `<input>`, `<img>`): Have `closing_element: None`.
+- **Normal Tags with Explicit Closing** (`<div></div>`): Have a `JSXClosingElement` with the proper element name.
+
+### Example
+
+```vue
+<template>
+  <img />
+  <input>
+  <div></div>
+</template>
+```
+
+```jsx
+<template>
+  <img></>
+  <input>
+  <div></div>
+</template>
+```
+
 ## Attributes and Directives
 
 Attributes are mapped to `JSXAttributeItem`.
