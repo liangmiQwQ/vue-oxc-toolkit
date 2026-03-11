@@ -12,7 +12,7 @@ repository = "https://github.com/liangmiQwQ/vue-oxc-toolkit"
 description = "A parser to generate semantically correct AST from Vue SFCs for code linting purposes."
 
 edition = "2024"
-rust-version = "1.91.1"
+rust-version = "1.92.0"
 
 [profile.release]
 lto = true
@@ -33,14 +33,14 @@ insta = "1.46.3"
 
 vue_oxc_toolkit = { path = "crates/vue_oxc_toolkit" }
 
-oxc_allocator = ">=0.115.0"
-oxc_ast = ">=0.115.0"
-oxc_ast_visit = ">=0.115.0"
-oxc_codegen = ">=0.115.0"
-oxc_diagnostics = ">=0.115.0"
-oxc_parser = ">=0.115.0"
-oxc_span = ">=0.115.0"
-oxc_syntax = ">=0.115.0"
+oxc_allocator = ">=0.117.0"
+oxc_ast = ">=0.117.0"
+oxc_ast_visit = ">=0.117.0"
+oxc_codegen = ">=0.117.0"
+oxc_diagnostics = ">=0.117.0"
+oxc_parser = ">=0.117.0"
+oxc_span = ">=0.117.0"
+oxc_syntax = ">=0.117.0"
 
 memchr = "2.8.0"
 regex = "1.12.3"
