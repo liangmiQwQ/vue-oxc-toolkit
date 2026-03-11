@@ -138,10 +138,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
     // Use different JSXElementName for component and normal element
     let allocator = Allocator::new();
     let mut element_name = {
-      let name_span = Span::new(
-        open_element_span.start + 1,
-        open_element_span.start + 1 + node.tag_name.len() as u32,
-      );
+      let name_span = Span::sized(open_element_span.start + 1, node.tag_name.len() as u32);
 
       if tag_name.contains('.')
         && let Some(expr) = unsafe {
