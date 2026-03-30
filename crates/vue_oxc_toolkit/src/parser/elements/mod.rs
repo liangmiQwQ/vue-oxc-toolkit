@@ -47,7 +47,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
     {
       let span = Span::new(start, first.get_location().start.offset as u32);
       let value = span.source_text(self.source_text);
-      result.push(ast.jsx_child_text(span, value, Some(ast.atom(value))));
+      result.push(ast.jsx_child_text(span, value, Some(ast.str(value))));
     }
 
     let last = if let Some(last) = children.last()
@@ -56,7 +56,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
     {
       let span = Span::new(last.get_location().end.offset as u32, end);
       let value = span.source_text(self.source_text);
-      Some(ast.jsx_child_text(span, value, Some(ast.atom(value))))
+      Some(ast.jsx_child_text(span, value, Some(ast.str(value))))
     } else {
       None
     };
@@ -169,9 +169,9 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
           })
           .collect::<String>();
 
-        ast.jsx_element_name_identifier_reference(name_span, ast.atom(&name))
+        ast.jsx_element_name_identifier_reference(name_span, ast.str(&name))
       } else {
-        let name = ast.atom(node.tag_name);
+        let name = ast.str(node.tag_name);
         if node.is_component() {
           // For <KeepAlive />
           ast.jsx_element_name_identifier_reference(name_span, name)
@@ -214,7 +214,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
     // - Normal tags with </tag>: closing element with tag name
     let closing_element = if location_span.source_text(self.source_text).ends_with("/>") {
       // Self-closing tag: create closing element with empty element name
-      Some(ast.jsx_closing_element(SPAN, ast.jsx_element_name_identifier(SPAN, ast.atom(""))))
+      Some(ast.jsx_closing_element(SPAN, ast.jsx_element_name_identifier(SPAN, ast.str(""))))
     } else if is_void_tag!(tag_name) {
       // Void tag without />: no closing element
       None
@@ -253,11 +253,11 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
         let attr_span = Span::new(attr.location.start.offset as u32, attr_end);
         ast.jsx_attribute_item_attribute(
           attr_span,
-          ast.jsx_attribute_name_identifier(attr.name_loc.span(), ast.atom(attr.name)),
+          ast.jsx_attribute_name_identifier(attr.name_loc.span(), ast.str(attr.name)),
           if let Some(value) = attr.value {
             Some(ast.jsx_attribute_value_string_literal(
               Span::new(value.location.span().start + 1, attr_end - 1),
-              ast.atom(value.content.raw),
+              ast.str(value.content.raw),
               None,
             ))
           } else {
@@ -373,7 +373,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
   }
 
   fn parse_text(&self, text: &TextNode<'a>) -> JSXChild<'a> {
-    let raw = self.ast.atom(&text.text.iter().map(|t| t.raw).collect::<String>());
+    let raw = self.ast.str(&text.text.iter().map(|t| t.raw).collect::<String>());
     self.ast.jsx_child_text(text.location.span(), raw, Some(raw))
   }
 
