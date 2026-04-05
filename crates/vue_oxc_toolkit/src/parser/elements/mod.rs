@@ -133,10 +133,9 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
         node.loc.span()
       } else {
         let end = node.loc.end.offset;
-        let start =
-          memchr::memrchr(b'<', &self.source_text.as_bytes()[..end as usize])
-            .map(|i| i as u32)
-            .unwrap();
+        let start = memchr::memrchr(b'<', &self.source_text.as_bytes()[..end as usize])
+          .map(|i| i as u32)
+          .unwrap();
         Span::new(start, end)
       }
     };
@@ -245,8 +244,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
         ast.jsx_attribute_item_attribute(
           attr_span,
           ast.jsx_attribute_name_identifier(attr.name_loc.span(), {
-            let name_text =
-              attr.name_loc.span().source_text(self.source_text);
+            let name_text = attr.name_loc.span().source_text(self.source_text);
             ast.str(name_text)
           }),
           if let Some(value) = &attr.value {
@@ -428,9 +426,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
   ) -> Option<Expression<'b>> {
     let (_, mut body, _) = self.oxc_parse(span, start_wrap, end_wrap, Some(allocator))?;
 
-    let Some(Statement::ExpressionStatement(stmt)) = body.get_mut(0) else {
-      unreachable!()
-    };
+    let Some(Statement::ExpressionStatement(stmt)) = body.get_mut(0) else { unreachable!() };
     let Expression::ParenthesizedExpression(expression) = &mut stmt.expression else {
       unreachable!()
     };
@@ -445,10 +441,8 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
   /// before the `=` sign or end of directive if no value.
   fn compute_head_span(&self, dir: &DirectiveNode<'_>) -> Span {
     let dir_text = dir.loc.span().source_text(self.source_text);
-    let head_end = dir_text
-      .find('=')
-      .map(|i| dir.loc.start.offset + i as u32)
-      .unwrap_or(dir.loc.end.offset);
+    let head_end =
+      dir_text.find('=').map(|i| dir.loc.start.offset + i as u32).unwrap_or(dir.loc.end.offset);
     Span::new(dir.loc.start.offset, head_end)
   }
 }

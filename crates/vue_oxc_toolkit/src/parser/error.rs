@@ -10,10 +10,7 @@ fn loc_to_span(loc: &SourceLocation) -> Span {
 
 /// Process vize parser errors into OXC diagnostics.
 /// Returns the diagnostics and whether the parser should be considered panicked (fatal).
-pub fn process_vize_errors(
-  errors: &[CompilerError],
-  diagnostics: &mut Vec<OxcDiagnostic>,
-) -> bool {
+pub fn process_vize_errors(errors: &[CompilerError], diagnostics: &mut Vec<OxcDiagnostic>) -> bool {
   let mut panicked = false;
   for error in errors {
     if !is_warn(&error.code) {

@@ -31,11 +31,8 @@ impl<'a> ParserImpl<'a> {
       memchr(b':', name.as_bytes()).map_or(span.end, |i| span.start + i as u32),
     );
 
-    let name_span = if name_space_span == span {
-      SPAN
-    } else {
-      Span::new(name_space_span.end + 1, span.end)
-    };
+    let name_span =
+      if name_space_span == span { SPAN } else { Span::new(name_space_span.end + 1, span.end) };
 
     self.ast.jsx_attribute_name_namespaced_name(
       span,

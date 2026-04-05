@@ -75,14 +75,9 @@ impl<'a> ParserImpl<'a> {
         // vize expression loc doesn't include quotes
         let exp_span = exp_loc.span();
         // SAFETY: warp with `((` and `)=>0)`
-        let Expression::ArrowFunctionExpression(mut arrow_function_expression) = (unsafe {
-          self.parse_expression(
-            exp_span,
-            b"((",
-            b")=>0)",
-            &allocator,
-          )?
-        }) else {
+        let Expression::ArrowFunctionExpression(mut arrow_function_expression) =
+          (unsafe { self.parse_expression(exp_span, b"((", b")=>0)", &allocator)? })
+        else {
           // SAFETY: We always wrap the source in arrow function expression
           unreachable!()
         };

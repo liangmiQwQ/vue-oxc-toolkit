@@ -7,9 +7,7 @@ use oxc_ast::{AstBuilder, NONE};
 
 use oxc_span::{SPAN, Span};
 use oxc_syntax::module_record::ModuleRecord;
-use vize_armature::{
-  ParserOptions, SourceLocation, TemplateChildNode, WhitespaceStrategy,
-};
+use vize_armature::{ParserOptions, SourceLocation, TemplateChildNode, WhitespaceStrategy};
 
 use crate::is_void_tag;
 use crate::parser::error;
@@ -110,8 +108,7 @@ impl<'a> ParserImpl<'a> {
       ..Default::default()
     };
 
-    let (root, vize_errors) =
-      vize_armature::parse_with_options(bump, self.source_text, options);
+    let (root, vize_errors) = vize_armature::parse_with_options(bump, self.source_text, options);
 
     // Process errors
     let panicked = error::process_vize_errors(&vize_errors, &mut self.errors);
@@ -204,7 +201,6 @@ impl<'a> ParserImpl<'a> {
       a_first.offset().cmp(&b_first.offset())
     });
   }
-
 }
 
 // Easy transform from vize_armature::SourceLocation to oxc_span::Span
