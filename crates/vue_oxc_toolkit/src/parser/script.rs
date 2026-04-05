@@ -69,15 +69,26 @@ impl<'a> ParserImpl<'a> {
       });
 
       // Handle error if there are multiple script tags
+      // Use full element span (opening + body + closing) for a better diagnostic location
+      let node_span = {
+        use crate::parser::parse::SourceLocatonSpan as _;
+        let open_end = node.loc.end.offset;
+        let close = self.element_close_span(open_end, "script");
+        if close.is_empty() {
+          node.loc.span()
+        } else {
+          oxc_span::Span::new(node.loc.start.offset, close.end)
+        }
+      };
       if is_setup {
         if self.setup_set {
-          error::multiple_script_setup_tags(&mut self.errors, node.loc.span());
+          error::multiple_script_setup_tags(&mut self.errors, node_span);
           return ResParse::panic();
         }
         self.setup_set = true;
       } else {
         if self.script_set {
-          error::multiple_script_tags(&mut self.errors, node.loc.span());
+          error::multiple_script_tags(&mut self.errors, node_span);
           return ResParse::panic();
         }
         self.script_set = true;

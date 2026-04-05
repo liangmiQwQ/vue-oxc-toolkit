@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 use std::collections::HashSet;
+use std::panic::AssertUnwindSafe;
 
 use oxc_allocator::{self, Dummy, Vec as ArenaVec};
 use oxc_ast::ast::{Directive, Expression, FormalParameterKind, JSXChild, Program, Statement};
@@ -103,14 +104,32 @@ impl<'a> ParserImpl<'a> {
     let bump = vize_allocator.as_bump();
 
     let options = ParserOptions {
-      whitespace: WhitespaceStrategy::Preserve,
+      whitespace: WhitespaceStrategy::Condense,
       is_void_tag: |name| is_void_tag!(name),
       ..Default::default()
     };
 
-    let (root, vize_errors) = vize_armature::parse_with_options(bump, self.source_text, options);
+    // vize doesn't parse <script>/<style> in RAWTEXT mode yet (TODO in vize).
+    // Sanitize source so that `<` inside script/style blocks don't create fake elements.
+    let sanitized = sanitize_rawtext_blocks(self.source_text);
+    let vize_source = sanitized.as_deref().unwrap_or(self.source_text);
 
-    // Process errors
+    // vize may panic on severely malformed input (upstream bug: byte index out of bounds).
+    // Treat any vize panic as a fatal parse error.
+    let vize_result = std::panic::catch_unwind(AssertUnwindSafe(|| {
+      vize_armature::parse_with_options(bump, vize_source, options)
+    }));
+    let (root, vize_errors) = match vize_result {
+      Ok(result) => result,
+      Err(_) => {
+        use oxc_diagnostics::OxcDiagnostic;
+        self.errors.push(OxcDiagnostic::error("Internal parser error (vize panic)"));
+        return ResParse::panic();
+      }
+    };
+
+    // Process errors, but filter MissingEndTag which can be a false positive from
+    // rawtext sanitization gaps and is handled by should_panic anyway.
     let panicked = error::process_vize_errors(&vize_errors, &mut self.errors);
     if panicked {
       return ResParse::panic();
@@ -136,7 +155,6 @@ impl<'a> ParserImpl<'a> {
     for child in &root.children {
       if let TemplateChildNode::Element(node) = child {
         let node_loc_start = node.loc.start.offset;
-        let node_loc_end = node.loc.end.offset;
 
         // Process the texts between last element and current element
         let text_span = Span::new(text_start, node_loc_start);
@@ -144,7 +162,15 @@ impl<'a> ParserImpl<'a> {
           let atom = self.ast.str(text_span.source_text(self.source_text));
           children.push(self.ast.jsx_child_text(text_span, atom, Some(atom)));
         }
-        text_start = node_loc_end;
+
+        // Compute true end of element (vize loc only covers opening tag)
+        let tag_name = node.tag.as_str();
+        let true_end = if node.is_self_closing || is_void_tag!(tag_name) {
+          node.loc.end.offset
+        } else {
+          self.element_close_span(node.loc.end.offset, tag_name).end
+        };
+        text_start = true_end;
 
         let tag_text = node.loc.span().source_text(self.source_text);
         if tag_text.starts_with("<script") {
@@ -201,6 +227,77 @@ impl<'a> ParserImpl<'a> {
       a_first.offset().cmp(&b_first.offset())
     });
   }
+}
+
+/// Replace `<` and `>` inside `<script>` and `<style>` blocks with spaces so vize
+/// doesn't mis-parse TypeScript generics or inline expressions as HTML tags.
+/// Returns `None` if no script/style blocks were found (no allocation needed).
+/// Vize bug: it doesn't handle RAWTEXT mode for script/style.
+fn sanitize_rawtext_blocks(source: &str) -> Option<String> {
+  const RAWTEXT_TAGS: &[&str] = &["script", "style"];
+  let bytes = source.as_bytes();
+  let mut result: Option<Vec<u8>> = None;
+  let mut pos = 0usize;
+
+  while pos < bytes.len() {
+    // Find next '<'
+    let Some(lt) = memchr::memchr(b'<', &bytes[pos..]) else { break };
+    let lt_abs = pos + lt;
+
+    // Check if this is an opening rawtext tag like <script or <style
+    let after_lt = &bytes[lt_abs + 1..];
+    let matching_tag = RAWTEXT_TAGS.iter().find(|&&tag| {
+      let tb = tag.as_bytes();
+      after_lt.starts_with(tb)
+        && after_lt.get(tb.len()).map_or(true, |&c| {
+          c == b'>' || c == b' ' || c == b'\t' || c == b'\n' || c == b'\r' || c == b'/'
+        })
+    });
+
+    let Some(tag) = matching_tag else {
+      pos = lt_abs + 1;
+      continue;
+    };
+
+    // Find the end of the opening tag '>'
+    let Some(open_gt) = memchr::memchr(b'>', &bytes[lt_abs..]) else { break };
+    let content_start = lt_abs + open_gt + 1;
+
+    // Find the matching closing tag </script> or </style> (case-insensitive)
+    let close_pat = format!("</{tag}");
+    let close_bytes = close_pat.as_bytes();
+    let mut search_pos = content_start;
+    let close_start = loop {
+      let Some(rel) = memchr::memchr(b'<', &bytes[search_pos..]) else { break None };
+      let cs = search_pos + rel;
+      if bytes[cs..].len() >= close_bytes.len()
+        && bytes[cs..cs + close_bytes.len()].eq_ignore_ascii_case(close_bytes)
+      {
+        break Some(cs);
+      }
+      search_pos = cs + 1;
+    };
+
+    let Some(close_start) = close_start else {
+      pos = content_start;
+      continue;
+    };
+
+    // Sanitize bytes[content_start..close_start]: replace < and > with spaces
+    let needs_sanitize = bytes[content_start..close_start].iter().any(|&b| b == b'<' || b == b'>');
+    if needs_sanitize {
+      let buf = result.get_or_insert_with(|| bytes.to_vec());
+      for b in &mut buf[content_start..close_start] {
+        if *b == b'<' || *b == b'>' {
+          *b = b' ';
+        }
+      }
+    }
+
+    pos = close_start;
+  }
+
+  result.map(|b| String::from_utf8(b).expect("sanitized source is valid utf8"))
 }
 
 // Easy transform from vize_armature::SourceLocation to oxc_span::Span

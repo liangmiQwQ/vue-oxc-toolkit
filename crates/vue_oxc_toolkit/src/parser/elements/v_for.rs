@@ -26,9 +26,10 @@ impl<'a> ParserImpl<'a> {
   }
 
   pub fn analyze_v_for(&mut self, dir: &DirectiveNode<'_>, wrapper: &mut VForWrapper<'_, 'a>) {
+    let dir_span = self.directive_span(dir);
     (|| {
       if dir.exp.is_none() {
-        self.invalid_v_for_expression(dir.loc.span())?;
+        self.invalid_v_for_expression(dir_span)?;
       }
       let exp = dir.exp.as_ref().unwrap(); // SAFETY: Checked above
       let exp_loc = exp.loc();
@@ -77,7 +78,7 @@ impl<'a> ParserImpl<'a> {
 
         wrapper.set_params(params.clone_in(self.allocator));
       } else {
-        self.invalid_v_for_expression(dir.loc.span())?;
+        self.invalid_v_for_expression(dir_span)?;
       }
 
       Some(())

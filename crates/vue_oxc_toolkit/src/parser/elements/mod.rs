@@ -41,32 +41,34 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
     }
     let mut result = self.ast.vec_with_capacity(children.len() + 2);
 
-    // Process the whitespaces text there <div>____<br>_____</div>
-    if let Some(first) = children.first()
-      && matches!(first, TemplateChildNode::Element(_) | TemplateChildNode::Interpolation(_))
-      && start != first.loc().start.offset
-    {
-      let span = Span::new(start, first.loc().start.offset);
-      let value = span.source_text(self.source_text);
-      result.push(ast.jsx_child_text(span, value, Some(ast.str(value))));
-    }
-
-    let last = if let Some(last) = children.last()
-      && matches!(last, TemplateChildNode::Element(_) | TemplateChildNode::Interpolation(_))
-      && end != last.loc().end.offset
-    {
-      let span = Span::new(last.loc().end.offset, end);
-      let value = span.source_text(self.source_text);
-      Some(ast.jsx_child_text(span, value, Some(ast.str(value))))
-    } else {
-      None
-    };
+    // Track position after the last element/interpolation to synthesize gap text nodes.
+    // We use `None` until the first element/interpolation is encountered.
+    // Text nodes from vize are NOT used for gaps; we create them from source spans instead.
+    // Comments do NOT advance last_elem_end (gaps are only around elements/interpolations).
+    let mut last_elem_end: Option<u32> = None;
 
     let mut v_if_manager = VIfManager::new(&ast);
     for child in children {
       match child {
         TemplateChildNode::Element(node) => {
+          // Synthesize gap text between last element/interpolation and this one
+          let gap_from = last_elem_end.unwrap_or(start);
+          let child_start = node.loc.start.offset;
+          if child_start > gap_from {
+            let span = Span::new(gap_from, child_start);
+            let value = ast.str(span.source_text(self.source_text));
+            result.push(ast.jsx_child_text(span, value, Some(value)));
+          }
+
           let (child, v_if) = self.parse_element_ref(node, None);
+
+          // Advance last_elem_end to true element end (vize loc only covers opening tag)
+          let tag = node.tag.as_str();
+          last_elem_end = Some(if node.is_self_closing || is_void_tag!(tag) {
+            node.loc.end.offset
+          } else {
+            self.element_close_span(node.loc.end.offset, tag).end
+          });
 
           if let Some(v_if) = v_if {
             if let Some(child) = self.add_v_if(child, v_if, &mut v_if_manager) {
@@ -79,9 +81,33 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
             result.push(child);
           }
         }
-        TemplateChildNode::Text(text) => result.push(self.parse_text(text)),
+        TemplateChildNode::Text(text) => {
+          let new_child = self.parse_text(text);
+          // Merge with previous JSXText if adjacent (vize splits text at '<' chars)
+          if let Some(JSXChild::Text(prev)) = result.last_mut()
+            && let JSXChild::Text(cur) = &new_child
+            && prev.span.end == cur.span.start
+          {
+            let merged_span = Span::new(prev.span.start, cur.span.end);
+            let merged_val = ast.str(merged_span.source_text(self.source_text));
+            prev.span = merged_span;
+            prev.value = merged_val;
+            prev.raw = Some(merged_val);
+          } else {
+            result.push(new_child);
+          }
+        }
         TemplateChildNode::Comment(comment) => result.push(self.parse_comment(comment)),
         TemplateChildNode::Interpolation(interp) => {
+          // Same gap logic as Element
+          let gap_from = last_elem_end.unwrap_or(start);
+          let child_start = interp.loc.start.offset;
+          if child_start > gap_from {
+            let span = Span::new(gap_from, child_start);
+            let value = ast.str(span.source_text(self.source_text));
+            result.push(ast.jsx_child_text(span, value, Some(value)));
+          }
+          last_elem_end = Some(interp.loc.end.offset);
           result.push(self.parse_interpolation(interp));
         }
         _ => {
@@ -93,8 +119,14 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
     if let Some(chain) = v_if_manager.take_chain() {
       result.push(chain);
     }
-    if let Some(last) = last {
-      result.push(last);
+
+    // Trailing gap after last element/interpolation (only if we saw at least one)
+    if let Some(elem_end) = last_elem_end {
+      if elem_end < end {
+        let span = Span::new(elem_end, end);
+        let value = ast.str(span.source_text(self.source_text));
+        result.push(ast.jsx_child_text(span, value, Some(value)));
+      }
     }
 
     result
@@ -127,17 +159,13 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
       Span::new(start, end)
     };
 
-    let location_span = node.loc.span();
-    let end_element_span = {
-      if location_span.source_text(self.source_text).ends_with("/>") || is_void_tag!(tag_name_str) {
-        node.loc.span()
-      } else {
-        let end = node.loc.end.offset;
-        let start = memchr::memrchr(b'<', &self.source_text.as_bytes()[..end as usize])
-          .map(|i| i as u32)
-          .unwrap();
-        Span::new(start, end)
-      }
+    // Vize's node.loc only covers the opening tag. Scan forward to find the closing tag.
+    let (location_span, end_element_span) = if node.is_self_closing || is_void_tag!(tag_name_str) {
+      (node.loc.span(), node.loc.span())
+    } else {
+      let close_span = self.element_close_span(node.loc.end.offset, tag_name_str);
+      let full_span = Span::new(node.loc.start.offset, close_span.end);
+      (full_span, close_span)
     };
 
     // Use different JSXElementName for component and normal element
@@ -172,7 +200,9 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
         ast.jsx_element_name_identifier_reference(name_span, ast.str(&name))
       } else {
         let name = ast.str(tag_name_str);
-        if node.tag_type == ElementType::Component {
+        // <component> is Vue's built-in dynamic component; treat it as a component reference
+        // even though vize doesn't classify it as ElementType::Component.
+        if node.tag_type == ElementType::Component || tag_name_str == "component" {
           ast.jsx_element_name_identifier_reference(name_span, name)
         } else {
           ast.jsx_element_name_identifier(name_span, name)
@@ -205,7 +235,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
 
     let opening_element_name = element_name.clone_in(self.allocator);
 
-    let closing_element = if location_span.source_text(self.source_text).ends_with("/>") {
+    let closing_element = if node.is_self_closing {
       Some(ast.jsx_closing_element(SPAN, ast.jsx_element_name_identifier(SPAN, ast.str(""))))
     } else if is_void_tag!(tag_name_str) {
       None
@@ -239,7 +269,15 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
     match prop {
       // For normal attributes, like <div class="w-100" />
       PropNode::Attribute(attr) => {
-        let attr_end = self.roffset(attr.loc.end.offset as usize) as u32;
+        // vize attr.loc.end points AT the closing quote char (not past it) for quoted values
+        let loc_end = attr.loc.end.offset as usize;
+        let attr_end = if attr.value.is_some()
+          && matches!(self.source_text.as_bytes().get(loc_end), Some(&b'"') | Some(&b'\''))
+        {
+          (loc_end + 1) as u32
+        } else {
+          self.roffset(loc_end) as u32
+        };
         let attr_span = Span::new(attr.loc.start.offset, attr_end);
         ast.jsx_attribute_item_attribute(
           attr_span,
@@ -263,7 +301,10 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
       // Directive, starts with `v-`
       PropNode::Directive(dir) => {
         let dir_start = dir.loc.start.offset;
-        let dir_end = self.roffset(dir.loc.end.offset as usize) as u32;
+        // vize dir.loc.end points AT the closing quote char (not past it); adjust
+        let dir_loc_end = dir.loc.end.offset as usize;
+        let dir_span = self.directive_span(dir);
+        let dir_end = dir_span.end;
 
         let dir_name = self.parse_directive_name(dir);
         // Analyze v-slot and v-for, no matter whether there is an expression
@@ -277,7 +318,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
         }
 
         if matches!(dir.name.as_str(), "if" | "else-if") && dir.exp.is_none() {
-          error::v_if_else_without_expression(&mut self.errors, dir.loc.span());
+          error::v_if_else_without_expression(&mut self.errors, dir_span);
         }
 
         let value = if let Some(exp) = &dir.exp {
@@ -315,6 +356,13 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
         {
           // v-slot:[name]
           Some(ast.jsx_attribute_value_expression_container(SPAN, argument.into()))
+        } else if dir_end > dir_loc_end as u32 {
+          // Empty quoted value like v-for="" — create ExpressionContainer for `""`
+          let container_span = Span::new(dir_end - 2, dir_end);
+          Some(ast.jsx_attribute_value_expression_container(
+            container_span,
+            JSXExpression::EmptyExpression(ast.jsx_empty_expression(SPAN)),
+          ))
         } else {
           None
         };
@@ -437,12 +485,71 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
     end - self.source_text[..end].chars().rev().take_while(|c| c.is_whitespace()).count()
   }
 
+  /// Find the closing tag span for an element given its opening tag end offset.
+  /// Scans forward tracking nesting depth to find the matching `</tagname>`.
+  pub(super) fn element_close_span(&self, open_end: u32, tag_name: &str) -> Span {
+    let src = self.source_text.as_bytes();
+    let tag_bytes = tag_name.as_bytes();
+    let mut pos = open_end as usize;
+    let mut depth = 1usize;
+
+    while pos < src.len() {
+      let Some(rel) = memchr::memchr(b'<', &src[pos..]) else { break };
+      pos += rel;
+      let rest = &src[pos + 1..];
+
+      if rest.first() == Some(&b'/') {
+        // Potential closing tag
+        let after_slash = &rest[1..];
+        if after_slash.starts_with(tag_bytes) {
+          let after_name = tag_bytes.len();
+          let ch = after_slash.get(after_name).copied().unwrap_or(b'>');
+          if ch == b'>' || ch == b' ' || ch == b'\n' || ch == b'\r' || ch == b'\t' {
+            depth -= 1;
+            if depth == 0 {
+              let gt = memchr::memchr(b'>', &src[pos..]).unwrap();
+              return Span::new(pos as u32, (pos + gt + 1) as u32);
+            }
+          }
+        }
+      } else {
+        // Potential opening tag — increase depth for same tag name (handle nesting)
+        if rest.starts_with(tag_bytes) {
+          let after_name = tag_bytes.len();
+          let ch = rest.get(after_name).copied().unwrap_or(0);
+          if ch == b'>' || ch == b' ' || ch == b'\n' || ch == b'\r' || ch == b'\t' || ch == b'/' {
+            depth += 1;
+          }
+        }
+      }
+      pos += 1;
+    }
+
+    // Fallback (malformed source)
+    Span::new(open_end, open_end)
+  }
+
   /// Compute the "head" span of a directive — the directive prefix + name + argument portion
   /// before the `=` sign or end of directive if no value.
+  /// Compute the full directive span with adjusted end:
+  /// vize `dir.loc.end` points AT the closing quote char — add 1 to include it.
+  /// For directives without quotes, trim trailing whitespace via `roffset`.
+  fn directive_span(&self, dir: &DirectiveNode<'_>) -> Span {
+    let loc_end = dir.loc.end.offset as usize;
+    let end = if matches!(self.source_text.as_bytes().get(loc_end), Some(&b'"') | Some(&b'\'')) {
+      (loc_end + 1) as u32
+    } else {
+      self.roffset(loc_end) as u32
+    };
+    Span::new(dir.loc.start.offset, end)
+  }
+
   fn compute_head_span(&self, dir: &DirectiveNode<'_>) -> Span {
     let dir_text = dir.loc.span().source_text(self.source_text);
-    let head_end =
-      dir_text.find('=').map(|i| dir.loc.start.offset + i as u32).unwrap_or(dir.loc.end.offset);
+    let head_end = dir_text
+      .find('=')
+      .map(|i| dir.loc.start.offset + i as u32)
+      .unwrap_or_else(|| self.roffset(dir.loc.end.offset as usize) as u32);
     Span::new(dir.loc.start.offset, head_end)
   }
 }

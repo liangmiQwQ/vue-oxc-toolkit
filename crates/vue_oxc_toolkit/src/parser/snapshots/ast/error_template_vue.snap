@@ -37,21 +37,8 @@ Program {
 [
     OxcDiagnostic {
         inner: OxcDiagnosticInner {
-            message: "Unexpected EOF in tag.",
-            labels: Some(
-                [
-                    LabeledSpan {
-                        label: None,
-                        span: SourceSpan {
-                            offset: SourceOffset(
-                                26,
-                            ),
-                            length: 0,
-                        },
-                        primary: false,
-                    },
-                ],
-            ),
+            message: "Internal parser error (vize panic)",
+            labels: None,
             help: None,
             note: None,
             severity: Error,
