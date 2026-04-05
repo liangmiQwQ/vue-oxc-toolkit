@@ -4,10 +4,7 @@ use oxc_allocator::Vec as ArenaVec;
 use oxc_ast::ast::Statement;
 
 use oxc_span::SourceType;
-use vue_compiler_core::{
-  parser::{ElemProp, Element},
-  util::{find_prop, prop_finder},
-};
+use vize_armature::{ElementNode, PropNode};
 
 use crate::parser::{
   ParserImpl, ResParse, ResParseExt, error, modules::Merge, parse::SourceLocatonSpan,
@@ -16,13 +13,21 @@ use crate::parser::{
 impl<'a> ParserImpl<'a> {
   pub fn parse_script(
     &mut self,
-    node: &Element<'a>,
+    node: &ElementNode<'_>,
     source_types: &mut HashSet<&'a str>,
   ) -> ResParse<()> {
-    let lang = find_prop(node, "lang")
-      .and_then(|p| match p.get_ref() {
-        ElemProp::Attr(p) => p.value.as_ref().map(|value| value.content.raw),
-        ElemProp::Dir(_) => None,
+    let lang = node
+      .props
+      .iter()
+      .find_map(|p| match p {
+        PropNode::Attribute(attr) if attr.name.as_str() == "lang" => {
+          attr.value.as_ref().map(|v| {
+            // vize TextNode.loc doesn't include quotes, it's the content span directly
+            let span = v.loc.span();
+            &self.source_text[span.start as usize..span.end as usize]
+          })
+        }
+        _ => None,
       })
       .unwrap_or("js");
 
@@ -40,26 +45,39 @@ impl<'a> ParserImpl<'a> {
       return ResParse::panic();
     }
 
-    // If there is at least one statements in the box
-    if let Some(child) = node.children.first() {
-      let span = child.get_location().span();
+    // Use inner_loc if available, otherwise fall back to children
+    let inner_span = if let Some(inner) = &node.inner_loc {
+      Some(inner.span())
+    } else if let Some(child) = node.children.first() {
+      let span_start = child.loc().start.offset;
+      let span_end = node.children.last().unwrap().loc().end.offset;
+      Some(oxc_span::Span::new(span_start, span_end))
+    } else {
+      None
+    };
+
+    if let Some(span) = inner_span {
       let source = span.source_text(self.source_text);
 
       if source.trim().is_empty() {
         return ResParse::success(());
       }
 
-      let is_setup = prop_finder(node, "setup").allow_empty().find().is_some();
+      let is_setup = node.props.iter().any(|p| match p {
+        PropNode::Attribute(attr) => attr.name.as_str() == "setup",
+        PropNode::Directive(dir) => dir.name.as_str() == "setup",
+      });
+
       // Handle error if there are multiple script tags
       if is_setup {
         if self.setup_set {
-          error::multiple_script_setup_tags(&mut self.errors, node.location.span());
+          error::multiple_script_setup_tags(&mut self.errors, node.loc.span());
           return ResParse::panic();
         }
         self.setup_set = true;
       } else {
         if self.script_set {
-          error::multiple_script_tags(&mut self.errors, node.location.span());
+          error::multiple_script_tags(&mut self.errors, node.loc.span());
           return ResParse::panic();
         }
         self.script_set = true;
