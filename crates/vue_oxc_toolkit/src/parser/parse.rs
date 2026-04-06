@@ -108,8 +108,10 @@ impl<'a> ParserImpl<'a> {
       ..Default::default()
     };
 
-    // vize doesn't parse <script>/<style> in RAWTEXT mode yet (TODO in vize).
-    // Sanitize source so that `<` inside script/style blocks don't create fake elements.
+    // vize_armature is a template parser, not a .vue file parser — it doesn't handle
+    // RAWTEXT mode for <script>/<style>.  Use vize_atelier_sfc::parse_sfc to identify
+    // block boundaries, then sanitize `<`/`>` inside those regions so vize doesn't
+    // misinterpret TypeScript generics or other markup as HTML tags.
     let sanitized = sanitize_rawtext_blocks(self.source_text);
     let vize_source = sanitized.as_deref().unwrap_or(self.source_text);
 
@@ -216,72 +218,39 @@ impl<'a> ParserImpl<'a> {
   }
 }
 
-/// Replace `<` and `>` inside `<script>` and `<style>` blocks with spaces so vize
-/// doesn't mis-parse TypeScript generics or inline expressions as HTML tags.
-/// Returns `None` if no script/style blocks were found (no allocation needed).
-/// Vize bug: it doesn't handle RAWTEXT mode for script/style.
+/// Replace `<` and `>` inside `<script>` and `<style>` block **content** with spaces so
+/// `vize_armature` doesn't mis-parse TypeScript generics or other markup as HTML tags.
+///
+/// Block boundaries are detected by [`vize_atelier_sfc::parse_sfc`], which correctly
+/// tracks string literals, comments, and template strings — avoiding false-positive
+/// `</script>` detection that a naïve byte scanner would hit.
+///
+/// Returns `None` when no sanitization was needed (avoids allocation).
 fn sanitize_rawtext_blocks(source: &str) -> Option<String> {
-  const RAWTEXT_TAGS: &[&str] = &["script", "style"];
+  use vize_atelier_sfc::{SfcParseOptions, parse_sfc};
+
+  let descriptor = parse_sfc(source, SfcParseOptions::default()).ok()?;
+
   let bytes = source.as_bytes();
   let mut result: Option<Vec<u8>> = None;
-  let mut pos = 0usize;
 
-  while pos < bytes.len() {
-    // Find next '<'
-    let Some(lt) = memchr::memchr(b'<', &bytes[pos..]) else { break };
-    let lt_abs = pos + lt;
+  // Collect content regions of all script and style blocks
+  let regions = [&descriptor.script, &descriptor.script_setup]
+    .into_iter()
+    .flatten()
+    .map(|b| b.loc.start..b.loc.end)
+    .chain(descriptor.styles.iter().map(|b| b.loc.start..b.loc.end));
 
-    // Check if this is an opening rawtext tag like <script or <style
-    let after_lt = &bytes[lt_abs + 1..];
-    let matching_tag = RAWTEXT_TAGS.iter().find(|&&tag| {
-      let tb = tag.as_bytes();
-      after_lt.starts_with(tb)
-        && after_lt.get(tb.len()).map_or(true, |&c| {
-          c == b'>' || c == b' ' || c == b'\t' || c == b'\n' || c == b'\r' || c == b'/'
-        })
-    });
-
-    let Some(tag) = matching_tag else {
-      pos = lt_abs + 1;
-      continue;
-    };
-
-    // Find the end of the opening tag '>'
-    let Some(open_gt) = memchr::memchr(b'>', &bytes[lt_abs..]) else { break };
-    let content_start = lt_abs + open_gt + 1;
-
-    // Find the matching closing tag </script> or </style> (case-insensitive)
-    let close_pat = format!("</{tag}");
-    let close_bytes = close_pat.as_bytes();
-    let mut search_pos = content_start;
-    let close_start = loop {
-      let Some(rel) = memchr::memchr(b'<', &bytes[search_pos..]) else { break None };
-      let cs = search_pos + rel;
-      if bytes[cs..].len() >= close_bytes.len()
-        && bytes[cs..cs + close_bytes.len()].eq_ignore_ascii_case(close_bytes)
-      {
-        break Some(cs);
-      }
-      search_pos = cs + 1;
-    };
-
-    let Some(close_start) = close_start else {
-      pos = content_start;
-      continue;
-    };
-
-    // Sanitize bytes[content_start..close_start]: replace < and > with spaces
-    let needs_sanitize = bytes[content_start..close_start].iter().any(|&b| b == b'<' || b == b'>');
+  for region in regions {
+    let needs_sanitize = bytes[region.clone()].iter().any(|&b| b == b'<' || b == b'>');
     if needs_sanitize {
       let buf = result.get_or_insert_with(|| bytes.to_vec());
-      for b in &mut buf[content_start..close_start] {
+      for b in &mut buf[region] {
         if *b == b'<' || *b == b'>' {
           *b = b' ';
         }
       }
     }
-
-    pos = close_start;
   }
 
   result.map(|b| String::from_utf8(b).expect("sanitized source is valid utf8"))
