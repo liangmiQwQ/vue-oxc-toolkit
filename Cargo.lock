@@ -1299,9 +1299,9 @@ checksum = "ebc1c04c71510c7f702b52b7c350734c9ff1295c464a03335b00bb84fc54f853"
 
 [[package]]
 name = "vize_armature"
-version = "0.39.0"
+version = "0.40.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1534d186ca995024bd77780b28c72c57390491b1f2005b4ccff853f40a9c8a37"
+checksum = "c4f1dc1299f183137e889e67e84e1e62012aafbbe4d33b6f312aa5bf890ba605"
 dependencies = [
  "compact_str 0.8.1",
  "htmlize",
@@ -1313,9 +1313,9 @@ dependencies = [
 
 [[package]]
 name = "vize_carton"
-version = "0.39.0"
+version = "0.40.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7a2c86d2c20dde197a51a4c524ad9fdb8bad27f8627a2061b292ae9f4d4ba5bb"
+checksum = "2da9bd79bacc696099f086eed05aaf53968cfa6e0952703ef864ec752b34fbca"
 dependencies = [
  "bitflags",
  "bumpalo",
@@ -1331,9 +1331,9 @@ dependencies = [
 
 [[package]]
 name = "vize_relief"
-version = "0.39.0"
+version = "0.40.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "47e201fbc83deac35eedbdc0c7b564c7cd56a1855abb1a0433fc55b4bbfb9f40"
+checksum = "9406eb312d590824186fe57c986bfa8252125fd139bf3794e0055bac966b5eff"
 dependencies = [
  "serde",
  "thiserror",

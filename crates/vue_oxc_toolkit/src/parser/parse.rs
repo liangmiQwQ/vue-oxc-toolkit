@@ -1,6 +1,5 @@
 use std::cmp::Ordering;
 use std::collections::HashSet;
-use std::panic::AssertUnwindSafe;
 
 use oxc_allocator::{self, Dummy, Vec as ArenaVec};
 use oxc_ast::ast::{Directive, Expression, FormalParameterKind, JSXChild, Program, Statement};
@@ -114,19 +113,7 @@ impl<'a> ParserImpl<'a> {
     let sanitized = sanitize_rawtext_blocks(self.source_text);
     let vize_source = sanitized.as_deref().unwrap_or(self.source_text);
 
-    // vize may panic on severely malformed input (upstream bug: byte index out of bounds).
-    // Treat any vize panic as a fatal parse error.
-    let vize_result = std::panic::catch_unwind(AssertUnwindSafe(|| {
-      vize_armature::parse_with_options(bump, vize_source, options)
-    }));
-    let (root, vize_errors) = match vize_result {
-      Ok(result) => result,
-      Err(_) => {
-        use oxc_diagnostics::OxcDiagnostic;
-        self.errors.push(OxcDiagnostic::error("Internal parser error (vize panic)"));
-        return ResParse::panic();
-      }
-    };
+    let (root, vize_errors) = vize_armature::parse_with_options(bump, vize_source, options);
 
     // Process errors, but filter MissingEndTag which can be a false positive from
     // rawtext sanitization gaps and is handled by should_panic anyway.

@@ -44,4 +44,4 @@ oxc_syntax = ">=0.123.0"
 
 memchr = "2.8.0"
 regex = "1.12.3"
-vize_armature = "0.39.0"
+vize_armature = "0.40.0"
