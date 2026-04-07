@@ -1,4 +1,3 @@
-use std::cell::RefCell;
 use std::cmp::Ordering;
 use std::collections::HashSet;
 
@@ -8,28 +7,14 @@ use oxc_ast::{AstBuilder, NONE};
 
 use oxc_span::{SPAN, Span};
 use oxc_syntax::module_record::ModuleRecord;
-use vue_compiler_core::SourceLocation;
-use vue_compiler_core::parser::{AstNode, Element, ParseOption, Parser, WhitespaceStrategy};
-use vue_compiler_core::scanner::{ScanOption, Scanner, TextMode};
+use vize_armature::{ParserOptions, SourceLocation, TemplateChildNode, WhitespaceStrategy};
 
 use crate::is_void_tag;
-use crate::parser::error::OxcErrorHandler;
+use crate::parser::error;
 use crate::parser::{ResParse, ResParseExt};
 
 use super::ParserImpl;
 use super::ParserImplReturn;
-
-macro_rules! get_text_mode {
-  ($name: expr) => {
-    match $name {
-      "textarea" => TextMode::RcData,
-      "iframe" | "xmp" | "noembed" | "noframes" | "noscript" | "script" | "style" => {
-        TextMode::RawText
-      }
-      _ => TextMode::Data,
-    }
-  };
-}
 
 impl<'a> ParserImpl<'a> {
   pub fn parse(mut self) -> ParserImplReturn<'a> {
@@ -112,85 +97,96 @@ impl<'a> ParserImpl<'a> {
   }
 }
 
-enum ParsingChild<'a> {
-  Finish(JSXChild<'a>),
-  Skip(Element<'a>),
-}
-
 impl<'a> ParserImpl<'a> {
   fn analyze(&mut self) -> ResParse<()> {
-    let parser = Parser::new(ParseOption {
-      whitespace: WhitespaceStrategy::Preserve,
+    let vize_allocator = vize_armature::Allocator::new();
+    let bump = vize_allocator.as_bump();
+
+    let options = ParserOptions {
+      whitespace: WhitespaceStrategy::Condense,
       is_void_tag: |name| is_void_tag!(name),
-      get_text_mode: |name| get_text_mode!(name),
       ..Default::default()
-    });
-    let scanner =
-      Scanner::new(ScanOption { get_text_mode: |name| get_text_mode!(name), ..Default::default() });
+    };
 
-    // error processing
-    let errors = RefCell::from(&mut self.errors);
-    let panicked = RefCell::from(false);
-    // get ast from vue-compiler-core
-    let tokens = scanner.scan(self.source_text, OxcErrorHandler::new(&errors, &panicked));
-    let result = parser.parse(tokens, OxcErrorHandler::new(&errors, &panicked));
+    // vize_armature is a template parser, not a .vue file parser — it doesn't handle
+    // RAWTEXT mode for <script>/<style>.  Use vize_atelier_sfc::parse_sfc to identify
+    // block boundaries, then sanitize `<`/`>` inside those regions so vize doesn't
+    // misinterpret TypeScript generics or other markup as HTML tags.
+    let sanitized = sanitize_rawtext_blocks(self.source_text);
+    let vize_source = sanitized.as_deref().unwrap_or(self.source_text);
 
-    if *panicked.borrow() {
+    let (root, vize_errors) = vize_armature::parse_with_options(bump, vize_source, options);
+
+    // Process errors, but filter MissingEndTag which can be a false positive from
+    // rawtext sanitization gaps and is handled by should_panic anyway.
+    let panicked = error::process_vize_errors(&vize_errors, &mut self.errors);
+    if panicked {
       return ResParse::panic();
     }
 
-    let mut raw_children = vec![];
+    // First pass: process script elements, collect children as JSXChild
+    // We process everything in one pass while vize allocator is alive
+    let mut children: ArenaVec<'a, JSXChild<'a>> = self.ast.vec();
     let mut text_start: u32 = 0;
     let mut source_types: HashSet<&str> = HashSet::new();
-    for child in result.children {
-      if let AstNode::Element(node) = child {
-        // Process the texts between last element and current element
-        self.push_text_child(
-          &mut raw_children,
-          Span::new(text_start, node.location.start.offset as u32),
-        );
-        text_start = node.location.end.offset as u32;
 
-        raw_children.push(if node.tag_name == "script" {
-          // Fill self.global, self.setup
-          self.parse_script(&node, &mut source_types)?;
-          ParsingChild::Finish(self.parse_element(node, Some(self.ast.vec())).0)
+    // First pass: process script elements (must be parsed before template for source type)
+    for child in &root.children {
+      if let TemplateChildNode::Element(node) = child {
+        let tag_text = node.loc.span().source_text(self.source_text);
+        if tag_text.starts_with("<script") {
+          self.parse_script(node, &mut source_types)?;
+        }
+      }
+    }
+
+    // Second pass: process all children in order
+    for child in &root.children {
+      if let TemplateChildNode::Element(node) = child {
+        let node_loc_start = node.loc.start.offset;
+
+        // Process the texts between last element and current element
+        let text_span = Span::new(text_start, node_loc_start);
+        if !text_span.is_empty() {
+          let atom = self.ast.str(text_span.source_text(self.source_text));
+          children.push(self.ast.jsx_child_text(text_span, atom, Some(atom)));
+        }
+
+        // Compute true end of element (vize loc only covers opening tag)
+        let tag_name = node.tag.as_str();
+        let true_end = if node.is_self_closing || is_void_tag!(tag_name) {
+          node.loc.end.offset
         } else {
-          ParsingChild::Skip(node)
-        });
+          self.element_close_span(node.loc.end.offset, tag_name).end
+        };
+        text_start = true_end;
+
+        let tag_text = node.loc.span().source_text(self.source_text);
+        if tag_text.starts_with("<script") {
+          children.push(self.parse_element_ref(node, Some(self.ast.vec())).0);
+        } else if tag_text.starts_with("<template") {
+          children.push(self.parse_element_ref(node, None).0);
+        } else {
+          // Process other tags like <style>
+          let text = if let Some(first) = node.children.first() {
+            let last = node.children.last().unwrap();
+            let span = Span::new(first.loc().start.offset, last.loc().end.offset);
+
+            let atom = self.ast.str(span.source_text(self.source_text));
+            self.ast.vec1(self.ast.jsx_child_text(span, atom, Some(atom)))
+          } else {
+            self.ast.vec()
+          };
+
+          children.push(self.parse_element_ref(node, Some(text)).0);
+        }
       }
     }
     // Process the texts after last element
-    self.push_text_child(&mut raw_children, Span::new(text_start, self.source_text.len() as u32));
-
-    // Parse the skip ones
-    let mut children: ArenaVec<'a, JSXChild<'a>> = self.ast.vec();
-
-    for child in raw_children {
-      children.push(match child {
-        ParsingChild::Finish(child) => child,
-        ParsingChild::Skip(node) => {
-          if node.tag_name == "template" {
-            self.parse_element(node, None).0
-          } else {
-            // Process other tags like <style>
-            let text = if let Some(first) = node.children.first() {
-              let last = node.children.last().unwrap(); // SAFETY: if first exists, last must exist
-              let span = Span::new(
-                first.get_location().start.offset as u32,
-                last.get_location().end.offset as u32,
-              );
-
-              let atom = self.ast.str(span.source_text(self.source_text));
-              self.ast.vec1(self.ast.jsx_child_text(span, atom, Some(atom)))
-            } else {
-              self.ast.vec()
-            };
-
-            self.parse_element(node, Some(text)).0
-          }
-        }
-      });
+    let text_span = Span::new(text_start, self.source_text.len() as u32);
+    if !text_span.is_empty() {
+      let atom = self.ast.str(text_span.source_text(self.source_text));
+      children.push(self.ast.jsx_child_text(text_span, atom, Some(atom)));
     }
 
     self.sort_errors_and_commends();
@@ -220,23 +216,54 @@ impl<'a> ParserImpl<'a> {
       a_first.offset().cmp(&b_first.offset())
     });
   }
-
-  fn push_text_child(&self, children: &mut Vec<ParsingChild<'a>>, span: Span) {
-    if !span.is_empty() {
-      let atom = self.ast.str(span.source_text(self.source_text));
-      children.push(ParsingChild::Finish(self.ast.jsx_child_text(span, atom, Some(atom))));
-    }
-  }
 }
 
-// Easy transform from vue_compiler_core::SourceLocation to oxc_span::Span
+/// Replace `<` and `>` inside `<script>` and `<style>` block **content** with spaces so
+/// `vize_armature` doesn't mis-parse TypeScript generics or other markup as HTML tags.
+///
+/// Block boundaries are detected by [`vize_atelier_sfc::parse_sfc`], which correctly
+/// tracks string literals, comments, and template strings — avoiding false-positive
+/// `</script>` detection that a naïve byte scanner would hit.
+///
+/// Returns `None` when no sanitization was needed (avoids allocation).
+fn sanitize_rawtext_blocks(source: &str) -> Option<String> {
+  use vize_atelier_sfc::{SfcParseOptions, parse_sfc};
+
+  let descriptor = parse_sfc(source, SfcParseOptions::default()).ok()?;
+
+  let bytes = source.as_bytes();
+  let mut result: Option<Vec<u8>> = None;
+
+  // Collect content regions of all script and style blocks
+  let regions = [&descriptor.script, &descriptor.script_setup]
+    .into_iter()
+    .flatten()
+    .map(|b| b.loc.start..b.loc.end)
+    .chain(descriptor.styles.iter().map(|b| b.loc.start..b.loc.end));
+
+  for region in regions {
+    let needs_sanitize = bytes[region.clone()].iter().any(|&b| b == b'<' || b == b'>');
+    if needs_sanitize {
+      let buf = result.get_or_insert_with(|| bytes.to_vec());
+      for b in &mut buf[region] {
+        if *b == b'<' || *b == b'>' {
+          *b = b' ';
+        }
+      }
+    }
+  }
+
+  result.map(|b| String::from_utf8(b).expect("sanitized source is valid utf8"))
+}
+
+// Easy transform from vize_armature::SourceLocation to oxc_span::Span
 pub trait SourceLocatonSpan {
   fn span(&self) -> Span;
 }
 
 impl SourceLocatonSpan for SourceLocation {
   fn span(&self) -> Span {
-    Span::new(self.start.offset as u32, self.end.offset as u32)
+    Span::new(self.start.offset, self.end.offset)
   }
 }
 

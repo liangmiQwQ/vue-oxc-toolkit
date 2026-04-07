@@ -20,7 +20,8 @@ oxc_syntax = { workspace = true }
 
 memchr = { workspace = true }
 regex = { workspace = true }
-vue-compiler-core = { workspace = true }
+vize_armature = { workspace = true }
+vize_atelier_sfc = { workspace = true }
 
 [dev-dependencies]
 insta = { workspace = true }
