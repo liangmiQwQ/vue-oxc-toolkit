@@ -295,10 +295,8 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
           error::v_if_else_without_expression(&mut self.errors, dir.location.span());
         }
 
-        // v-bind="expr" or :="expr" without an argument → JSX spread attribute {...expr}.
-        // Vue treats argument-less v-bind as an object spread onto the element, which maps
-        // directly to JSX spread: <div v-bind="obj" /> ↔ <div {...obj} />.
-        // https://play.vuejs.org/#eNqVkbtOwzAUhl/FOkuWNC2CKQqVAFWiDICA0UuID8HFsS1f0khR3h3bVS9DVamb/V/s7+iM8KB10XuEEiqHnRa1wyWVhFSM96SfffPJ7imMhLOSZLXWWU4aUVsbbtvZzWKRkYnCkjyvSTUPlWO3vLJWzU/+hxycbZT84W2xsUoGvDG+TKFRneYCzZt2XElLoSTJiV4thNq+JM0Zj/leb36x+Tujb+wQNQrvBi2aHikcPFebFt3OXn2+4hDOB7NTzIuQvmB+oFXCR8Zd7NFLFrBPcol23WllHJftl10NDqXdDxVBY3JKeQphR08XRj/i3hZ3qUflBNM/rC6XVg==
+        // This branch won't return `a=b` attribute but a `...x` struct
+        // So we picked this logic into a separate block instead of a elseif branch in the under if-else chain
         if dir.name == "bind"
           && dir.argument.is_none()
           && let Some(expr_node) = &dir.expression
@@ -307,6 +305,10 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
             dir_end - 1,
           ))
         {
+          // v-bind="expr" or :="expr" without an argument → JSX spread attribute {...expr}.
+          // Vue treats argument-less v-bind as an object spread onto the element, which maps
+          // directly to JSX spread: <div v-bind="obj" /> ↔ <div {...obj} />.
+          // https://play.vuejs.org/#eNqVkbtOwzAUhl/FOkuWNC2CKQqVAFWiDICA0UuID8HFsS1f0khR3h3bVS9DVamb/V/s7+iM8KB10XuEEiqHnRa1wyWVhFSM96SfffPJ7imMhLOSZLXWWU4aUVsbbtvZzWKRkYnCkjyvSTUPlWO3vLJWzU/+hxycbZT84W2xsUoGvDG+TKFRneYCzZt2XElLoSTJiV4thNq+JM0Zj/leb36x+Tujb+wQNQrvBi2aHikcPFebFt3OXn2+4hDOB7NTzIuQvmB+oFXCR8Zd7NFLFrBPcol23WllHJftl10NDqXdDxVBY3JKeQphR08XRj/i3hZ3qUflBNM/rC6XVg==
           return ast.jsx_attribute_item_spread_attribute(Span::new(dir_start, dir_end), argument);
         }
 
