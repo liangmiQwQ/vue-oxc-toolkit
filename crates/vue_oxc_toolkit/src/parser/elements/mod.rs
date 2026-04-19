@@ -295,6 +295,23 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
           error::v_if_else_without_expression(&mut self.errors, dir.location.span());
         }
 
+        // This branch won't return `a=b` attribute but a `...x` struct
+        // So we picked this logic into a separate block instead of a elseif branch in the under if-else chain
+        if dir.name == "bind"
+          && dir.argument.is_none()
+          && let Some(expr_node) = &dir.expression
+          && let Some(argument) = self.parse_pure_expression(Span::new(
+            (expr_node.location.start.offset + 1) as u32,
+            dir_end - 1,
+          ))
+        {
+          // v-bind="expr" or :="expr" without an argument → JSX spread attribute {...expr}.
+          // Vue treats argument-less v-bind as an object spread onto the element, which maps
+          // directly to JSX spread: <div v-bind="obj" /> ↔ <div {...obj} />.
+          // https://play.vuejs.org/#eNqVkbtOwzAUhl/FOkuWNC2CKQqVAFWiDICA0UuID8HFsS1f0khR3h3bVS9DVamb/V/s7+iM8KB10XuEEiqHnRa1wyWVhFSM96SfffPJ7imMhLOSZLXWWU4aUVsbbtvZzWKRkYnCkjyvSTUPlWO3vLJWzU/+hxycbZT84W2xsUoGvDG+TKFRneYCzZt2XElLoSTJiV4thNq+JM0Zj/leb36x+Tujb+wQNQrvBi2aHikcPFebFt3OXn2+4hDOB7NTzIuQvmB+oFXCR8Zd7NFLFrBPcol23WllHJftl10NDqXdDxVBY3JKeQphR08XRj/i3hZ3qUflBNM/rC6XVg==
+          return ast.jsx_attribute_item_spread_attribute(Span::new(dir_start, dir_end), argument);
+        }
+
         let value = if let Some(expr) = &dir.expression {
           // +1 to skip the opening quote
           let expr_start = expr.location.start.offset + 1;
@@ -333,8 +350,9 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
           && let Some(argument) = dir.argument
           && let DirectiveArg::Static(arg_name) = argument
         {
-          // :prop without value → synthesize :prop="prop" (identifier reference).
-          // Vue normalizes dashed prop names to camelCase (:msg-id → msgId).
+          // :prop without value -> synthesize :prop="prop" (identifier reference).
+          // Vue normalizes dashed prop names to camelCase (:msg-id -> msgId).
+          // https://play.vuejs.org/#eNp9kUFLxDAQhf/KmEsV1pZFT6UuqCy4HlRU8JJLaadt1jQJSboWSv+7k5Zde5C9ZeZ98/ImGdi9MfGhQ5ayzBVWGA8OfWc2XInWaOthAIsVjFBZ3UJEaMQVV4VWzkPr6l0Jd4G4jJ5QSg1f2sryIrriKktmQ7KiwmNrZO6RKoCsWUNKw9ei3MBiLkuaNQFZsqDZinlH11WijvdOK0o6BA/OCt0aIdG+Gi8oDmcpTErQcvL8eZ563na4OvaLBovvf/p714ceZ28WHdoDcnbSfG5r9LO8/XjBns4nsdVlJ4k+I76j07ILGWfsoVMlxV5wU9rd9N5C1Z9u23tU7rhUCBrIceI5oz94PLP6X9yb+Haa42pk4y+ZtaHr
           let ident_name = kebab_to_case(arg_name, false);
           let ident_str = ast.str(&ident_name);
           Some(ast.jsx_attribute_value_expression_container(
