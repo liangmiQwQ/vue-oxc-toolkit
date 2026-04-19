@@ -27,28 +27,23 @@ mod v_for;
 mod v_if;
 mod v_slot;
 
-/// Convert kebab-case to `PascalCase`. e.g. `keep-alive` → `KeepAlive`
-fn kebab_to_pascal(s: &str) -> String {
-  s.split('-')
-    .map(|seg| {
-      let mut bytes = seg.as_bytes().to_vec();
-      bytes[0] = bytes[0].to_ascii_uppercase();
-      String::from_utf8(bytes).unwrap()
-    })
-    .collect()
-}
-
-/// Convert kebab-case to camelCase, matching Vue's prop-name normalization.
-/// e.g. `msg-id` → `msgId`, `foo` → `foo`
-fn kebab_to_camel(s: &str) -> String {
-  if !s.contains('-') {
-    return s.to_string();
+/// Convert kebab-case to camel-like case.
+/// `pascal: true` → `PascalCase` (e.g. `keep-alive` → `KeepAlive`)
+/// `pascal: false` → `camelCase`  (e.g. `msg-id` → `msgId`)
+fn kebab_to_case(s: &str, pascal: bool) -> String {
+  let mut result = String::with_capacity(s.len());
+  let mut capitalize_next = pascal;
+  for ch in s.chars() {
+    if ch == '-' {
+      capitalize_next = true;
+    } else if capitalize_next {
+      result.extend(ch.to_uppercase());
+      capitalize_next = false;
+    } else {
+      result.push(ch);
+    }
   }
-  let pascal = kebab_to_pascal(s);
-  let mut chars = pascal.chars();
-  chars
-    .next()
-    .map_or_else(String::new, |first| first.to_lowercase().collect::<String>() + chars.as_str())
+  result
 }
 
 impl<'a: 'b, 'b> ParserImpl<'a> {
@@ -183,7 +178,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
         jsx_element.opening_element.name.take_in(self.allocator)
       } else if tag_name.contains('-') {
         // For <keep-alive />
-        let name = kebab_to_pascal(tag_name);
+        let name = kebab_to_case(tag_name, true);
         ast.jsx_element_name_identifier_reference(name_span, ast.str(&name))
       } else {
         let name = ast.str(node.tag_name);
@@ -340,7 +335,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
         {
           // :prop without value → synthesize :prop="prop" (identifier reference).
           // Vue normalizes dashed prop names to camelCase (:msg-id → msgId).
-          let ident_name = kebab_to_camel(arg_name);
+          let ident_name = kebab_to_case(arg_name, false);
           let ident_str = ast.str(&ident_name);
           Some(ast.jsx_attribute_value_expression_container(
             SPAN,
