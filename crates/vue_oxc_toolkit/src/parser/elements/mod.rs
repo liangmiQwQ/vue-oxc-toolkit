@@ -307,8 +307,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
             dir_end - 1,
           ))
         {
-          return ast
-            .jsx_attribute_item_spread_attribute(Span::new(dir_start, dir_end), argument);
+          return ast.jsx_attribute_item_spread_attribute(Span::new(dir_start, dir_end), argument);
         }
 
         let value = if let Some(expr) = &dir.expression {
