@@ -36,6 +36,7 @@ pub struct ParserImpl<'a> {
   ast: AstBuilder<'a>,
   script_set: bool,
   setup_set: bool,
+  in_v_pre: bool,
 
   global: ScriptBlock<'a>,
   setup: ScriptBlock<'a>,
@@ -64,6 +65,7 @@ impl<'a> ParserImpl<'a> {
       ast,
       script_set: false,
       setup_set: false,
+      in_v_pre: false,
 
       global: ScriptBlock { directives: ast.vec(), statements: ast.vec() },
       setup: ScriptBlock { directives: ast.vec(), statements: ast.vec() },

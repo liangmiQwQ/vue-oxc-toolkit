@@ -103,7 +103,15 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
         }
         AstNode::Text(text) => result.push(self.parse_text(&text)),
         AstNode::Comment(comment) => result.push(self.parse_comment(&comment)),
-        AstNode::Interpolation(interp) => result.push(self.parse_interpolation(&interp)),
+        AstNode::Interpolation(interp) => {
+          if self.in_v_pre {
+            let span = interp.location.span();
+            let raw = self.ast.str(span.source_text(self.source_text));
+            result.push(self.ast.jsx_child_text(span, raw, Some(raw)));
+          } else {
+            result.push(self.parse_interpolation(&interp));
+          }
+        }
       }
     }
 
@@ -196,6 +204,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
     let mut v_for_wrapper = VForWrapper::new(&ast);
     let mut v_slot_wrapper = VSlotWrapper::new(&ast);
     let mut v_if_state: Option<VIf<'a>> = None;
+    let has_v_pre = node.properties.iter().any(|p| matches!(p, ElemProp::Dir(d) if d.name == "pre"));
     let mut attributes = ast.vec();
     for prop in node.properties {
       attributes.push(self.parse_prop(
@@ -206,6 +215,9 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
       ));
     }
 
+    if has_v_pre {
+      self.in_v_pre = true;
+    }
     let children = match children {
       Some(children) => children,
       None => v_slot_wrapper.wrap(self.parse_children(
@@ -214,6 +226,9 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
         node.children,
       )),
     };
+    if has_v_pre {
+      self.in_v_pre = false;
+    }
 
     // Clone element_name for opening element (needed because we may consume it in closing element)
     let opening_element_name = element_name.clone_in(self.allocator);
