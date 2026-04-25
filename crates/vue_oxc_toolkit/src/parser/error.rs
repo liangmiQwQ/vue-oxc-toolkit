@@ -1,71 +1,64 @@
-use std::cell::RefCell;
-
 use oxc_span::Span;
 
 use oxc_diagnostics::OxcDiagnostic;
-use vue_compiler_core::error::{CompilationError, CompilationErrorKind, ErrorHandler};
+use vize_armature::{CompilerError, ErrorCode, SourceLocation};
 
-use crate::parser::parse::SourceLocatonSpan;
-
-pub struct OxcErrorHandler<'a> {
-  errors: &'a RefCell<&'a mut Vec<OxcDiagnostic>>,
-  panicked: &'a RefCell<bool>,
+/// Convert a vize `SourceLocation` to an `oxc_span::Span`
+const fn loc_to_span(loc: &SourceLocation) -> Span {
+  Span::new(loc.start.offset, loc.end.offset)
 }
 
-impl<'a> OxcErrorHandler<'a> {
-  pub const fn new(
-    errors: &'a RefCell<&'a mut Vec<OxcDiagnostic>>,
-    panicked: &'a RefCell<bool>,
-  ) -> Self {
-    Self { errors, panicked }
-  }
-}
-
-impl ErrorHandler for OxcErrorHandler<'_> {
-  fn on_error(&self, error: CompilationError) {
-    if !is_warn(&error) && !*self.panicked.borrow() {
-      if should_panic(&error) {
-        *self.panicked.borrow_mut() = true;
+/// Process vize parser errors into OXC diagnostics.
+/// Returns the diagnostics and whether the parser should be considered panicked (fatal).
+pub fn process_vize_errors(errors: &[CompilerError], diagnostics: &mut Vec<OxcDiagnostic>) -> bool {
+  let mut panicked = false;
+  for error in errors {
+    if !is_warn(error.code) {
+      if should_panic(error.code) {
+        panicked = true;
       }
-      self
-        .errors
-        .borrow_mut()
-        .push(OxcDiagnostic::error(error.to_string()).with_label(error.location.span()));
+      let diag = OxcDiagnostic::error(error.to_string());
+      diagnostics.push(if let Some(loc) = &error.loc {
+        diag.with_label(loc_to_span(loc))
+      } else {
+        diag
+      });
     }
   }
+  panicked
 }
 
 #[must_use]
-const fn is_warn(error: &CompilationError) -> bool {
+const fn is_warn(code: ErrorCode) -> bool {
   matches!(
-    error.kind,
-    CompilationErrorKind::InvalidFirstCharacterOfTagName
-      | CompilationErrorKind::NestedComment
-      | CompilationErrorKind::IncorrectlyClosedComment
-      | CompilationErrorKind::IncorrectlyOpenedComment
-      | CompilationErrorKind::AbruptClosingOfEmptyComment
-      | CompilationErrorKind::MissingWhitespaceBetweenAttributes
-      | CompilationErrorKind::MissingDirectiveArg
+    code,
+    ErrorCode::InvalidFirstCharacterOfTagName
+      | ErrorCode::NestedComment
+      | ErrorCode::IncorrectlyClosedComment
+      | ErrorCode::IncorrectlyOpenedComment
+      | ErrorCode::AbruptClosingOfEmptyComment
+      | ErrorCode::MissingWhitespaceBetweenAttributes
+      | ErrorCode::MissingDirectiveName
   )
 }
 
 #[must_use]
-const fn should_panic(error: &CompilationError) -> bool {
+const fn should_panic(code: ErrorCode) -> bool {
   matches!(
-    error.kind,
+    code,
     // EOF errors - incomplete template structure
-    CompilationErrorKind::EofInTag
-      | CompilationErrorKind::EofInComment
-      | CompilationErrorKind::EofInCdata
-      | CompilationErrorKind::EofBeforeTagName
-      | CompilationErrorKind::EofInScriptHtmlCommentLikeText
+    ErrorCode::EofInTag
+      | ErrorCode::EofInComment
+      | ErrorCode::EofInCdata
+      | ErrorCode::EofBeforeTagName
+      | ErrorCode::EofInScriptHtmlCommentLikeText
       // Vue syntax incomplete - can't generate valid JSX
-      | CompilationErrorKind::MissingInterpolationEnd
-      | CompilationErrorKind::MissingDynamicDirectiveArgumentEnd
-      | CompilationErrorKind::MissingEndTag
+      | ErrorCode::MissingInterpolationEnd
+      | ErrorCode::MissingDynamicDirectiveArgumentEnd
+      | ErrorCode::MissingEndTag
       // Critical structural issues
-      | CompilationErrorKind::UnexpectedNullCharacter
-      | CompilationErrorKind::CDataInHtmlContent
+      | ErrorCode::UnexpectedNullCharacter
+      | ErrorCode::CdataInHtmlContent
   )
 }
 

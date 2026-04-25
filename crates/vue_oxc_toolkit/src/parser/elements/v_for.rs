@@ -9,7 +9,7 @@ use oxc_ast::{
 
 use oxc_span::{SPAN, Span};
 use regex::Regex;
-use vue_compiler_core::parser::Directive;
+use vize_armature::DirectiveNode;
 
 use crate::parser::{ParserImpl, error, parse::SourceLocatonSpan};
 
@@ -25,20 +25,26 @@ impl<'a> ParserImpl<'a> {
     None
   }
 
-  pub fn analyze_v_for(&mut self, dir: &Directive<'a>, wrapper: &mut VForWrapper<'_, 'a>) {
+  pub fn analyze_v_for(&mut self, dir: &DirectiveNode<'_>, wrapper: &mut VForWrapper<'_, 'a>) {
+    let dir_span = self.directive_span(dir);
     (|| {
-      if dir.has_empty_expr() {
-        self.invalid_v_for_expression(dir.location.span())?;
+      if dir.exp.is_none() {
+        self.invalid_v_for_expression(dir_span)?;
       }
-      let expr = dir.expression.as_ref().unwrap(); // SAFETY: Checked above
+      let exp = dir.exp.as_ref().unwrap(); // SAFETY: Checked above
+      let exp_loc = exp.loc();
+
+      // vize expression loc doesn't include quotes, use directly
+      let exp_content = exp_loc.span().source_text(self.source_text);
 
       // https://github.com/vuejs/core/blob/e1ccd9fde8f57fe7bd40fdf1345692ab3e6a1fa0/packages/compiler-core/src/utils.ts#L571
       let for_alias_regex = Regex::new(r"^([\s\S]*?)\s+(?:in|of)\s+(\S[\s\S]*)").unwrap();
-      if let Some(caps) = for_alias_regex.captures(expr.content.raw)
+      if let Some(caps) = for_alias_regex.captures(exp_content)
         && let Some(cap1) = caps.get(1)
         && let Some(cap2) = caps.get(2)
       {
-        let start = expr.location.span().start + 1;
+        // vize expression loc doesn't include quotes
+        let start = exp_loc.span().start;
         wrapper.set_data_origin(self.ast.parenthesized_expression(
           SPAN,
           self.parse_pure_expression(Span::new(
@@ -72,7 +78,7 @@ impl<'a> ParserImpl<'a> {
 
         wrapper.set_params(params.clone_in(self.allocator));
       } else {
-        self.invalid_v_for_expression(dir.location.span())?;
+        self.invalid_v_for_expression(dir_span)?;
       }
 
       Some(())
