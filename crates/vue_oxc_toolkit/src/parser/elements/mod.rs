@@ -28,12 +28,7 @@ mod v_if;
 mod v_slot;
 
 impl<'a: 'b, 'b> ParserImpl<'a> {
-  fn parse_children(
-    &mut self,
-    _start: u32,
-    _end: u32,
-    children: &[TemplateChildNode<'_>],
-  ) -> ArenaVec<'a, JSXChild<'a>> {
+  fn parse_children(&mut self, children: &[TemplateChildNode<'_>]) -> ArenaVec<'a, JSXChild<'a>> {
     let ast = self.ast;
     if children.is_empty() {
       return ast.vec();
@@ -47,6 +42,10 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
           let (child, v_if) = self.parse_element_ref(node, None);
           if let Some(v_if) = v_if {
             if let Some(child) = self.add_v_if(child, v_if, &mut v_if_manager) {
+              // There are three cases to return Some(child) for add_v_if function
+              // 1. meet v-else, means the v-if/v-else-if chain is finished
+              // 2. meet v-if while the v_if_manager is not empty, means the previous v-if/v-else-if chain is finished
+              // 3. meet v-else/v-else-if with no v-if, v_if_manager won't add it to the chain, so add it to result there
               result.push(child);
             }
           } else {
@@ -66,6 +65,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
     }
 
     if let Some(chain) = v_if_manager.take_chain() {
+      // If the last element is v-if / v-else-if / v-else, push all the children
       result.push(chain);
     }
 
@@ -109,8 +109,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
           let original_source_type = self.source_type;
           self.source_type = self.source_type.with_jsx(true);
 
-          // Defer to oxc_parser directly — handling `<a.b.c.d />` ourselves
-          // would mean re-implementing JSXMemberExpression parsing.
+          // Delegate to oxc_parser because it's too complex to process <a.b.c.d.e />
           // SAFETY: use `()` as wrap
           let expr = self.parse_expression(name_span, b"(<", b"/>)", &allocator);
 
@@ -120,15 +119,19 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
         }
         && let Expression::JSXElement(mut jsx_element) = expr
       {
+        // For namespace tag name, e.g. <motion.div />
         jsx_element.opening_element.name.take_in(self.allocator)
       } else if tag_name.contains('-') {
+        // For kebab-case tag name, e.g. <keep-alive />
         let name = kebab_to_case(tag_name, true);
         ast.jsx_element_name_identifier_reference(name_span, ast.str(&name))
       } else {
         let name = ast.str(tag_name);
         if node.is_component_like() {
+          // For <KeepAlive />
           ast.jsx_element_name_identifier_reference(name_span, name)
         } else {
+          // For normal element, like <div>, use identifier
           ast.jsx_element_name_identifier(name_span, name)
         }
       }
@@ -148,21 +151,24 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
       ));
     }
 
-    let children = children.unwrap_or_else(|| {
-      v_slot_wrapper.wrap(self.parse_children(
-        open_element_span.end,
-        end_element_span.start,
-        &node.children,
-      ))
-    });
+    let children =
+      children.unwrap_or_else(|| v_slot_wrapper.wrap(self.parse_children(&node.children)));
 
+    // Clone element_name for opening element (needed because we may consume it in closing element)
     let opening_element_name = element_name.clone_in(self.allocator);
 
+    // Determine closing element based on tag type:
+    // - Self-closing tags (/>): closing element with empty name
+    // - Void tags without />: None
+    // - Normal tags with </tag>: closing element with tag name
     let closing_element = if node.is_self_closing {
+      // Self-closing tag: create closing element with empty element name
       Some(ast.jsx_closing_element(SPAN, ast.jsx_element_name_identifier(SPAN, ast.str(""))))
     } else if is_void_tag!(tag_name) {
+      // Void tag without />: no closing element
       None
     } else {
+      // Normal tag with explicit closing tag
       Some(ast.jsx_closing_element(end_element_span, {
         let span = Span::sized(end_element_span.start + 2, tag_name.len() as u32);
         *element_name.span_mut() = span;
@@ -190,6 +196,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
   ) -> JSXAttributeItem<'a> {
     let ast = self.ast;
     match prop {
+      // For normal attributes, like <div class="w-100" />
       PropNode::Attribute(attr) => {
         let attr_span = attr.full_span(self.source_text);
         ast.jsx_attribute_item_attribute(
@@ -199,8 +206,8 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
             ast.str(attr.name_loc.span().source_text(self.source_text)),
           ),
           attr.value.as_ref().map(|value| {
-            // vize TextNode.loc covers just the value content (without quotes),
-            // which is exactly what oxc's StringLiteral wants.
+            // Vize TextNode.loc covers just the value content (without quotes)
+            // This is exactly what oxc's StringLiteral wants.
             let value_span = value.loc.span();
             ast.jsx_attribute_value_string_literal(
               value_span,
@@ -211,98 +218,88 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
         )
       }
       PropNode::Directive(dir) => {
-        self.parse_directive_prop(dir, v_for_wrapper, v_slot_wrapper, v_if_state)
+        let ast = self.ast;
+        let dir_span = dir.full_span(self.source_text);
+        let dir_name = self.parse_directive_name(dir);
+
+        // Side-effects on wrappers — these need to run regardless of how we render
+        // the directive value.
+        match dir.name.as_str() {
+          "slot" => self.analyze_v_slot(dir, v_slot_wrapper, &dir_name),
+          "for" => self.analyze_v_for(dir, v_for_wrapper),
+          "else" => *v_if_state = Some(VIf::Else),
+          _ => {}
+        }
+
+        if matches!(dir.name.as_str(), "if" | "else-if") && dir.exp.is_none() {
+          error::v_if_else_without_expression(&mut self.errors, dir_span);
+        }
+
+        // `v-bind="expr"` (and `:="expr"`) — argument-less binding compiles to
+        // a JSX spread attribute, mirroring Vue's `<div v-bind="obj" />`
+        // behavior. See https://play.vuejs.org/#eNqVkbtOwzAUhl/FOkuWNC2CKQqVAFWiDICA0UuID8HFsS1f0khR3h3bVS9DVamb/V/s7+iM8KB10XuEEiqHnRa1wyWVhFSM96SfffPJ7imMhLOSZLXWWU4aUVsbbtvZzWKRkYnCkjyvSTUPlWO3vLJWzU/+hxycbZT84W2xsUoGvDG+TKFRneYCzZt2XElLoSTJiV4thNq+JM0Zj/leb36x+Tujb+wQNQrvBi2aHikcPFebFt3OXn2+4hDOB7NTzIuQvmB+oFXCR8Zd7NFLFrBPcol23WllHJftl10NDqXdDxVBY3JKeQphR08XRj/i3hZ3qUflBNM/rC6XVg==
+        if dir.name.as_str() == "bind"
+          && dir.arg.is_none()
+          && let Some(exp) = &dir.exp
+          && let Some(argument) = self.parse_pure_expression(exp.span())
+        {
+          return ast.jsx_attribute_item_spread_attribute(dir_span, argument);
+        }
+
+        // Vue 3.4+ same-name shorthand (`:foo`, `:msg-id`): vize synthesizes
+        // `dir.exp` with `dir.shorthand == true` and `exp.content` already
+        // camelized. The synthesized expression doesn't correspond to a real
+        // source range, so we emit a dummy span here.
+        if dir.shorthand
+          && let Some(vize_armature::ExpressionNode::Simple(s)) = dir.exp.as_ref()
+        {
+          let ident = ast.str(s.content.as_str());
+          return ast.jsx_attribute_item_attribute(
+            dir_span,
+            dir_name,
+            Some(ast.jsx_attribute_value_expression_container(
+              SPAN,
+              JSXExpression::from(ast.expression_identifier(SPAN, ident)),
+            )),
+          );
+        }
+
+        let value = if let Some(exp) = &dir.exp {
+          let expr_span = exp.span();
+          Some(
+            ast.jsx_attribute_value_expression_container(
+              // The container span starts one byte before the expression — the
+              // opening quote — and runs to the directive end so JSX renders the
+              // surrounding `="..."` form.
+              Span::new(expr_span.start.saturating_sub(1), dir_span.end),
+              self
+                .directive_value_expression(dir, expr_span, v_if_state)
+                .unwrap_or_else(|| JSXExpression::EmptyExpression(ast.jsx_empty_expression(SPAN))),
+            ),
+          )
+        } else if let Some(arg) = &dir.arg
+          && is_dynamic_arg(arg)
+          && let Some(argument) =
+            self.parse_dynamic_argument(dir, ast.expression_identifier(SPAN, "undefined"))
+        {
+          // v-slot:[name] / v-bind:[name] without a value
+          Some(ast.jsx_attribute_value_expression_container(SPAN, argument.into()))
+        } else if dir_span.end > dir.loc.end.offset {
+          // Empty quoted value such as `v-for=""`. The directive has a value
+          // delimiter but nothing inside; emit an empty expression container so
+          // the JSX surface reflects the source.
+          let container_span = Span::new(dir_span.end - 2, dir_span.end);
+          Some(ast.jsx_attribute_value_expression_container(
+            container_span,
+            JSXExpression::EmptyExpression(ast.jsx_empty_expression(SPAN)),
+          ))
+        } else {
+          None
+        };
+
+        ast.jsx_attribute_item_attribute(dir_span, dir_name, value)
       }
     }
-  }
-
-  fn parse_directive_prop(
-    &mut self,
-    dir: &DirectiveNode<'_>,
-    v_for_wrapper: &mut VForWrapper<'_, 'a>,
-    v_slot_wrapper: &mut VSlotWrapper<'_, 'a>,
-    v_if_state: &mut Option<VIf<'a>>,
-  ) -> JSXAttributeItem<'a> {
-    let ast = self.ast;
-    let dir_span = dir.full_span(self.source_text);
-    let dir_name = self.parse_directive_name(dir);
-
-    // Side-effects on wrappers — these need to run regardless of how we render
-    // the directive value.
-    match dir.name.as_str() {
-      "slot" => self.analyze_v_slot(dir, v_slot_wrapper, &dir_name),
-      "for" => self.analyze_v_for(dir, v_for_wrapper),
-      "else" => *v_if_state = Some(VIf::Else),
-      _ => {}
-    }
-
-    if matches!(dir.name.as_str(), "if" | "else-if") && dir.exp.is_none() {
-      error::v_if_else_without_expression(&mut self.errors, dir_span);
-    }
-
-    // `v-bind="expr"` (and `:="expr"`) — argument-less binding compiles to
-    // a JSX spread attribute, mirroring Vue's `<div v-bind="obj" />`
-    // behavior. See https://play.vuejs.org/#eNqVkbtOwzAUhl/FOkuWNC2CKQqVAFWiDICA0UuID8HFsS1f0khR3h3bVS9DVamb/V/s7+iM8KB10XuEEiqHnRa1wyWVhFSM96SfffPJ7imMhLOSZLXWWU4aUVsbbtvZzWKRkYnCkjyvSTUPlWO3vLJWzU/+hxycbZT84W2xsUoGvDG+TKFRneYCzZt2XElLoSTJiV4thNq+JM0Zj/leb36x+Tujb+wQNQrvBi2aHikcPFebFt3OXn2+4hDOB7NTzIuQvmB+oFXCR8Zd7NFLFrBPcol23WllHJftl10NDqXdDxVBY3JKeQphR08XRj/i3hZ3qUflBNM/rC6XVg==
-    if dir.name.as_str() == "bind"
-      && dir.arg.is_none()
-      && let Some(exp) = &dir.exp
-      && let Some(argument) = self.parse_pure_expression(exp.span())
-    {
-      return ast.jsx_attribute_item_spread_attribute(dir_span, argument);
-    }
-
-    // Vue 3.4+ same-name shorthand (`:foo`, `:msg-id`): vize synthesizes
-    // `dir.exp` with `dir.shorthand == true` and `exp.content` already
-    // camelized. The synthesized expression doesn't correspond to a real
-    // source range, so we emit a dummy span here.
-    if dir.shorthand
-      && let Some(vize_armature::ExpressionNode::Simple(s)) = dir.exp.as_ref()
-    {
-      let ident = ast.str(s.content.as_str());
-      return ast.jsx_attribute_item_attribute(
-        dir_span,
-        dir_name,
-        Some(ast.jsx_attribute_value_expression_container(
-          SPAN,
-          JSXExpression::from(ast.expression_identifier(SPAN, ident)),
-        )),
-      );
-    }
-
-    let value = if let Some(exp) = &dir.exp {
-      let expr_span = exp.span();
-      Some(
-        ast.jsx_attribute_value_expression_container(
-          // The container span starts one byte before the expression — the
-          // opening quote — and runs to the directive end so JSX renders the
-          // surrounding `="..."` form.
-          Span::new(expr_span.start.saturating_sub(1), dir_span.end),
-          self
-            .directive_value_expression(dir, expr_span, v_if_state)
-            .unwrap_or_else(|| JSXExpression::EmptyExpression(ast.jsx_empty_expression(SPAN))),
-        ),
-      )
-    } else if let Some(arg) = &dir.arg
-      && is_dynamic_arg(arg)
-      && let Some(argument) =
-        self.parse_dynamic_argument(dir, ast.expression_identifier(SPAN, "undefined"))
-    {
-      // v-slot:[name] / v-bind:[name] without a value
-      Some(ast.jsx_attribute_value_expression_container(SPAN, argument.into()))
-    } else if dir_span.end > dir.loc.end.offset {
-      // Empty quoted value such as `v-for=""`. The directive has a value
-      // delimiter but nothing inside; emit an empty expression container so
-      // the JSX surface reflects the source.
-      let container_span = Span::new(dir_span.end - 2, dir_span.end);
-      Some(ast.jsx_attribute_value_expression_container(
-        container_span,
-        JSXExpression::EmptyExpression(ast.jsx_empty_expression(SPAN)),
-      ))
-    } else {
-      None
-    };
-
-    ast.jsx_attribute_item_attribute(dir_span, dir_name, value)
   }
 
   /// Build the `JSXExpression` that lives inside a directive's
@@ -418,14 +415,9 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
     unsafe { self.parse_expression(span, b"(", b")", &allocator).clone_in(self.allocator) }
   }
 
-  /// Parse expression with [`oxc_parser`].
-  ///
-  /// We parse manually rather than calling [`oxc_parser::Parser::parse_expression`]
-  /// to keep code comments collected during parsing.
-  ///
-  /// ## Safety
-  /// - `start_wrap` must start with `(`
-  /// - `end_wrap` must end with `)`
+  /// Parse expression with [`oxc_parser`]
+  /// The reason we don't wrap the expression with `(` and `)` is to avoid unnecessary copy
+  /// `b"(("` and `b")=>{})"` is much more efficient than passing `b"("` `b")=>{}"`, which needs to copy it in a [`Vec`] and push and slice
   pub unsafe fn parse_expression(
     &mut self,
     span: Span,
@@ -433,6 +425,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
     end_wrap: &[u8],
     allocator: &'b Allocator,
   ) -> Option<Expression<'b>> {
+    // The only purpose to not use [`oxc_parser::Parser::parse_expression`] is to keep the code comments in it
     let (_, mut body, _) = self.oxc_parse(span, start_wrap, end_wrap, Some(allocator))?;
 
     let Some(Statement::ExpressionStatement(stmt)) = body.get_mut(0) else {
