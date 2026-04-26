@@ -6,10 +6,10 @@ use oxc_ast::{
     ObjectPropertyKind, PropertyKey, PropertyKind,
   },
 };
-use oxc_span::{SPAN, Span};
-use vue_compiler_core::parser::Directive;
+use oxc_span::SPAN;
+use vize_armature::DirectiveNode;
 
-use crate::parser::{ParserImpl, parse::SourceLocatonSpan};
+use crate::{parser::ParserImpl, utils::VizeSpan};
 
 pub struct VSlotWrapper<'a, 'b> {
   ast: &'a AstBuilder<'b>,
@@ -21,7 +21,7 @@ pub struct VSlotWrapper<'a, 'b> {
 impl<'a> ParserImpl<'a> {
   pub fn analyze_v_slot(
     &mut self,
-    dir: &Directive<'a>,
+    dir: &DirectiveNode<'_>,
     wrapper: &mut VSlotWrapper<'_, 'a>,
     dir_name: &JSXAttributeName<'a>,
   ) {
@@ -61,33 +61,26 @@ impl<'a> ParserImpl<'a> {
       }
 
       // --- Process Params ---
-      // As vue use arrow function to wrap the slot content, we use it as well to deal with some edge cases
-      // https://play.vuejs.org/#eNp9kD1PwzAQhv+KdXNJB5iigASoAwyAgNFLlBxpir/kO4dIkf87tquGDsBmvc9z9utb4Na5agoINTSM2qmW8UYaIZp7q52YLkhZrvfY9uivJSxCI1E7oIgSiifEchbGMrrNs4k22/VK2ABTZ83HOFQHsia9t2RXQpfcUaF/djxaQxJqUUhmrVL267Fk7ANuTnm3x+7zl/xAc84kvHgk9BNKWBm3fkA+4t3bE87pvEJt+6CS/Q98RbIq5I5H7S6YPtU+80rbB+2s59EM77SbGQ2dPpWLZjMWX0Jael7TX1//qXtZXZU5aSLEbzFYjTA=
-      if dir.has_empty_expr() {
-        wrapper.set_params(self.ast.formal_parameters(
-          SPAN,
-          FormalParameterKind::ArrowFormalParameters,
-          self.ast.vec(),
-          NONE,
-        ));
-      } else {
-        let expr = dir.expression.as_ref().unwrap();
+      if let Some(exp) = dir.exp.as_ref() {
         let allocator = Allocator::new();
+        let exp_span = exp.span();
         // SAFETY: warp with `((` and `)=>0)`
-        let Expression::ArrowFunctionExpression(mut arrow_function_expression) = (unsafe {
-          self.parse_expression(
-            Span::sized(expr.location.span().start + 1, expr.content.raw.len() as u32),
-            b"((",
-            b")=>0)",
-            &allocator,
-          )?
-        }) else {
+        let Expression::ArrowFunctionExpression(mut arrow_function_expression) =
+          (unsafe { self.parse_expression(exp_span, b"((", b")=>0)", &allocator)? })
+        else {
           // SAFETY: We always wrap the source in arrow function expression
           unreachable!()
         };
         wrapper.set_params(
           arrow_function_expression.params.take_in(&allocator).clone_in(self.allocator),
         );
+      } else {
+        wrapper.set_params(self.ast.formal_parameters(
+          SPAN,
+          FormalParameterKind::ArrowFormalParameters,
+          self.ast.vec(),
+          NONE,
+        ));
       }
 
       Some(())

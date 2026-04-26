@@ -44,4 +44,4 @@ oxc_syntax = ">=0.127.0"
 
 memchr = "2.8.0"
 regex = "1.12.3"
-vue-compiler-core = "0.1.0"
+vize_armature = "0.72.0"

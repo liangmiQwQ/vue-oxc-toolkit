@@ -1,5 +1,6 @@
 ---
 source: crates/vue_oxc_toolkit/src/test.rs
+assertion_line: 93
 expression: result
 ---
 =============== Program ===============
