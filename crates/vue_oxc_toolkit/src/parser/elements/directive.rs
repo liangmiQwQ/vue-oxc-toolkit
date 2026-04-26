@@ -31,8 +31,13 @@ impl<'a> ParserImpl<'a> {
       memchr(b':', name.as_bytes()).map_or(span.end, |i| span.start + i as u32),
     );
 
-    let name_span =
-      if name_space_span == span { SPAN } else { Span::new(name_space_span.end + 1, span.end) };
+    let name_span = if name_space_span == span {
+      // Can't find ':' in the name, so it's not a namespaced name
+      // Such as v-for, v-if, v-else, v-else-if, v-show, v-cloak, v-once, v-pre, v-text, v-html, v-bind, v-on, v-model, v-slot, v-memo, v-transition, v-transition-group, v-custom-directive
+      SPAN
+    } else {
+      Span::new(name_space_span.end + 1, span.end)
+    };
 
     self.ast.jsx_attribute_name_namespaced_name(
       span,
