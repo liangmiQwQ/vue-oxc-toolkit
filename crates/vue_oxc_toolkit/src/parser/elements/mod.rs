@@ -60,6 +60,9 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
     }
     let mut result = self.ast.vec_with_capacity(children.len() + 2);
 
+    // TODO: The gap logic is a previous patch for vue-compiler-core
+    // Since we switch to vize, we can completely remove it instead of refactoring it.
+
     // Track position after the last element/interpolation to synthesize gap text nodes.
     // We use `None` until the first element/interpolation is encountered.
     // Text nodes from vize are NOT used for gaps; we create them from source spans instead.
@@ -91,6 +94,10 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
 
           if let Some(v_if) = v_if {
             if let Some(child) = self.add_v_if(child, v_if, &mut v_if_manager) {
+              // There are three cases to return Some(child) for add_v_if function
+              // 1. meet v-else, means the v-if/v-else-if chain is finished
+              // 2. meet v-if while the v_if_manager is not empty, means the previous v-if/v-else-if chain is finished
+              // 3. meet v-else/v-else-if with no v-if, v_if_manager won't add it to the chain, so add it to result there
               result.push(child);
             }
           } else {
