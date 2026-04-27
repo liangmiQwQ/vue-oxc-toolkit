@@ -10,13 +10,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # release-napi-parser:
-  #   name: Release NAPI Parser
-  #   uses: ./.github/workflows/reusable-release-napi.yml
-  #   with:
-  #     name: parser
-  #   permissions:
-  #     id-token: write
+  release-napi:
+    name: Release NAPI
+    uses: ./.github/workflows/reusable-release-napi.yml
+    with:
+      name: vue-oxlint-toolkit
+    permissions:
+      id-token: write
 
   release-crates:
     name: Release Crates

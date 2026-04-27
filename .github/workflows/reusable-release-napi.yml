@@ -10,6 +10,11 @@ on:
         required: true
         type: string
         description: 'The component name'
+      dry-run:
+        required: false
+        type: boolean
+        default: false
+        description: 'When true, validate the publish flow without actually publishing to npm'
 
 jobs:
   build:
@@ -31,6 +36,10 @@ jobs:
           - os: windows-latest
             target: aarch64-pc-windows-msvc
             build: pnpm build --target aarch64-pc-windows-msvc
+
+          - os: windows-latest
+            target: i686-pc-windows-msvc
+            build: pnpm build --target i686-pc-windows-msvc
 
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
@@ -61,31 +70,12 @@ jobs:
             build: pnpm build --target aarch64-apple-darwin
 
           - os: ubuntu-latest
-            target: wasm32-wasip1-threads
-            build: pnpm build --target wasm32-wasip1-threads
-
-          - os: ubuntu-latest
-            target: s390x-unknown-linux-gnu
-            build: |
-              export CFLAGS="-fuse-ld=lld"
-              pnpm build --target s390x-unknown-linux-gnu --use-napi-cross
-
-          - os: ubuntu-latest
             target: aarch64-linux-android
             build: pnpm build --target aarch64-linux-android
 
           - os: ubuntu-latest
-            target: riscv64gc-unknown-linux-gnu
-            build: |
-              sudo apt-get update
-              sudo apt-get install gcc-riscv64-linux-gnu g++-riscv64-linux-gnu -y
-              export TARGET_CC=riscv64-linux-gnu-gcc
-              export CXX=riscv64-linux-gnu-g++
-              pnpm build --target riscv64gc-unknown-linux-gnu
-
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-ohos
-            build: pnpm build --target aarch64-unknown-linux-ohos
+            target: armv7-linux-androideabi
+            build: pnpm build --target armv7-linux-androideabi
 
     steps:
       - uses: taiki-e/checkout-action@v1
@@ -93,10 +83,6 @@ jobs:
       - uses: oxc-project/setup-node@v1.0.4
 
       - run: rustup target add ${{ matrix.target }}
-
-      - name: Setup OpenHarmony SDK
-        if: ${{ contains(matrix.target, 'ohos') }}
-        uses: Boshen/setup-ohos-sdk@v1.0.0
 
       - uses: goto-bus-stop/setup-zig@v2
         if: ${{ contains(matrix.target, 'musl') }}
@@ -114,10 +100,9 @@ jobs:
         with:
           if-no-files-found: error
           name: bindings-${{ matrix.target }}
-          # `**/*.node` because in `packages/parser`, binaries are in `napi` subdirectory
           path: |
-            packages/${{ inputs.name }}/**/*.node
-            packages/${{ inputs.name }}/**/*.wasm
+            packages/${{ inputs.name }}/bindings/*.node
+            packages/${{ inputs.name }}/bindings/*.wasm
 
   build-freebsd:
     name: Build FreeBSD
@@ -162,8 +147,7 @@ jobs:
         with:
           if-no-files-found: error
           name: bindings-freebsd
-          # `**/*.node` because in `packages/parser`, binary is in `napi` subdirectory
-          path: packages/${{ inputs.name }}/**/*.node
+          path: packages/${{ inputs.name }}/bindings/*.node
 
   publish:
     name: Publish NAPI
@@ -191,7 +175,11 @@ jobs:
 
       - run: pnpm napi create-npm-dirs --package-json-path ${package_path}/package.json --npm-dir ${npm_dir}
 
-      - run: pnpm napi artifacts --package-json-path ${package_path}/package.json --build-output-dir ${package_path}/napi --npm-dir ${npm_dir}
+      - run: pnpm napi artifacts --package-json-path ${package_path}/package.json --build-output-dir ${package_path}/bindings --npm-dir ${npm_dir}
+
+      - name: Build JS bundle
+        working-directory: ${{ env.package_path }}
+        run: pnpm build:js
 
       - run: npm install -g npm@latest # For trusted publishing support
 
@@ -245,6 +233,7 @@ jobs:
           pnpm publish ${package_path}/ ${PUBLISH_FLAGS} --dry-run
 
       - name: Trusted Publish
+        if: ${{ !inputs.dry-run }}
         run: |
           # Trusted publishing is configured, publish token is not required.
           # Publish sub-packages and adds `optionalDependencies` to `package_path`.

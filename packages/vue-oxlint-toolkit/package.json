@@ -19,8 +19,9 @@
   },
   "scripts": {
     "artifacts": "napi artifacts",
-    "build": "napi build --esm --platform --release --output-dir bindings && vp pack",
+    "build": "napi build --esm --platform --release --output-dir bindings",
     "build:debug": "napi build --esm --platform --output-dir bindings && vp pack",
+    "build:js": "vp pack",
     "prepublishOnly": "napi prepublish -t npm",
     "version": "napi version"
   },
@@ -49,5 +50,20 @@
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
+  },
+  "optionalDependencies": {
+    "@vue-oxlint/binding-win32-x64-msvc": "0.11.0",
+    "@vue-oxlint/binding-darwin-x64": "0.11.0",
+    "@vue-oxlint/binding-linux-x64-gnu": "0.11.0",
+    "@vue-oxlint/binding-linux-x64-musl": "0.11.0",
+    "@vue-oxlint/binding-linux-arm64-gnu": "0.11.0",
+    "@vue-oxlint/binding-win32-ia32-msvc": "0.11.0",
+    "@vue-oxlint/binding-linux-arm-gnueabihf": "0.11.0",
+    "@vue-oxlint/binding-darwin-arm64": "0.11.0",
+    "@vue-oxlint/binding-android-arm64": "0.11.0",
+    "@vue-oxlint/binding-freebsd-x64": "0.11.0",
+    "@vue-oxlint/binding-linux-arm64-musl": "0.11.0",
+    "@vue-oxlint/binding-win32-arm64-msvc": "0.11.0",
+    "@vue-oxlint/binding-android-arm-eabi": "0.11.0"
   }
 }
