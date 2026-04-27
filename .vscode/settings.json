@@ -8,7 +8,7 @@
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
     "package.json": "pnpm*, .node-version, VERSION_INFO",
-    "vite.config.ts": "tsconfig*",
+    "vite.config.ts": "tsconfig*, *.config.ts",
     "Cargo.toml": "Cargo.lock, .rustfmt.toml, rust-toolchain.toml, .cargo",
     "AGENTS.md": "CLAUDE.md",
     "README.md": "CONTRIBUTING.md, LICENSE, AGENTS.md, CLAUDE.md"

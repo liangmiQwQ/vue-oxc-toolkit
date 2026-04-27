@@ -6,6 +6,9 @@
   },
   "devDependencies": {
     "@types/node": "catalog:types",
+    "bumpp": "catalog:devtools",
+    "changelogithub": "catalog:devtools",
+    "semver": "catalog:devtools",
     "vite-plus": "catalog:devtools"
   },
   "packageManager": "pnpm@10.33.2",

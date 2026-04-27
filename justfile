@@ -47,6 +47,8 @@ build:
 bench:
   cargo bench -p benchmark
 
-bump:
-  cargo workspaces version -y -m "chore: release v%v" --no-individual-tags
-
+bump TYPE:
+  node -p "require('semver').valid('{{ TYPE }}') || process.exit(1)"
+  vpx bumpp -y --release {{ TYPE }}
+  cargo workspaces version --no-git-commit -y {{ TYPE }}
+  just build
