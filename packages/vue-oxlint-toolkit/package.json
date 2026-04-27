@@ -1,6 +1,6 @@
 {
   "name": "vue-oxlint-toolkit",
-  "version": "1.0.0",
+  "version": "0.11.0",
   "description": "An experimental Oxlint plugin for Oxlint's better Vue support.",
   "license": "MIT",
   "author": "Liang Mi <hi@liangmi.dev>",
@@ -10,8 +10,7 @@
     "directory": "packages/vue-oxlint-toolkit"
   },
   "files": [
-    "index.d.ts",
-    "index.js"
+    "dist"
   ],
   "main": "index.js",
   "types": "index.d.ts",
@@ -21,8 +20,8 @@
   },
   "scripts": {
     "artifacts": "napi artifacts",
-    "build": "napi build --platform --release",
-    "build:debug": "napi build --platform",
+    "build": "napi build --platform --release --output-dir bindings && vp pack",
+    "build:debug": "napi build --platform --output-dir bindings && vp pack",
     "prepublishOnly": "napi prepublish -t npm",
     "version": "napi version"
   },
