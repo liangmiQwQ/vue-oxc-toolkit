@@ -173,9 +173,16 @@ jobs:
 
       - run: mkdir -p ${npm_dir}
 
-      - run: pnpm napi create-npm-dirs --package-json-path ${package_path}/package.json --npm-dir ${npm_dir}
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - run: pnpm napi artifacts --package-json-path ${package_path}/package.json --build-output-dir ${package_path}/bindings --npm-dir ${npm_dir}
+      - name: Create npm dirs
+        working-directory: ${{ env.package_path }}
+        run: pnpm exec napi create-npm-dirs --package-json-path package.json --npm-dir ${{ github.workspace }}/${{ env.npm_dir }}
+
+      - name: Move artifacts into npm dirs
+        working-directory: ${{ env.package_path }}
+        run: pnpm exec napi artifacts --package-json-path package.json --build-output-dir bindings --npm-dir ${{ github.workspace }}/${{ env.npm_dir }} --output-dir ${{ github.workspace }}/artifacts
 
       - name: Build JS bundle
         working-directory: ${{ env.package_path }}
