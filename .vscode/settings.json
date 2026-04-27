@@ -1,13 +1,14 @@
 {
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "dprint.dprint",
+  "editor.defaultFormatter": "oxc.oxc-vscode",
   "[rust]": {
     "editor.defaultFormatter": "rust-lang.rust-analyzer"
   },
-  "typescript.validate.enable": false,
 
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
-    "Cargo.toml": "Cargo.lock, .rustfmt.toml, rust-toolchain.toml"
+    "package.json": "pnpm*, *.config.ts, *.json, .node-version, VERSION_INFO",
+    "Cargo.toml": "Cargo.lock, .rustfmt.toml, rust-toolchain.toml, .cargo",
+    "AGENTS.md": "CLAUDE.md"
   }
 }
