@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite-plus'
 
-const ignorePatterns = ['**/*.vue']
+const ignorePatterns = ['**/*.vue', 'packages/*/bindings/**']
 
 export default defineConfig({
   lint: {

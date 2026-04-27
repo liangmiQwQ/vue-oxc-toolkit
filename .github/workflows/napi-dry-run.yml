@@ -15,10 +15,6 @@ on:
       - 'crates/**'
       - 'Cargo.toml'
       - 'Cargo.lock'
-  push:
-    branches:
-      - 'refactor/**'
-      - 'ci/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
