@@ -6,50 +6,56 @@ _default:
 
 
 init:
-  cargo install cargo-binstall
-  cargo binstall cargo-insta cargo-shear cargo-workspaces cargo-edit cargo-llvm-cov dprint -y
-  just install-hook
+  cargo binstall cargo-insta cargo-shear cargo-workspaces cargo-edit -y
+  vp install
   
 fmt: 
   cargo fmt --all -- --emit=files
-  dprint fmt
-
-install-hook:
-  echo -e "#!/bin/sh\njust fmt" > .git/hooks/pre-commit
-  chmod +x .git/hooks/pre-commit
 
 fix:
   just fmt
   cargo fix --allow-dirty --allow-staged
-  -cargo shear --fix
+  vp check --fix
+  # -cargo shear --fix
 
 update:
   cargo upgrade
   cargo update
+  vp update major
 
 test: 
   cargo test --all-features --workspace
+  vp test
 
 ready:
   git diff --exit-code --quiet
   just lint
   just fix
+  just build
   just test
   git status
   git diff --exit-code --quiet
 
 lint: 
-  cargo shear
+  # cargo shear
   cargo clippy --workspace --all-targets --all-features -- -D warnings
+  vp check
 
 build:
   cargo build
+  vpr build
 
 bench:
   cargo bench -p benchmark
 
-bump:
-  cargo workspaces version -y -m "chore: release v%v" --no-individual-tags
-
-coverage:
-  cargo llvm-cov --all-features --workspace
+bump TYPE:
+  git checkout main
+  git pull origin main
+  node -p "require('semver').valid('{{ TYPE }}') || (console.error('Invalid version'), process.exit(1))"
+  vpx bumpp --no-commit -y --release -r {{ TYPE }}
+  cargo workspaces version --no-git-commit -y {{ TYPE }}
+  just build
+  git add .
+  git commit -m "chore: release v{{ TYPE }}"
+  git tag v{{ TYPE }}
+  git push origin main v{{ TYPE }}

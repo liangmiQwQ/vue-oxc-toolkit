@@ -13,12 +13,16 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
+      - uses: voidzero-dev/setup-vp@v1
+        with:
+          cache: true
+          run-install: true
 
       - name: Setup Rust
         uses: oxc-project/setup-rust@v1.0.9
         with:
-          tools: just,cargo-shear,dprint
+          tools: just,cargo-shear
           components: clippy rustfmt
 
       - name: Lint
@@ -26,6 +30,9 @@ jobs:
 
       - name: Format
         run: just fmt
+
+      - name: Build
+        run: just build
 
       - name: Check Files
         run: git diff --exit-code --quiet
@@ -35,16 +42,24 @@ jobs:
 
     strategy:
       matrix:
+        node: [lts/*]
         os: [ubuntu-latest, windows-latest, macos-latest]
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
+      - uses: voidzero-dev/setup-vp@v1
+        with:
+          cache: true
+          run-install: true
 
       - name: Setup Rust
         uses: oxc-project/setup-rust@v1.0.9
         with:
           tools: just
+
+      - name: Build
+        run: just build
 
       - name: Test
         run: just test

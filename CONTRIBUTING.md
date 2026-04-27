@@ -12,16 +12,20 @@ For new feature proposals, please open an Issue or start a Discussion first to g
 
 ## Setup Project
 
-This project is built with [Rust](https://rust-lang.org/), if you aren't familiar with it, please read the [official book](https://doc.rust-lang.org/book/) to instal basic rust environment and learn the basic concepts.
+This project is built with [Rust](https://rust-lang.org/), if you aren't familiar with them, please read the [official Rust book](https://doc.rust-lang.org/book/) to instal basic rust environment and learn the basic concepts.
 
-We use [just](https://just.systems/) as a task runner. You can install it and easily setup project environment by running:
+We use [Vite+](https://viteplus.dev/) to manage all linting / bundling features for JavaScript code, `just` to manage tasks.
+
+You can easily setup project by running the following command:
 
 ```bash
-cargo install just
+# If you didn't use cargo-binstall
+cargo install cargo-binstall
+
 just init
 ```
 
-And you can easily run the command to do formatting or code linting, you can list all available commands by running:
+View all commands available:
 
 ```bash
 just

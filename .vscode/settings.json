@@ -1,13 +1,14 @@
 {
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "dprint.dprint",
+  "editor.defaultFormatter": "oxc.oxc-vscode",
   "[rust]": {
     "editor.defaultFormatter": "rust-lang.rust-analyzer"
   },
-  "typescript.validate.enable": false,
 
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
-    "Cargo.toml": "Cargo.lock, .rustfmt.toml, rust-toolchain.toml"
+    "package.json": "pnpm*, tsconfig*, .node-version, VERSION_INFO, bumpp.config.ts",
+    "Cargo.toml": "Cargo.lock, .rustfmt.toml, rust-toolchain.toml, .cargo",
+    "README.md": "CONTRIBUTING.md, LICENSE, AGENTS.md, CLAUDE.md"
   }
 }

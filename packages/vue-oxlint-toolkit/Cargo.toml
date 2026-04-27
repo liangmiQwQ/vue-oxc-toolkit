@@ -1,24 +1,26 @@
 [package]
-name = "benchmark"
+name = "vue_oxlint_toolkit"
 version.workspace = true
 authors.workspace = true
 categories.workspace = true
 edition.workspace = true
 keywords.workspace = true
 license.workspace = true
-publish = false
 repository.workspace = true
 rust-version.workspace = true
 description.workspace = true
+publish = false
 
-[[bench]]
-name = "jsx"
-harness = false
+[lib]
+crate-type = ["cdylib"]
 
-[dev-dependencies]
-criterion = { workspace = true }
-oxc_allocator = { workspace = true }
-vue_oxlint_jsx = { workspace = true }
+[dependencies]
+napi = { workspace = true }
+napi-derive = { workspace = true }
+
+[build-dependencies]
+napi-build = { workspace = true }
 
 [lints]
 workspace = true
+

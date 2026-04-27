@@ -10,7 +10,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  release:
+  release-napi:
+    name: Release NAPI
+    uses: ./.github/workflows/reusable-release-napi.yml
+    with:
+      name: vue-oxlint-toolkit
+    permissions:
+      id-token: write
+
+  release-crates:
     name: Release Crates
     runs-on: ubuntu-latest
     permissions:
@@ -45,7 +53,7 @@ jobs:
           node-version: lts/*
 
       - name: Generate Changelog
-        run: npx changelogithub
+        run: vpx changelogithub
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
