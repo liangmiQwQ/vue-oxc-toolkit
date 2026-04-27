@@ -169,20 +169,20 @@ jobs:
 
       - uses: actions/download-artifact@v6
         with:
-          path: artifacts
+          path: packages/${{ inputs.name }}/artifacts
 
-      - run: mkdir -p ${npm_dir}
+      - run: mkdir -p ${package_path}/${npm_dir}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Create npm dirs
         working-directory: ${{ env.package_path }}
-        run: pnpm exec napi create-npm-dirs --package-json-path package.json --npm-dir ${{ github.workspace }}/${{ env.npm_dir }}
+        run: pnpm exec napi create-npm-dirs --package-json-path package.json --npm-dir ${{ env.npm_dir }}
 
       - name: Move artifacts into npm dirs
         working-directory: ${{ env.package_path }}
-        run: pnpm exec napi artifacts --package-json-path package.json --build-output-dir bindings --npm-dir ${{ github.workspace }}/${{ env.npm_dir }} --output-dir ${{ github.workspace }}/artifacts
+        run: pnpm exec napi artifacts --package-json-path package.json --build-output-dir bindings --npm-dir ${{ env.npm_dir }}
 
       - name: Build JS bundle
         working-directory: ${{ env.package_path }}
@@ -210,7 +210,7 @@ jobs:
       - name: Check Publish
         run: |
           # Check subpackages
-          for package in ${npm_dir}/*
+          for package in ${package_path}/${npm_dir}/*
           do
             echo $package
             ls $package
@@ -241,10 +241,11 @@ jobs:
 
       - name: Trusted Publish
         if: ${{ !inputs.dry-run }}
+        working-directory: ${{ env.package_path }}
         run: |
           # Trusted publishing is configured, publish token is not required.
           # Publish sub-packages and adds `optionalDependencies` to `package_path`.
           pnpm install --no-frozen-lockfile
-          pnpm napi pre-publish --no-gh-release -t npm --package-json-path ${package_path}/package.json --npm-dir ${npm_dir}
+          pnpm exec napi pre-publish --no-gh-release -t npm --package-json-path package.json --npm-dir ${{ env.npm_dir }}
           pnpm install --no-frozen-lockfile
-          pnpm publish ${package_path}/ ${PUBLISH_FLAGS}
+          pnpm publish ./ ${PUBLISH_FLAGS}
