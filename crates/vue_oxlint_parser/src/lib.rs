@@ -20,4 +20,5 @@ pub mod parser;
 pub mod sfc;
 pub mod template;
 
+pub use oxc_diagnostics::OxcDiagnostic;
 pub use parser::{ParseOptions, ParsedSfc, parse, parse_to_json};

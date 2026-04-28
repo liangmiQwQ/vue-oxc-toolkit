@@ -10,7 +10,16 @@
 
 use napi::Error as NapiError;
 use napi_derive::napi;
-use vue_oxlint_parser::{ParseOptions, parse_to_json};
+use vue_oxlint_parser::{OxcDiagnostic, ParseOptions, parse_to_json};
+
+/// Render an `OxcDiagnostic` (with its labels attached to the source) into a
+/// string suitable for a JS-side `Error.message`. The miette renderer gives
+/// us a multi-line, source-aware string for free; if rendering itself fails
+/// we fall back to the diagnostic's plain message.
+fn diagnostic_to_napi(source: &str, d: OxcDiagnostic) -> NapiError {
+  let report = d.with_source_code(source.to_string());
+  NapiError::from_reason(format!("{report:?}"))
+}
 
 #[napi]
 #[must_use]
@@ -29,6 +38,5 @@ pub const fn plus_100(input: u32) -> u32 {
 #[napi(js_name = "parseSync")]
 #[allow(clippy::needless_pass_by_value)] // napi requires owned String here
 pub fn parse_sync(source: String) -> Result<String, NapiError> {
-  parse_to_json(&source, &ParseOptions::default())
-    .map_err(|e| NapiError::from_reason(e.to_string()))
+  parse_to_json(&source, &ParseOptions::default()).map_err(|d| diagnostic_to_napi(&source, d))
 }

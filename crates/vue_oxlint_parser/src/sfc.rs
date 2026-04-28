@@ -12,7 +12,22 @@
 //! tags must be element-style, attributes are simple, and whitespace between
 //! blocks is preserved.
 
+use oxc_diagnostics::OxcDiagnostic;
+use oxc_span::Span as OxcSpan;
+
 use crate::ast::Span;
+
+fn unterminated_start_tag(offset: u32) -> OxcDiagnostic {
+  OxcDiagnostic::error("Unterminated SFC start tag")
+    .with_error_code_scope("vue-sfc")
+    .with_label(OxcSpan::new(offset, offset + 1))
+}
+
+fn missing_end_tag(name: &str, start: u32, end: u32) -> OxcDiagnostic {
+  OxcDiagnostic::error(format!("Missing end tag for `<{name}>`"))
+    .with_error_code_scope("vue-sfc")
+    .with_label(OxcSpan::new(start, end))
+}
 
 #[derive(Debug, Clone)]
 pub struct SfcBlock<'a> {
@@ -44,29 +59,12 @@ pub struct SfcLayout<'a> {
   pub text_segments: Vec<(Span, &'a str)>,
 }
 
-#[derive(Debug, Clone)]
-pub enum SfcError {
-  UnterminatedStartTag(u32),
-  MissingEndTag(String),
-}
-
-impl std::fmt::Display for SfcError {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    match self {
-      Self::UnterminatedStartTag(o) => write!(f, "unterminated start tag at offset {o}"),
-      Self::MissingEndTag(t) => write!(f, "missing end tag for `<{t}>`"),
-    }
-  }
-}
-
-impl std::error::Error for SfcError {}
-
 /// Walk `source` and identify top-level Vue SFC blocks.
 ///
 /// # Errors
-/// Returns [`SfcError`] when an opening tag cannot be terminated or a
-/// recognised block has no closing tag.
-pub fn split(source: &str) -> Result<SfcLayout<'_>, SfcError> {
+/// Returns an [`OxcDiagnostic`] when an opening tag cannot be terminated or
+/// a recognised block has no closing tag.
+pub fn split(source: &str) -> Result<SfcLayout<'_>, OxcDiagnostic> {
   let bytes = source.as_bytes();
   let len = bytes.len();
   let mut i = 0usize;
@@ -96,7 +94,7 @@ pub fn split(source: &str) -> Result<SfcLayout<'_>, SfcError> {
       let name = &source[name_start..j];
       // Find end of start tag — handle quoted attribute values, self-closing.
       let (start_tag_end, self_closing) =
-        find_start_tag_end(bytes, j).ok_or(SfcError::UnterminatedStartTag(tag_open as u32))?;
+        find_start_tag_end(bytes, j).ok_or_else(|| unterminated_start_tag(tag_open as u32))?;
       let raw_attrs = source[j..start_tag_end - if self_closing { 2 } else { 1 }].trim();
       let start_tag_range = Span::new(tag_open as u32, start_tag_end as u32);
 
@@ -146,7 +144,7 @@ pub fn split(source: &str) -> Result<SfcLayout<'_>, SfcError> {
                 m += 1;
               }
               if m >= len {
-                return Err(SfcError::MissingEndTag(name.to_string()));
+                return Err(missing_end_tag(name, tag_open as u32, start_tag_end as u32));
               }
               end_tag_close = m + 1;
               break;
@@ -165,7 +163,7 @@ pub fn split(source: &str) -> Result<SfcLayout<'_>, SfcError> {
         k += 1;
       }
       if depth != 0 {
-        return Err(SfcError::MissingEndTag(name.to_string()));
+        return Err(missing_end_tag(name, tag_open as u32, start_tag_end as u32));
       }
 
       blocks.push(SfcBlock {

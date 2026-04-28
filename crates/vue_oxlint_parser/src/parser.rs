@@ -21,7 +21,9 @@ use serde::Serialize;
 use serde_json::value::RawValue;
 
 use crate::ast::{Span, VDocumentFragment, VElementChild, VRootChild, VText};
-use crate::sfc::{SfcError, split};
+use oxc_diagnostics::OxcDiagnostic;
+
+use crate::sfc::split;
 use crate::template::{build_block_element, parse_attributes, parse_template_body};
 
 #[derive(Debug, Clone, Default)]
@@ -57,7 +59,7 @@ pub struct ParsedScript<'j> {
 /// Parse an SFC source string into a [`ParsedSfc`].
 ///
 /// # Errors
-/// Returns a [`SfcError`] when the top-level block layout is malformed.
+/// Returns an [`OxcDiagnostic`] when the top-level block layout is malformed.
 ///
 /// # Panics
 /// Panics if `split()` reports a block range whose start matches the
@@ -68,7 +70,7 @@ pub fn parse<'v, 'j>(
   js_alloc: &'j Allocator,
   source: &'v str,
   opts: &ParseOptions,
-) -> Result<ParsedSfc<'v, 'j>, SfcError>
+) -> Result<ParsedSfc<'v, 'j>, OxcDiagnostic>
 where
   'v: 'j,
 {
@@ -199,13 +201,13 @@ where
 /// string with the V AST plus serialised script programs.
 ///
 /// # Errors
-/// Returns the underlying [`SfcError`] from [`parse`] when block splitting
-/// fails. JSON serialisation is infallible for our owned types.
+/// Returns the underlying [`OxcDiagnostic`] from [`parse`] when block
+/// splitting fails. JSON serialisation is infallible for our owned types.
 ///
 /// # Panics
 /// Does not panic in practice: the inner `RawValue::from_string("null")`
 /// fallback uses a known-valid JSON literal.
-pub fn parse_to_json(source: &str, opts: &ParseOptions) -> Result<String, SfcError> {
+pub fn parse_to_json(source: &str, opts: &ParseOptions) -> Result<String, OxcDiagnostic> {
   let vue_alloc = Allocator::default();
   let js_alloc = Allocator::default();
   let parsed = parse(&vue_alloc, &js_alloc, source, opts)?;
