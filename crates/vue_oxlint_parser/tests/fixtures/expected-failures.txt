@@ -3,7 +3,6 @@ bogus-comments
 custom-template-tokenizer
 directive-error-4
 dynamic-argument-error-4
-dynamic-argument-error-5
 end-of-line01
 end-of-line01-eslint-v10
 end-of-line02
@@ -14,14 +13,8 @@ error-eof-in-comment-2
 error-eof-in-comment-3
 error-eof-in-comment-4
 error-eof-in-comment-5
-error-eof-in-tag-2
-error-eof-in-tag-3
-error-eof-in-tag-4
-error-eof-in-tag-5
-error-eof-in-tag-6
 error-eof-in-tag-7
 error-message-empty
-error-unexpected-character-in-attribute-name
 error-unexpected-equals-sign-before-attribute-name
 error-unexpected-solidus-in-tag
 filters
@@ -36,7 +29,6 @@ hole-in-array
 html-entities
 html-entities-with-line-terminators
 mustache-errors
-mustache-errors-opt-interpolation-as-non-html
 mustache-in-escape-opt-interpolation-as-non-html
 mustache-in-lt-gt-opt-interpolation-as-non-html-false
 mustache-not-closed-opt-interpolation-as-non-html-false

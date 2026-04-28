@@ -54,6 +54,10 @@ pub enum LexMode<'a> {
   Data,
   /// Inside a start tag, lexing attributes until `>` or `/>`.
   InTag,
+  /// Lexing an unquoted attribute value: consumes everything up to the
+  /// next ASCII whitespace, `>`, or `/>`. The parser switches to this
+  /// mode immediately after consuming an `AttrEq` token.
+  AttrValueUnquoted,
   /// Raw-text element body (`<script>`, `<style>`). Emits a single `Text`
   /// token spanning until the matching `</name>`.
   RawText { name: &'a str },

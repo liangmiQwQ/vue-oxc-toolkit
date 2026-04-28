@@ -51,6 +51,7 @@ impl<'a> Lexer<'a> {
     match self.mode {
       LexMode::Data => self.next_data(),
       LexMode::InTag => self.next_in_tag(),
+      LexMode::AttrValueUnquoted => self.next_attr_value_unquoted(),
       LexMode::RawText { name } => self.next_raw_text(name),
       LexMode::RcData { name } => self.next_rcdata(name),
     }
@@ -113,6 +114,58 @@ impl<'a> Lexer<'a> {
     }
   }
 
+  fn next_attr_value_unquoted(&mut self) -> Token<'a> {
+    // Caller has already consumed the `=` and any whitespace; we still
+    // skip leading whitespace defensively because the parser drops back
+    // into this mode after `AttrEq` without explicitly trimming.
+    self.skip_ascii_whitespace();
+    if self.src.is_eof() {
+      return self.eof();
+    }
+    let lo = self.src.pos();
+    let bytes = self.src.bytes();
+    let len = bytes.len();
+    // If the value is quoted, defer to the quoted-value path so quotes
+    // come out correctly.
+    if matches!(bytes.get(lo as usize), Some(b'"' | b'\'')) {
+      return self.lex_attr_value_quoted();
+    }
+    // If the next char is already a tag terminator, return TagEnd /
+    // SelfClose so the parser can see "key= >" as an empty value.
+    match bytes.get(lo as usize) {
+      Some(b'>') => {
+        self.src.advance(1);
+        return Token { span: Span::new(lo, lo + 1), kind: TokenKind::TagEnd };
+      }
+      Some(b'/') if bytes.get((lo + 1) as usize) == Some(&b'>') => {
+        self.src.advance(2);
+        return Token { span: Span::new(lo, lo + 2), kind: TokenKind::TagSelfClose };
+      }
+      _ => {}
+    }
+    let mut p = lo as usize;
+    while p < len {
+      let b = bytes[p];
+      if b.is_ascii_whitespace() || b == b'>' {
+        break;
+      }
+      if b == b'/' && p + 1 < len && bytes[p + 1] == b'>' {
+        break;
+      }
+      p += 1;
+    }
+    self.src.seek(p as u32);
+    let text = std::str::from_utf8(&bytes[lo as usize..p]).unwrap_or("");
+    Token {
+      span: Span::new(lo, p as u32),
+      kind: TokenKind::AttrValue {
+        value: text,
+        quote: None,
+        inner_span: Span::new(lo, p as u32),
+      },
+    }
+  }
+
   fn next_raw_text(&mut self, name: &str) -> Token<'a> {
     if self.src.is_eof() {
       return self.eof();
@@ -140,9 +193,7 @@ impl<'a> Lexer<'a> {
     self.src.seek(p as u32);
     Token {
       span: Span::new(lo, p as u32),
-      kind: TokenKind::Text {
-        text: std::str::from_utf8(&bytes[lo as usize..p]).unwrap_or(""),
-      },
+      kind: TokenKind::Text { text: std::str::from_utf8(&bytes[lo as usize..p]).unwrap_or("") },
     }
   }
 
@@ -178,9 +229,7 @@ impl<'a> Lexer<'a> {
     self.src.seek(p as u32);
     Token {
       span: Span::new(lo, p as u32),
-      kind: TokenKind::Text {
-        text: std::str::from_utf8(&bytes[lo as usize..p]).unwrap_or(""),
-      },
+      kind: TokenKind::Text { text: std::str::from_utf8(&bytes[lo as usize..p]).unwrap_or("") },
     }
   }
 
@@ -204,9 +253,7 @@ impl<'a> Lexer<'a> {
     self.src.seek(p as u32);
     Token {
       span: Span::new(lo, p as u32),
-      kind: TokenKind::Text {
-        text: std::str::from_utf8(&bytes[lo as usize..p]).unwrap_or(""),
-      },
+      kind: TokenKind::Text { text: std::str::from_utf8(&bytes[lo as usize..p]).unwrap_or("") },
     }
   }
 
@@ -225,7 +272,9 @@ impl<'a> Lexer<'a> {
       self.src.seek(lo + 1);
       return Token {
         span: Span::new(lo, lo + 1),
-        kind: TokenKind::Text { text: std::str::from_utf8(&bytes[lo as usize..(lo + 1) as usize]).unwrap_or("") },
+        kind: TokenKind::Text {
+          text: std::str::from_utf8(&bytes[lo as usize..(lo + 1) as usize]).unwrap_or(""),
+        },
       };
     }
     let expr_hi = p as u32;
@@ -252,10 +301,7 @@ impl<'a> Lexer<'a> {
     if p == name_lo as usize {
       // Not a real tag — emit one byte of text and let the parser keep going.
       self.src.seek(lo + 1);
-      return Token {
-        span: Span::new(lo, lo + 1),
-        kind: TokenKind::Text { text: "<" },
-      };
+      return Token { span: Span::new(lo, lo + 1), kind: TokenKind::Text { text: "<" } };
     }
     self.src.seek(p as u32);
     let name = std::str::from_utf8(&bytes[name_lo as usize..p]).unwrap_or("");
@@ -438,10 +484,7 @@ impl<'a> Lexer<'a> {
     if !bytes[after..after + nb.len()].eq_ignore_ascii_case(nb) {
       return false;
     }
-    matches!(
-      bytes.get(after + nb.len()),
-      Some(b'>' | b'/' | b' ' | b'\t' | b'\r' | b'\n') | None
-    )
+    matches!(bytes.get(after + nb.len()), Some(b'>' | b'/' | b' ' | b'\t' | b'\r' | b'\n') | None)
   }
 
   const fn span_at_cursor(&self) -> Span {
@@ -542,10 +585,7 @@ mod tests {
   #[test]
   fn mustache_in_text() {
     let toks = collect("hi {{ x }} bye");
-    assert_eq!(
-      toks,
-      vec!["Text(\"hi \")", "Mustache(\" x \")", "Text(\" bye\")"]
-    );
+    assert_eq!(toks, vec!["Text(\"hi \")", "Mustache(\" x \")", "Text(\" bye\")"]);
   }
 
   #[test]
