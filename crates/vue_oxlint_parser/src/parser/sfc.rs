@@ -15,7 +15,7 @@ use crate::ast::{
   VStartTag, VText,
 };
 use crate::lexer::Lexer;
-use crate::token::{LexMode, Token, TokenKind};
+use crate::lexer::{LexMode, Token, TokenKind};
 
 use super::attr::{self, AttrTok};
 use super::template;

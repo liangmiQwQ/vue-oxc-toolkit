@@ -13,6 +13,8 @@
 use oxc_allocator::{Box as ArenaBox, Vec as ArenaVec};
 use oxc_span::SourceType;
 use oxc_str::Str;
+
+mod expr;
 use serde::Serialize;
 
 /// Byte-offset span (UTF-8 byte indices into the original SFC source).
@@ -155,25 +157,25 @@ impl Serialize for VExpressionContainer<'_> {
     let expr = if self.raw {
       None
     } else if self.synthetic_identifier {
-      crate::expr::synthetic_identifier_raw(self.raw_expression.as_ref(), self.expression_range)
+      expr::synthetic_identifier_raw(self.raw_expression.as_ref(), self.expression_range)
     } else {
       match self.kind {
-        VExprKind::Default => crate::expr::parse_expression_to_raw(
+        VExprKind::Default => expr::parse_expression_to_raw(
           self.raw_expression.as_ref(),
           self.expression_range.start,
           self.source_type,
         ),
-        VExprKind::VOn => crate::expr::parse_v_on_to_raw(
+        VExprKind::VOn => expr::parse_v_on_to_raw(
           self.raw_expression.as_ref(),
           self.expression_range,
           self.source_type,
         ),
-        VExprKind::VSlot => crate::expr::parse_v_slot_to_raw(
+        VExprKind::VSlot => expr::parse_v_slot_to_raw(
           self.raw_expression.as_ref(),
           self.expression_range,
           self.source_type,
         ),
-        VExprKind::VFor => crate::expr::parse_v_for_to_raw(
+        VExprKind::VFor => expr::parse_v_for_to_raw(
           self.raw_expression.as_ref(),
           self.expression_range,
           self.source_type,

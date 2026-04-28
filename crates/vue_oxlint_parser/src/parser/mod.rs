@@ -20,16 +20,14 @@ mod sfc;
 mod template;
 
 use crate::lexer::Lexer;
-use crate::token::{LexMode, Token, TokenKind};
+use crate::lexer::{LexMode, Token, TokenKind};
 
 /// Drive the lexer (which must already be in `InTag` mode) until the start
 /// tag closes with `>` or `/>`. Returns the captured attribute list and
 /// the closing token. Handles `key`, `key=`, `key=value`, `key="v"`, and
 /// `key='v'`, with the `attr_end` field tracking how far each attribute
 /// span reaches into the source.
-pub(crate) fn read_start_tag_attrs<'a>(
-  lexer: &mut Lexer<'a>,
-) -> (Vec<attr::AttrTok<'a>>, Token<'a>) {
+pub fn read_start_tag_attrs<'a>(lexer: &mut Lexer<'a>) -> (Vec<attr::AttrTok<'a>>, Token<'a>) {
   let mut out: Vec<attr::AttrTok<'a>> = Vec::new();
   let mut state: AttrState<'a> = AttrState::Idle;
   loop {

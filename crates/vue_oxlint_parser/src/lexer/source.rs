@@ -23,18 +23,6 @@ impl<'a> Source<'a> {
 
   #[inline]
   #[must_use]
-  pub const fn len(&self) -> u32 {
-    self.bytes.len() as u32
-  }
-
-  #[inline]
-  #[must_use]
-  pub const fn is_empty(&self) -> bool {
-    self.bytes.is_empty()
-  }
-
-  #[inline]
-  #[must_use]
   pub const fn is_eof(&self) -> bool {
     self.pos >= self.bytes.len() as u32
   }
@@ -75,23 +63,7 @@ impl<'a> Source<'a> {
 
   #[inline]
   #[must_use]
-  pub fn slice(&self, lo: u32, hi: u32) -> &'a [u8] {
-    &self.bytes[lo as usize..hi as usize]
-  }
-
-  #[inline]
-  #[must_use]
   pub fn starts_with(&self, needle: &[u8]) -> bool {
     self.rest().starts_with(needle)
-  }
-
-  /// Case-insensitive prefix check. `needle` must already be lowercase.
-  #[must_use]
-  pub fn starts_with_ascii_ci(&self, needle: &[u8]) -> bool {
-    let r = self.rest();
-    if r.len() < needle.len() {
-      return false;
-    }
-    r[..needle.len()].eq_ignore_ascii_case(needle)
   }
 }

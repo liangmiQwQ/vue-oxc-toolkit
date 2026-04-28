@@ -14,8 +14,12 @@
 //! mode, because the parser always wants to know about them whole.
 
 use crate::ast::Span;
-use crate::source::Source;
-use crate::token::{LexMode, Token, TokenKind};
+
+mod source;
+mod token;
+
+use source::Source;
+pub use token::{LexMode, Token, TokenKind};
 
 pub struct Lexer<'a> {
   src: Source<'a>,
@@ -30,11 +34,6 @@ impl<'a> Lexer<'a> {
 
   pub const fn set_mode(&mut self, mode: LexMode<'a>) {
     self.mode = mode;
-  }
-
-  #[must_use]
-  pub const fn mode(&self) -> LexMode<'a> {
-    self.mode
   }
 
   #[must_use]
@@ -301,10 +300,7 @@ impl<'a> Lexer<'a> {
     }
     self.src.seek(p as u32);
     let name = std::str::from_utf8(&bytes[name_lo as usize..p]).unwrap_or("");
-    Token {
-      span: Span::new(lo, p as u32),
-      kind: TokenKind::TagOpen { name, name_span: Span::new(name_lo, p as u32) },
-    }
+    Token { span: Span::new(lo, p as u32), kind: TokenKind::TagOpen { name } }
   }
 
   fn lex_end_tag(&mut self) -> Token<'a> {
@@ -327,10 +323,7 @@ impl<'a> Lexer<'a> {
     }
     self.src.seek(p as u32);
     let name = std::str::from_utf8(&bytes[name_lo as usize..name_hi as usize]).unwrap_or("");
-    Token {
-      span: Span::new(lo, p as u32),
-      kind: TokenKind::EndTag { name, name_span: Span::new(name_lo, name_hi) },
-    }
+    Token { span: Span::new(lo, p as u32), kind: TokenKind::EndTag { name } }
   }
 
   fn lex_bang(&mut self) -> Token<'a> {

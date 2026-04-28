@@ -15,12 +15,9 @@
 
 #![deny(clippy::all)]
 
-pub mod ast;
-pub mod expr;
-pub mod lexer;
-pub mod parser;
-pub mod source;
-pub mod token;
+mod ast;
+mod lexer;
+mod parser;
 
 pub use oxc_diagnostics::OxcDiagnostic;
-pub use parser::{ParseOptions, ParsedSfc, parse, parse_to_json};
+pub use parser::{ParseOptions, ParsedSfc, ScriptProgram, parse, parse_to_json};

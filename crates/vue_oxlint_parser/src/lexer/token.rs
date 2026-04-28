@@ -16,7 +16,7 @@ pub struct Token<'a> {
 #[derive(Debug, Clone, Copy)]
 pub enum TokenKind<'a> {
   /// `<name` — start of an opening tag. The name slice points into source.
-  TagOpen { name: &'a str, name_span: Span },
+  TagOpen { name: &'a str },
   /// An attribute name inside a start tag.
   AttrName { name: &'a str },
   /// `=` between attribute name and value.
@@ -29,7 +29,7 @@ pub enum TokenKind<'a> {
   /// `>` ending the start tag.
   TagEnd,
   /// `</name>` — full end tag consumed in one shot.
-  EndTag { name: &'a str, name_span: Span },
+  EndTag { name: &'a str },
   /// Plain text content.
   Text { text: &'a str },
   /// `{{ expression }}` — entire mustache. `expr_span` covers just the
