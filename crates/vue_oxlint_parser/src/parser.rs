@@ -58,6 +58,11 @@ pub struct ParsedScript<'j> {
 ///
 /// # Errors
 /// Returns a [`SfcError`] when the top-level block layout is malformed.
+///
+/// # Panics
+/// Panics if `split()` reports a block range whose start matches the
+/// outer offset cursor but the block iterator is empty — invariant violation
+/// in this crate, not user input.
 pub fn parse<'v, 'j>(
   vue_alloc: &'v Allocator,
   js_alloc: &'j Allocator,
@@ -196,6 +201,10 @@ where
 /// # Errors
 /// Returns the underlying [`SfcError`] from [`parse`] when block splitting
 /// fails. JSON serialisation is infallible for our owned types.
+///
+/// # Panics
+/// Does not panic in practice: the inner `RawValue::from_string("null")`
+/// fallback uses a known-valid JSON literal.
 pub fn parse_to_json(source: &str, opts: &ParseOptions) -> Result<String, SfcError> {
   let vue_alloc = Allocator::default();
   let js_alloc = Allocator::default();
@@ -240,7 +249,7 @@ struct ScriptJson<'a> {
   lang: Option<&'a str>,
   content_range: Span,
   errors: &'a [String],
-  /// Raw, already-serialised oxc_estree JSON.
+  /// Raw, already-serialised `oxc_estree` JSON.
   program: Box<RawValue>,
 }
 

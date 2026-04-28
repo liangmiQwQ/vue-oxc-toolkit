@@ -27,6 +27,7 @@ pub const fn plus_100(input: u32) -> u32 {
 /// # Errors
 /// Returns a JS-side `Error` when the SFC layout is malformed.
 #[napi(js_name = "parseSync")]
+#[allow(clippy::needless_pass_by_value)] // napi requires owned String here
 pub fn parse_sync(source: String) -> Result<String, NapiError> {
   parse_to_json(&source, &ParseOptions::default())
     .map_err(|e| NapiError::from_reason(e.to_string()))

@@ -30,11 +30,13 @@ pub fn parse_template_body<'a>(
   p.parse_children(None)
 }
 
-/// Parse a single element from a top-level SFC block (i.e. `<template>`,
-/// `<script>`, `<style>`, or a custom block). The caller has already
-/// identified the tag span / attributes substring; this function only
-/// builds the `VElement` shell. The element's children are populated from
-/// `inner_body` (which may be empty for blocks we treat as opaque).
+/// Parse a single element from a top-level SFC block.
+///
+/// Handles `<template>`, `<script>`, `<style>`, or a custom block. The caller
+/// has already identified the tag span / attributes substring; this function
+/// only builds the `VElement` shell. The element's children are populated
+/// from `inner_body` (which may be empty for blocks we treat as opaque).
+#[allow(clippy::too_many_arguments)]
 pub fn build_block_element<'a>(
   alloc: &'a Allocator,
   source: &'a str,
@@ -77,11 +79,11 @@ struct TemplateParser<'a> {
 }
 
 impl<'a> TemplateParser<'a> {
-  fn bytes(&self) -> &'a [u8] {
+  const fn bytes(&self) -> &'a [u8] {
     self.src.as_bytes()
   }
 
-  fn span(&self, lo: usize, hi: usize) -> Span {
+  const fn span(&self, lo: usize, hi: usize) -> Span {
     Span::new(self.base + lo as u32, self.base + hi as u32)
   }
 
@@ -211,12 +213,9 @@ impl<'a> TemplateParser<'a> {
     }
     let name = &self.src[name_lo..self.pos];
     let attrs_lo = self.pos;
-    let (start_tag_end, self_closing) = match find_tag_end(bytes, self.pos) {
-      Some(v) => v,
-      None => {
-        self.pos = lo + 1;
-        return None;
-      }
+    let Some((start_tag_end, self_closing)) = find_tag_end(bytes, self.pos) else {
+      self.pos = lo + 1;
+      return None;
     };
     let attrs_hi = start_tag_end - if self_closing { 2 } else { 1 };
     let raw_attrs = &self.src[attrs_lo..attrs_hi];
@@ -386,7 +385,7 @@ pub fn parse_attributes<'a>(
           let txt = &raw[v_lo..v_hi];
           value = Some((v_lo, v_hi, txt));
           attr_hi = v_hi + 1;
-          i = v_hi + if v_hi < len { 1 } else { 0 };
+          i = v_hi + usize::from(v_hi < len);
         } else {
           let v_lo = probe;
           let mut v_hi = probe;
@@ -468,7 +467,7 @@ fn classify_key<'a>(
     _ if raw.starts_with("v-") => {
       // `v-name[:arg][.mod]*`
       let after = &raw[2..];
-      let name_end = after.find(|c: char| c == ':' || c == '.').map_or(after.len(), |idx| idx);
+      let name_end = after.find([':', '.']).unwrap_or(after.len());
       let name = &after[..name_end];
       let consumed = 2 + name_end;
       return parse_directive_key(alloc, raw, name, consumed, span);
@@ -491,6 +490,7 @@ fn classify_key<'a>(
   parse_directive_key(alloc, raw, name, arg_offset, span)
 }
 
+#[allow(clippy::option_if_let_else)]
 fn parse_directive_key<'a>(
   alloc: &'a Allocator,
   raw: &'a str,

@@ -28,7 +28,7 @@ impl Span {
 
 /// Top-level result of parsing a `.vue` SFC.
 ///
-/// Note: `script_program` and other oxc_ast contents are *not* included in
+/// Note: `script_program` and other `oxc_ast` contents are *not* included in
 /// this struct — they live in the JS allocator and are serialized separately.
 /// See `parser::ParsedSfc`.
 #[derive(Debug, Serialize)]
@@ -41,7 +41,7 @@ pub struct VDocumentFragment<'a> {
 
 impl<'a> VDocumentFragment<'a> {
   #[must_use]
-  pub fn new(range: Span, children: ArenaVec<'a, VRootChild<'a>>) -> Self {
+  pub const fn new(range: Span, children: ArenaVec<'a, VRootChild<'a>>) -> Self {
     Self { r#type: "VDocumentFragment", range, children }
   }
 }
