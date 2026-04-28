@@ -44,7 +44,7 @@ pub struct SfcBlock<'a> {
   /// Empty span if the element is self-closing or has no content.
   pub content_range: Span,
   /// Raw attributes substring (everything between tag name and the closing
-  /// `>` of the start tag, trimmed of surrounding whitespace).
+  /// `>` of the start tag, preserving original spacing.
   pub raw_attributes: &'a str,
   /// `true` if the start tag was self-closing (`<foo />`).
   pub self_closing: bool,
@@ -95,7 +95,7 @@ pub fn split(source: &str) -> Result<SfcLayout<'_>, OxcDiagnostic> {
       // Find end of start tag — handle quoted attribute values, self-closing.
       let (start_tag_end, self_closing) =
         find_start_tag_end(bytes, j).ok_or_else(|| unterminated_start_tag(tag_open as u32))?;
-      let raw_attrs = source[j..start_tag_end - if self_closing { 2 } else { 1 }].trim();
+      let raw_attrs = &source[j..start_tag_end - if self_closing { 2 } else { 1 }];
       let start_tag_range = Span::new(tag_open as u32, start_tag_end as u32);
 
       if self_closing {

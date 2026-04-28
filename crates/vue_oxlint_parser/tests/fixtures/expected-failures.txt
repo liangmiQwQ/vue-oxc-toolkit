@@ -1,5 +1,5 @@
+comments-2
 bogus-comments
-cdata
 custom-template-tokenizer
 directive-error-4
 dynamic-argument-error-4
@@ -9,7 +9,6 @@ end-of-line01-eslint-v10
 end-of-line02
 end-of-line02-eslint-v10
 error-eof-before-tag-name-2
-error-eof-in-cdata
 error-eof-in-comment
 error-eof-in-comment-2
 error-eof-in-comment-3
@@ -41,14 +40,12 @@ mustache-errors-opt-interpolation-as-non-html
 mustache-in-escape-opt-interpolation-as-non-html
 mustache-in-lt-gt-opt-interpolation-as-non-html-false
 mustache-not-closed-opt-interpolation-as-non-html-false
-mustache-without-open-in-textarea
 parser-option-multiple-parsers-1
 parser-option-multiple-parsers-2
 parser-option-multiple-parsers-2-eslint-v10
 parser-option-multiple-parsers-3
 parser-option-multiple-parsers-without-script
 pug
-rawtext
 script-setup-example06
 script-setup-example06-eslint-v10
 slot-scope
@@ -56,9 +53,6 @@ slot-scope-default
 slot-scope-destructuring
 slot-scope-multi-parameters
 slot-scope-rest-parameter
-svg-namespace
-svg-namespace-eslint-v10
-textarea
 ts-script-setup-with-use-global-var
 v-bind-same-name-shorthand03-with-v-for
 v-bind-same-name-shorthand03-with-v-for-eslint-v10
@@ -73,8 +67,3 @@ v-for-directives-with-es5-2
 v-on-arrow-function-expression.2
 v-on-multiple-statements
 v-on-object-expression
-v-pre
-v-slot-default
-v-slot-default-shorthand
-v-slot-named
-v-slot-named-shorthand

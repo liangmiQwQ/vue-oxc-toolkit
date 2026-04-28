@@ -27,6 +27,54 @@ use oxc_diagnostics::OxcDiagnostic;
 use crate::sfc::split;
 use crate::template::{build_block_element, parse_attributes, parse_template_body};
 
+fn template_source_type<'a>(
+  alloc: &'a Allocator,
+  source: &'a str,
+  layout: &crate::sfc::SfcLayout<'a>,
+) -> SourceType {
+  let mut saw_script = false;
+  let mut source_type = SourceType::default().with_module(true).with_typescript(true);
+
+  for block in &layout.blocks {
+    if !block.tag.eq_ignore_ascii_case("script") || block.self_closing {
+      continue;
+    }
+    saw_script = true;
+    let attrs = parse_attributes(alloc, source, block.raw_attributes, 0, false, source_type);
+    let mut lang: Option<&str> = None;
+    for a in &attrs {
+      if let crate::ast::VAttributeKey::Identifier(id) = &*a.key
+        && id.name.eq_ignore_ascii_case("lang")
+        && let Some(v) = &a.value
+        && let crate::ast::VAttributeValue::Literal(lit) = &**v
+      {
+        lang = Some(lit.value.as_ref());
+      }
+    }
+
+    source_type = SourceType::default().with_module(true);
+    match lang {
+      Some(l) if l.eq_ignore_ascii_case("ts") => {
+        source_type = source_type.with_typescript(true);
+      }
+      Some(l) if l.eq_ignore_ascii_case("tsx") => {
+        source_type = source_type.with_typescript(true).with_jsx(true);
+      }
+      Some(l) if l.eq_ignore_ascii_case("jsx") => {
+        source_type = source_type.with_jsx(true);
+      }
+      _ => {}
+    }
+    break;
+  }
+
+  if saw_script {
+    source_type
+  } else {
+    SourceType::default().with_module(true).with_typescript(true)
+  }
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct ParseOptions {
   /// Override the source type used for `<script>` parsing. When `None` we
@@ -76,6 +124,7 @@ where
   'v: 'j,
 {
   let layout = split(source)?;
+  let template_source_type = template_source_type(vue_alloc, source, &layout);
 
   let mut root_children: ArenaVec<'v, VRootChild<'v>> = ArenaVec::new_in(vue_alloc);
 
@@ -104,7 +153,7 @@ where
       let block = block_iter.next().unwrap();
       let inner_children = if block.tag.eq_ignore_ascii_case("template") && !block.self_closing {
         let body = &source[block.content_range.start as usize..block.content_range.end as usize];
-        parse_template_body(vue_alloc, body, block.content_range.start)
+        parse_template_body(vue_alloc, body, block.content_range.start, template_source_type)
       } else {
         // Treat <script>/<style>/custom blocks as opaque text (their content
         // is not parsed as HTML; <script> goes through oxc_parser below).
@@ -156,6 +205,8 @@ where
       source,
       block.raw_attributes,
       0, // we only inspect text/keys here, span isn't used
+      false,
+      template_source_type,
     );
     let mut setup = false;
     let mut lang: Option<String> = None;

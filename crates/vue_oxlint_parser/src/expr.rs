@@ -18,13 +18,12 @@ use crate::ast::Span;
 /// Parse the entire `text` as a JS program (statements) and return the
 /// `program.body` array as `ESTree` JSON, with all `start`/`end` shifted by
 /// `base` and `range` mirrors added. Returns `None` on parse failure.
-fn parse_program_body(text: &str, base: u32) -> Option<Value> {
+fn parse_program_body(text: &str, base: u32, source_type: SourceType) -> Option<Value> {
   if text.trim().is_empty() {
     return None;
   }
   let alloc = Allocator::default();
-  let st = SourceType::default().with_module(true);
-  let ret = JsParser::new(&alloc, text, st).parse();
+  let ret = JsParser::new(&alloc, text, source_type).parse();
   if !ret.errors.is_empty() {
     return None;
   }
@@ -57,12 +56,12 @@ fn wrap_node(type_name: &str, span: Span, mut extra: serde_json::Map<String, Val
 /// statements (`a=b`, `f(); g()`) and embed them as `body` of a synthetic
 /// `VOnExpression`. Range covers the directive's inner text.
 #[must_use]
-pub fn parse_v_on_to_raw(text: &str, span: Span) -> Option<Box<RawValue>> {
-  let Some(body) = parse_program_body(text, span.start) else {
+pub fn parse_v_on_to_raw(text: &str, span: Span, source_type: SourceType) -> Option<Box<RawValue>> {
+  let Some(body) = parse_program_body(text, span.start, source_type) else {
     // Some valid handler expressions are not valid statement lists
     // (e.g. `function() {}` and `async function() {}`), so fall back to
     // expression parsing and expose the parsed expression directly.
-    return parse_expression_to_raw(text, span.start);
+    return parse_expression_to_raw(text, span.start, source_type);
   };
   let arr = body.as_array()?;
   // Special case: a single ExpressionStatement whose expression is a
@@ -105,7 +104,11 @@ fn is_simple_v_on_expression(v: &Value) -> bool {
 /// parameter — this lets the JS parser accept destructuring, defaults, and
 /// rest patterns just like a real function parameter list.
 #[must_use]
-pub fn parse_v_slot_to_raw(text: &str, span: Span) -> Option<Box<RawValue>> {
+pub fn parse_v_slot_to_raw(
+  text: &str,
+  span: Span,
+  source_type: SourceType,
+) -> Option<Box<RawValue>> {
   let trimmed = text.trim();
   if trimmed.is_empty() {
     return None;
@@ -117,8 +120,7 @@ pub fn parse_v_slot_to_raw(text: &str, span: Span) -> Option<Box<RawValue>> {
   // Build wrapper `(TEXT) => 0`. The argument starts at offset 1.
   let wrapped = format!("({trimmed}) => 0");
   let alloc = Allocator::default();
-  let st = SourceType::default().with_module(true);
-  let ret = JsParser::new(&alloc, &wrapped, st).parse();
+  let ret = JsParser::new(&alloc, &wrapped, source_type).parse();
   if !ret.errors.is_empty() {
     return None;
   }
@@ -151,7 +153,11 @@ pub fn parse_v_slot_to_raw(text: &str, span: Span) -> Option<Box<RawValue>> {
 /// left side as the parameter list of a synthetic arrow function and the
 /// right side as a single expression.
 #[must_use]
-pub fn parse_v_for_to_raw(text: &str, span: Span) -> Option<Box<RawValue>> {
+pub fn parse_v_for_to_raw(
+  text: &str,
+  span: Span,
+  source_type: SourceType,
+) -> Option<Box<RawValue>> {
   let (left_raw, right_raw, sep_at) = split_v_for(text)?;
   let left_local = trim_offset(text, 0, sep_at);
   let right_local = trim_offset(text, sep_at, text.len());
@@ -166,12 +172,12 @@ pub fn parse_v_for_to_raw(text: &str, span: Span) -> Option<Box<RawValue>> {
   let left_value = if left_trimmed.is_empty() {
     Value::Array(vec![])
   } else {
-    parse_arrow_params(left_trimmed, left_base)?
+    parse_arrow_params(left_trimmed, left_base, source_type)?
   };
 
   // Right side: a single expression.
   let right_value: Value = {
-    let raw = parse_expression_to_raw(right_trimmed, right_base)?;
+    let raw = parse_expression_to_raw(right_trimmed, right_base, source_type)?;
     serde_json::from_str(raw.get()).ok()?
   };
   let _ = (left_raw, right_raw);
@@ -185,11 +191,10 @@ pub fn parse_v_for_to_raw(text: &str, span: Span) -> Option<Box<RawValue>> {
 /// Parse `text` as the parameter list of a synthetic arrow function and
 /// return the resulting `params` array as JSON. `base` is the source offset
 /// the inner text begins at.
-fn parse_arrow_params(text: &str, base: u32) -> Option<Value> {
+fn parse_arrow_params(text: &str, base: u32, source_type: SourceType) -> Option<Value> {
   let wrapped = format!("({text}) => 0");
   let alloc = Allocator::default();
-  let st = SourceType::default().with_module(true);
-  let ret = JsParser::new(&alloc, &wrapped, st).parse();
+  let ret = JsParser::new(&alloc, &wrapped, source_type).parse();
   if !ret.errors.is_empty() {
     return None;
   }
@@ -278,13 +283,19 @@ pub fn synthetic_identifier_raw(name: &str, span: Span) -> Option<Box<RawValue>>
 /// Every `start`/`end` is shifted by `base`. Returns `None` if `text` is not
 /// a single valid expression that consumes the entire input.
 #[must_use]
-pub fn parse_expression_to_raw(text: &str, base: u32) -> Option<Box<RawValue>> {
+pub fn parse_expression_to_raw(
+  text: &str,
+  base: u32,
+  source_type: SourceType,
+) -> Option<Box<RawValue>> {
   if text.trim().is_empty() {
     return None;
   }
+  if contains_html_like_tag(text) {
+    return None;
+  }
   let alloc = Allocator::default();
-  let st = SourceType::default().with_module(true);
-  let expr = JsParser::new(&alloc, text, st).parse_expression().ok()?;
+  let expr = JsParser::new(&alloc, text, source_type).parse_expression().ok()?;
   let trimmed_end = text.trim_end().len() as u32;
   if expression_end(&expr) < trimmed_end {
     return None;
@@ -301,6 +312,45 @@ pub fn parse_expression_to_raw(text: &str, base: u32) -> Option<Box<RawValue>> {
 
 fn expression_end(e: &Expression<'_>) -> u32 {
   e.span().end
+}
+
+fn contains_html_like_tag(text: &str) -> bool {
+  let bytes = text.as_bytes();
+  let mut i = 0usize;
+  while i + 1 < bytes.len() {
+    if bytes[i] == b'<' {
+      let next = bytes[i + 1];
+      if next == b'!' || next == b'/' {
+        return true;
+      }
+      if next.is_ascii_alphabetic() {
+        let mut j = i + 2;
+        let mut saw_gt = false;
+        let mut looks_like_tag = true;
+        while j < bytes.len() {
+          match bytes[j] {
+            b'>' => {
+              saw_gt = true;
+              break;
+            }
+            b' ' | b'\t' | b'\r' | b'\n' | b'-' | b'/' | b'=' | b'"' | b'\'' | b':' | b'.'
+            | b'_' => {}
+            b if b.is_ascii_alphanumeric() => {}
+            _ => {
+              looks_like_tag = false;
+              break;
+            }
+          }
+          j += 1;
+        }
+        if saw_gt && looks_like_tag {
+          return true;
+        }
+      }
+    }
+    i += 1;
+  }
+  false
 }
 
 fn shift_ranges(v: &mut Value, base: u32) {

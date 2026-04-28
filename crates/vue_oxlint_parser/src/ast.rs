@@ -11,6 +11,7 @@
 //! to JSON for transfer across the napi boundary.
 
 use oxc_allocator::{Box as ArenaBox, Vec as ArenaVec};
+use oxc_span::SourceType;
 use oxc_str::Str;
 use serde::Serialize;
 
@@ -136,6 +137,8 @@ pub struct VExpressionContainer<'a> {
   /// (`VOnExpression` / `VSlotScopeExpression` / `VForExpression` /
   /// `VFilterSequenceExpression`) the way upstream `vue-eslint-parser` does.
   pub kind: VExprKind,
+  /// Parser mode for the embedded JS/TS source.
+  pub source_type: SourceType,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -158,16 +161,23 @@ impl Serialize for VExpressionContainer<'_> {
         VExprKind::Default => crate::expr::parse_expression_to_raw(
           self.raw_expression.as_ref(),
           self.expression_range.start,
+          self.source_type,
         ),
-        VExprKind::VOn => {
-          crate::expr::parse_v_on_to_raw(self.raw_expression.as_ref(), self.expression_range)
-        }
-        VExprKind::VSlot => {
-          crate::expr::parse_v_slot_to_raw(self.raw_expression.as_ref(), self.expression_range)
-        }
-        VExprKind::VFor => {
-          crate::expr::parse_v_for_to_raw(self.raw_expression.as_ref(), self.expression_range)
-        }
+        VExprKind::VOn => crate::expr::parse_v_on_to_raw(
+          self.raw_expression.as_ref(),
+          self.expression_range,
+          self.source_type,
+        ),
+        VExprKind::VSlot => crate::expr::parse_v_slot_to_raw(
+          self.raw_expression.as_ref(),
+          self.expression_range,
+          self.source_type,
+        ),
+        VExprKind::VFor => crate::expr::parse_v_for_to_raw(
+          self.raw_expression.as_ref(),
+          self.expression_range,
+          self.source_type,
+        ),
       }
     };
     let mut s = ser.serialize_struct("VExpressionContainer", 6)?;

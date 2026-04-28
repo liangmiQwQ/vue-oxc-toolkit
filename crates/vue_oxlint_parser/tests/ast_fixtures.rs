@@ -230,6 +230,17 @@ fn collect_children(typ: &str, node: &Value, src: &str) -> Vec<Value> {
 }
 
 fn generic_js_children(node: &Value, src: &str) -> Vec<Value> {
+  if node.get("type").and_then(Value::as_str) == Some("Property")
+    && node.get("shorthand").and_then(Value::as_bool) == Some(true)
+    && let Some(key) = node.get("key")
+  {
+    let mut out = Vec::new();
+    if key.get("type").is_some() && key.get("start").is_some() {
+      out.push(walk(key, src));
+      out.push(walk(key, src));
+      return out;
+    }
+  }
   let mut out = Vec::new();
   let Some(obj) = node.as_object() else { return out };
   for (k, val) in obj {

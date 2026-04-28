@@ -10,6 +10,7 @@
 //! CDATA, HTML entity decoding) is left as a TODO and noted in-line.
 
 use oxc_allocator::{Allocator, Box as ArenaBox, Vec as ArenaVec};
+use oxc_span::SourceType;
 use oxc_str::Str;
 
 use crate::ast::{
@@ -27,9 +28,17 @@ pub fn parse_template_body<'a>(
   alloc: &'a Allocator,
   body: &'a str,
   body_offset: u32,
+  source_type: SourceType,
 ) -> ArenaVec<'a, VElementChild<'a>> {
-  let mut p =
-    TemplateParser { alloc, src: body, base: body_offset, pos: 0, open_stack: Vec::new() };
+  let mut p = TemplateParser {
+    alloc,
+    src: body,
+    base: body_offset,
+    pos: 0,
+    open_stack: Vec::new(),
+    source_type,
+    in_v_pre: false,
+  };
   p.parse_children(&[])
 }
 
@@ -52,7 +61,14 @@ pub fn build_block_element<'a>(
   self_closing: bool,
   children: ArenaVec<'a, VElementChild<'a>>,
 ) -> ArenaBox<'a, VElement<'a>> {
-  let attrs = parse_attributes(alloc, source, raw_attributes, raw_attributes_offset);
+  let attrs = parse_attributes(
+    alloc,
+    source,
+    raw_attributes,
+    raw_attributes_offset,
+    false,
+    SourceType::default().with_module(true).with_typescript(true),
+  );
   let start_tag = ArenaBox::new_in(
     VStartTag { r#type: "VStartTag", range: start_tag_range, self_closing, attributes: attrs },
     alloc,
@@ -82,6 +98,8 @@ struct TemplateParser<'a> {
   /// Names of currently-open elements, outermost first. Used to detect
   /// implicit-close on stray ancestor end tags and on auto-closing siblings.
   open_stack: Vec<&'a str>,
+  source_type: SourceType,
+  in_v_pre: bool,
 }
 
 impl<'a> TemplateParser<'a> {
@@ -102,7 +120,7 @@ impl<'a> TemplateParser<'a> {
     while self.pos < len {
       let b = bytes[self.pos];
       // Mustache start `{{`
-      if b == b'{' && self.pos + 1 < len && bytes[self.pos + 1] == b'{' {
+      if !self.in_v_pre && b == b'{' && self.pos + 1 < len && bytes[self.pos + 1] == b'{' {
         self.flush_text(text_start, self.pos, &mut out);
         if let Some(node) = self.parse_mustache() {
           out.push(VElementChild::ExpressionContainer(node));
@@ -138,14 +156,14 @@ impl<'a> TemplateParser<'a> {
           continue;
         }
         if next == b'!' {
-          // Comment / doctype / cdata — skip until `>`.
           self.flush_text(text_start, self.pos, &mut out);
-          while self.pos < len && bytes[self.pos] != b'>' {
-            self.pos += 1;
-          }
-          if self.pos < len {
-            self.pos += 1;
-          }
+          self.consume_bang_construct();
+          text_start = self.pos;
+          continue;
+        }
+        if next == b'?' {
+          self.flush_text(text_start, self.pos, &mut out);
+          self.consume_processing_instruction();
           text_start = self.pos;
           continue;
         }
@@ -226,6 +244,7 @@ impl<'a> TemplateParser<'a> {
         raw: false,
         synthetic_identifier: false,
         kind: crate::ast::VExprKind::Default,
+        source_type: self.source_type,
       },
       self.alloc,
     ))
@@ -249,7 +268,15 @@ impl<'a> TemplateParser<'a> {
     let trim = if self_closing { 2 } else { 1 };
     let attrs_hi = start_tag_end.saturating_sub(trim).max(attrs_lo);
     let raw_attrs = &self.src[attrs_lo..attrs_hi];
-    let attrs = parse_attributes(self.alloc, self.src, raw_attrs, self.base + attrs_lo as u32);
+    let has_v_pre = start_tag_has_v_pre(raw_attrs);
+    let attrs = parse_attributes(
+      self.alloc,
+      self.src,
+      raw_attrs,
+      self.base + attrs_lo as u32,
+      has_v_pre || self.in_v_pre,
+      self.source_type,
+    );
     self.pos = start_tag_end;
 
     let start_tag = ArenaBox::new_in(
@@ -279,11 +306,20 @@ impl<'a> TemplateParser<'a> {
     }
 
     self.open_stack.push(name);
+    let prev_v_pre = self.in_v_pre;
+    self.in_v_pre = prev_v_pre || has_v_pre;
     // `parse_children` wants the ancestor chain with the immediate parent
     // first; our stack is outermost-first, so reverse on the way in.
     let chain: Vec<&str> = self.open_stack.iter().rev().copied().collect();
-    let children = self.parse_children(&chain);
+    let children = if is_raw_text_element(name) {
+      self.parse_raw_text_children(name)
+    } else if is_rcdata_element(name) {
+      self.parse_rcdata_children(name)
+    } else {
+      self.parse_children(&chain)
+    };
     self.open_stack.pop();
+    self.in_v_pre = prev_v_pre;
     let mut end_tag = None;
     let element_end;
     if self.matches_end_tag(name) {
@@ -318,6 +354,96 @@ impl<'a> TemplateParser<'a> {
       },
       self.alloc,
     ))
+  }
+
+  fn consume_bang_construct(&mut self) {
+    let bytes = self.bytes();
+    if bytes[self.pos..].starts_with(b"<!--") {
+      self.pos += 4;
+      let body_start = self.pos;
+      while self.pos + 2 < bytes.len() && &bytes[self.pos..self.pos + 3] != b"-->" {
+        self.pos += 1;
+      }
+      if self.pos + 2 < bytes.len() && &bytes[self.pos..self.pos + 3] == b"-->" {
+        self.pos += 3;
+      } else {
+        self.pos = body_start;
+        while self.pos < bytes.len() && bytes[self.pos] != b'>' {
+          self.pos += 1;
+        }
+        if self.pos < bytes.len() {
+          self.pos += 1;
+        }
+      }
+      return;
+    }
+    if bytes[self.pos..].starts_with(b"<![CDATA[") {
+      self.pos += 9;
+      while self.pos + 2 < bytes.len() && &bytes[self.pos..self.pos + 3] != b"]]>" {
+        self.pos += 1;
+      }
+      if self.pos + 2 < bytes.len() && &bytes[self.pos..self.pos + 3] == b"]]>" {
+        self.pos += 3;
+      } else {
+        self.pos = bytes.len();
+      }
+      return;
+    }
+    while self.pos < bytes.len() && bytes[self.pos] != b'>' {
+      self.pos += 1;
+    }
+    if self.pos < bytes.len() {
+      self.pos += 1;
+    }
+  }
+
+  fn consume_processing_instruction(&mut self) {
+    let bytes = self.bytes();
+    self.pos += 2;
+    while self.pos + 1 < bytes.len() && !(bytes[self.pos] == b'?' && bytes[self.pos + 1] == b'>') {
+      self.pos += 1;
+    }
+    if self.pos + 1 < bytes.len() {
+      self.pos += 2;
+    } else {
+      self.pos = bytes.len();
+    }
+  }
+
+  fn parse_raw_text_children(&mut self, tag_name: &str) -> ArenaVec<'a, VElementChild<'a>> {
+    let mut out: ArenaVec<'a, VElementChild<'a>> = ArenaVec::new_in(self.alloc);
+    let start = self.pos;
+    while self.pos < self.src.len() && !self.matches_end_tag(tag_name) {
+      self.pos += 1;
+    }
+    self.flush_text(start, self.pos, &mut out);
+    out
+  }
+
+  fn parse_rcdata_children(&mut self, tag_name: &str) -> ArenaVec<'a, VElementChild<'a>> {
+    let mut out: ArenaVec<'a, VElementChild<'a>> = ArenaVec::new_in(self.alloc);
+    let mut text_start = self.pos;
+    while self.pos < self.src.len() {
+      if self.matches_end_tag(tag_name) {
+        break;
+      }
+      let bytes = self.bytes();
+      if !self.in_v_pre
+        && bytes[self.pos] == b'{'
+        && self.pos + 1 < bytes.len()
+        && bytes[self.pos + 1] == b'{'
+      {
+        self.flush_text(text_start, self.pos, &mut out);
+        if let Some(node) = self.parse_mustache() {
+          out.push(VElementChild::ExpressionContainer(node));
+        }
+        text_start = self.pos;
+        continue;
+      }
+      self.pos += 1;
+    }
+    self.flush_text(text_start, self.pos, &mut out);
+    out
   }
 }
 
@@ -491,6 +617,8 @@ pub fn parse_attributes<'a>(
   _full_source: &'a str,
   raw: &'a str,
   raw_offset: u32,
+  in_v_pre: bool,
+  source_type: SourceType,
 ) -> ArenaVec<'a, VAttribute<'a>> {
   let mut out: ArenaVec<'a, VAttribute<'a>> = ArenaVec::new_in(alloc);
   let bytes = raw.as_bytes();
@@ -565,7 +693,9 @@ pub fn parse_attributes<'a>(
     let key_span = Span::new(raw_offset + key_lo as u32, raw_offset + key_hi as u32);
     let attr_span = Span::new(raw_offset + key_lo as u32, raw_offset + attr_hi as u32);
 
-    let (key_node, is_directive) = classify_key(alloc, key_text, key_span);
+    let is_v_pre_attr = key_text == "v-pre";
+    let (key_node, is_directive) =
+      classify_key(alloc, key_text, key_span, in_v_pre && !is_v_pre_attr);
 
     // Determine the directive kind so the value container can be parsed
     // appropriately (statement-list for v-on, binding pattern for v-slot,
@@ -623,6 +753,7 @@ pub fn parse_attributes<'a>(
             raw: false,
             synthetic_identifier: false,
             kind: value_kind,
+            source_type,
           }),
           alloc,
         )
@@ -649,6 +780,7 @@ pub fn parse_attributes<'a>(
             raw: false,
             synthetic_identifier: true,
             kind: crate::ast::VExprKind::Default,
+            source_type,
           }),
           alloc,
         )
@@ -670,7 +802,22 @@ fn classify_key<'a>(
   alloc: &'a Allocator,
   raw: &'a str,
   span: Span,
+  force_plain: bool,
 ) -> (ArenaBox<'a, VAttributeKey<'a>>, bool) {
+  if force_plain {
+    return (
+      ArenaBox::new_in(
+        VAttributeKey::Identifier(VIdentifier {
+          r#type: "VIdentifier",
+          range: span,
+          name: Str::from(raw),
+          raw_name: Str::from(raw),
+        }),
+        alloc,
+      ),
+      false,
+    );
+  }
   let bytes = raw.as_bytes();
   if bytes.is_empty() {
     return (
@@ -761,6 +908,7 @@ fn parse_directive_key<'a>(
       raw: false,
       synthetic_identifier: false,
       kind: crate::ast::VExprKind::Default,
+      source_type: SourceType::default().with_module(true),
     }))
   } else {
     Some(VDirectiveKeyArgument::Identifier(VIdentifier {
@@ -816,4 +964,18 @@ fn parse_directive_key<'a>(
     ),
     true,
   )
+}
+
+fn start_tag_has_v_pre(raw: &str) -> bool {
+  raw.split_ascii_whitespace().any(|part| part == "v-pre" || part.starts_with("v-pre="))
+}
+
+#[allow(clippy::missing_const_for_fn)]
+fn is_raw_text_element(name: &str) -> bool {
+  matches!(name, "style" | "script")
+}
+
+#[allow(clippy::missing_const_for_fn)]
+fn is_rcdata_element(name: &str) -> bool {
+  name.eq_ignore_ascii_case("textarea")
 }
