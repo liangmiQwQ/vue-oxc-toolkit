@@ -17,9 +17,12 @@
 
 pub mod ast;
 pub mod expr;
+pub mod lexer;
 pub mod parser;
 pub mod sfc;
+pub mod source;
 pub mod template;
+pub mod token;
 
 pub use oxc_diagnostics::OxcDiagnostic;
 pub use parser::{ParseOptions, ParsedSfc, parse, parse_to_json};
