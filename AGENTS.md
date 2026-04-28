@@ -31,7 +31,6 @@ Data flow: `.vue` source → `vue_oxlint_parser` (SFC + template AST + script AS
 
 Both crates exist on purpose; they are not duplicates of each other. Keep the dependency direction one-way: `vue_oxlint_jsx` depends on `vue_oxlint_parser`, never the reverse.
 
-
 ## Conventions
 
 - `oxc_*` deps are pinned with `>=0.127.0` in the workspace `Cargo.toml` — bump together.
