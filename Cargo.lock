@@ -1746,6 +1746,7 @@ dependencies = [
  "oxc_estree",
  "oxc_parser",
  "oxc_span",
+ "oxc_str",
  "serde",
  "serde_json",
 ]

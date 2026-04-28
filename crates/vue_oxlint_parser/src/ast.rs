@@ -2,14 +2,16 @@
 //!
 //! Modeled after vue-eslint-parser's AST. Nodes are arena-allocated in the
 //! "Vue allocator" (`oxc_allocator::Allocator`) so `Box<'a, _>`/`Vec<'a, _>`
-//! borrow into a single bump arena. Strings are `&'a str` slices into the
-//! original SFC source which the caller is required to keep alive for the
-//! lifetime of the AST.
+//! borrow into a single bump arena. Strings use `oxc_str::Str<'a>` (a
+//! `repr(transparent)` wrapper over `&'a str`) which serializes as the bare
+//! string. The slices borrow from the original SFC source which the caller
+//! is required to keep alive for the lifetime of the AST.
 //!
 //! All nodes derive `serde::Serialize` so the entire tree can be exported
 //! to JSON for transfer across the napi boundary.
 
 use oxc_allocator::{Box as ArenaBox, Vec as ArenaVec};
+use oxc_str::Str;
 use serde::Serialize;
 
 /// Byte-offset span (UTF-8 byte indices into the original SFC source).
@@ -60,8 +62,8 @@ pub struct VElement<'a> {
   #[serde(rename = "type")]
   pub r#type: &'static str,
   pub range: Span,
-  pub name: &'a str,
-  pub raw_name: &'a str,
+  pub name: Str<'a>,
+  pub raw_name: Str<'a>,
   pub namespace: VNamespace,
   pub start_tag: ArenaBox<'a, VStartTag<'a>>,
   pub end_tag: Option<ArenaBox<'a, VEndTag>>,
@@ -109,7 +111,7 @@ pub struct VText<'a> {
   #[serde(rename = "type")]
   pub r#type: &'static str,
   pub range: Span,
-  pub value: &'a str,
+  pub value: Str<'a>,
 }
 
 #[derive(Debug, Serialize)]
@@ -119,7 +121,7 @@ pub struct VExpressionContainer<'a> {
   pub range: Span,
   /// Raw expression source between the delimiters (`{{` / `}}` for mustache,
   /// or the attribute value source for directives).
-  pub raw_expression: &'a str,
+  pub raw_expression: Str<'a>,
   /// Span of the inner expression source (excluding mustache delimiters).
   pub expression_range: Span,
   /// `true` when this container holds a `v-for` or otherwise non-expression
@@ -149,8 +151,8 @@ pub struct VIdentifier<'a> {
   #[serde(rename = "type")]
   pub r#type: &'static str,
   pub range: Span,
-  pub name: &'a str,
-  pub raw_name: &'a str,
+  pub name: Str<'a>,
+  pub raw_name: Str<'a>,
 }
 
 #[derive(Debug, Serialize)]
@@ -160,13 +162,13 @@ pub struct VDirectiveKey<'a> {
   pub range: Span,
   /// Directive name without the `v-` / shorthand prefix (e.g. `bind`, `on`,
   /// `slot`, `for`, `model`).
-  pub name: &'a str,
+  pub name: Str<'a>,
   /// Argument source text (e.g. for `:foo` or `v-bind:foo`, this is `foo`).
-  pub argument: Option<&'a str>,
-  pub modifiers: ArenaVec<'a, &'a str>,
+  pub argument: Option<Str<'a>>,
+  pub modifiers: ArenaVec<'a, Str<'a>>,
   /// Raw source text of the whole key (e.g. `v-bind:foo.sync`, `:foo`,
   /// `@click.stop`, `#default`).
-  pub raw: &'a str,
+  pub raw: Str<'a>,
 }
 
 #[derive(Debug, Serialize)]
@@ -181,5 +183,5 @@ pub struct VLiteral<'a> {
   #[serde(rename = "type")]
   pub r#type: &'static str,
   pub range: Span,
-  pub value: &'a str,
+  pub value: Str<'a>,
 }

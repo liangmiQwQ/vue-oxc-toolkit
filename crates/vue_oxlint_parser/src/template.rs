@@ -10,6 +10,7 @@
 //! CDATA, HTML entity decoding) is left as a TODO and noted in-line.
 
 use oxc_allocator::{Allocator, Box as ArenaBox, Vec as ArenaVec};
+use oxc_str::Str;
 
 use crate::ast::{
   Span, VAttribute, VAttributeKey, VAttributeValue, VDirectiveKey, VElement, VElementChild,
@@ -60,8 +61,8 @@ pub fn build_block_element<'a>(
     VElement {
       r#type: "VElement",
       range,
-      name: tag,
-      raw_name: tag,
+      name: Str::from(tag),
+      raw_name: Str::from(tag),
       namespace: VNamespace::Html,
       start_tag,
       end_tag,
@@ -147,7 +148,7 @@ impl<'a> TemplateParser<'a> {
   fn flush_text(&self, lo: usize, hi: usize, out: &mut ArenaVec<'a, VElementChild<'a>>) {
     if hi > lo {
       let text = ArenaBox::new_in(
-        VText { r#type: "VText", range: self.span(lo, hi), value: &self.src[lo..hi] },
+        VText { r#type: "VText", range: self.span(lo, hi), value: Str::from(&self.src[lo..hi]) },
         self.alloc,
       );
       out.push(VElementChild::Text(text));
@@ -191,7 +192,7 @@ impl<'a> TemplateParser<'a> {
       VExpressionContainer {
         r#type: "VExpressionContainer",
         range: self.span(lo, self.pos),
-        raw_expression: raw,
+        raw_expression: Str::from(raw),
         expression_range: self.span(expr_lo, expr_hi),
         raw: false,
       },
@@ -237,8 +238,8 @@ impl<'a> TemplateParser<'a> {
         VElement {
           r#type: "VElement",
           range: self.span(lo, start_tag_end),
-          name,
-          raw_name: name,
+          name: Str::from(name),
+          raw_name: Str::from(name),
           namespace: VNamespace::Html,
           start_tag,
           end_tag: None,
@@ -274,8 +275,8 @@ impl<'a> TemplateParser<'a> {
       VElement {
         r#type: "VElement",
         range: self.span(lo, element_end),
-        name,
-        raw_name: name,
+        name: Str::from(name),
+        raw_name: Str::from(name),
         namespace: VNamespace::Html,
         start_tag,
         end_tag,
@@ -415,7 +416,7 @@ pub fn parse_attributes<'a>(
           VAttributeValue::Expression(VExpressionContainer {
             r#type: "VExpressionContainer",
             range: span,
-            raw_expression: txt,
+            raw_expression: Str::from(txt),
             expression_range: span,
             raw: false,
           }),
@@ -423,7 +424,11 @@ pub fn parse_attributes<'a>(
         )
       } else {
         ArenaBox::new_in(
-          VAttributeValue::Literal(VLiteral { r#type: "VLiteral", range: span, value: txt }),
+          VAttributeValue::Literal(VLiteral {
+            r#type: "VLiteral",
+            range: span,
+            value: Str::from(txt),
+          }),
           alloc,
         )
       }
@@ -452,8 +457,8 @@ fn classify_key<'a>(
         VAttributeKey::Identifier(VIdentifier {
           r#type: "VIdentifier",
           range: span,
-          name: raw,
-          raw_name: raw,
+          name: Str::from(raw),
+          raw_name: Str::from(raw),
         }),
         alloc,
       ),
@@ -478,8 +483,8 @@ fn classify_key<'a>(
           VAttributeKey::Identifier(VIdentifier {
             r#type: "VIdentifier",
             range: span,
-            name: raw,
-            raw_name: raw,
+            name: Str::from(raw),
+            raw_name: Str::from(raw),
           }),
           alloc,
         ),
@@ -513,11 +518,11 @@ fn parse_directive_key<'a>(
     (None, consumed)
   };
 
-  let mut modifiers: ArenaVec<'a, &'a str> = ArenaVec::new_in(alloc);
+  let mut modifiers: ArenaVec<'a, Str<'a>> = ArenaVec::new_in(alloc);
   let mut tail = &raw[after_arg_idx..];
   while let Some(t) = tail.strip_prefix('.') {
     let next = t.find('.').unwrap_or(t.len());
-    modifiers.push(&t[..next]);
+    modifiers.push(Str::from(&t[..next]));
     tail = &t[next..];
   }
 
@@ -526,10 +531,10 @@ fn parse_directive_key<'a>(
       VAttributeKey::Directive(VDirectiveKey {
         r#type: "VDirectiveKey",
         range: span,
-        name,
-        argument,
+        name: Str::from(name),
+        argument: argument.map(Str::from),
         modifiers,
-        raw,
+        raw: Str::from(raw),
       }),
       alloc,
     ),

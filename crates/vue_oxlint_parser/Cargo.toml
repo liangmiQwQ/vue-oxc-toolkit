@@ -17,6 +17,7 @@ oxc_diagnostics = { workspace = true }
 oxc_estree = { workspace = true, features = ["serialize"] }
 oxc_parser = { workspace = true }
 oxc_span = { workspace = true, features = ["serialize"] }
+oxc_str = { workspace = true, features = ["serialize"] }
 
 memchr = { workspace = true }
 serde = { version = "1", features = ["derive"] }

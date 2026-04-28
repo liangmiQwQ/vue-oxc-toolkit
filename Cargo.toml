@@ -42,6 +42,7 @@ oxc_diagnostics = ">=0.127.0"
 oxc_estree = ">=0.127.0"
 oxc_parser = ">=0.127.0"
 oxc_span = ">=0.127.0"
+oxc_str = ">=0.127.0"
 oxc_syntax = ">=0.127.0"
 
 memchr = "2.8.0"

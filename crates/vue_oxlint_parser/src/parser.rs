@@ -17,6 +17,7 @@ use oxc_ast::ast::Program;
 use oxc_estree::{CompactTSSerializer, ESTree};
 use oxc_parser::{Parser as JsParser, ParserReturn};
 use oxc_span::SourceType;
+use oxc_str::Str;
 use serde::Serialize;
 use serde_json::value::RawValue;
 
@@ -90,7 +91,10 @@ where
     if let Some(&(span, txt)) = text_iter.peek().copied()
       && span.start == next_offset
     {
-      let node = ArenaBox::new_in(VText { r#type: "VText", range: span, value: txt }, vue_alloc);
+      let node = ArenaBox::new_in(
+        VText { r#type: "VText", range: span, value: Str::from(txt) },
+        vue_alloc,
+      );
       root_children.push(VRootChild::Text(node));
       next_offset = span.end;
       text_iter.next();
@@ -110,7 +114,7 @@ where
         if !block.self_closing && block.content_range.end > block.content_range.start {
           let txt = &source[block.content_range.start as usize..block.content_range.end as usize];
           let n = ArenaBox::new_in(
-            VText { r#type: "VText", range: block.content_range, value: txt },
+            VText { r#type: "VText", range: block.content_range, value: Str::from(txt) },
             vue_alloc,
           );
           v.push(VElementChild::Text(n));
