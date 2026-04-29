@@ -1,5 +1,6 @@
 ---
-source: crates/vue_oxlint_transformer/src/test.rs
+source: crates/vue_oxlint_jsx/src/test/mod.rs
+assertion_line: 98
 expression: result
 ---
 =============== Program ===============
@@ -37,16 +38,16 @@ Program {
 [
     OxcDiagnostic {
         inner: OxcDiagnosticInner {
-            message: "Single file component can contain only one <script> element.",
+            message: "Unexpected EOF in tag.",
             labels: Some(
                 [
                     LabeledSpan {
                         label: None,
                         span: SourceSpan {
                             offset: SourceOffset(
-                                32,
+                                26,
                             ),
-                            length: 31,
+                            length: 0,
                         },
                         primary: false,
                     },
