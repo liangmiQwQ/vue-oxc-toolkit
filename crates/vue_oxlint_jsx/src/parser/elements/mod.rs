@@ -65,8 +65,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
       && start != first.get_location().start.offset as u32
     {
       let span = Span::new(start, first.get_location().start.offset as u32);
-      let value = span.source_text(self.source_text);
-      result.push(ast.jsx_child_text(span, value, Some(ast.str(value))));
+      result.push(self.jsx_child_text(span, span.source_text(self.source_text)));
     }
 
     let last = if let Some(last) = children.last()
@@ -74,8 +73,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
       && end != last.get_location().end.offset as u32
     {
       let span = Span::new(last.get_location().end.offset as u32, end);
-      let value = span.source_text(self.source_text);
-      Some(ast.jsx_child_text(span, value, Some(ast.str(value))))
+      Some(self.jsx_child_text(span, span.source_text(self.source_text)))
     } else {
       None
     };
@@ -413,8 +411,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
   }
 
   fn parse_text(&self, text: &TextNode<'a>) -> JSXChild<'a> {
-    let raw = self.ast.str(&text.text.iter().map(|t| t.raw).collect::<String>());
-    self.ast.jsx_child_text(text.location.span(), raw, Some(raw))
+    self.jsx_child_text(text.location.span(), &text.text.iter().map(|t| t.raw).collect::<String>())
   }
 
   fn parse_comment(&mut self, comment: &SourceNode<'a>) -> JSXChild<'a> {

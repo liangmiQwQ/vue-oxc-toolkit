@@ -12,6 +12,7 @@ use oxc_syntax::module_record::ModuleRecord;
 
 use crate::ParseConfig;
 
+mod codegen;
 mod elements;
 mod error;
 mod modules;
