@@ -52,9 +52,9 @@ fn validate_all_codegen_syntax() {
     println!("Invalid codegen syntax in:");
     for file in &invalid {
       let snap_name = file.replace(['/', '.'], "_");
-      println!("  {}  (src/parser/snapshots/ast/{}.snap)", file, snap_name);
+      println!("  {file}  (src/parser/snapshots/ast/{snap_name}.snap)");
     }
   }
 
-  assert!(invalid.is_empty(), "Invalid codegen syntax in: {:?}", invalid);
+  assert!(invalid.is_empty(), "Invalid codegen syntax in: {invalid:?}");
 }
