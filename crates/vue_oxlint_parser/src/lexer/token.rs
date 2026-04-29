@@ -14,6 +14,7 @@ pub struct Token<'a> {
 }
 
 #[derive(Debug, Clone, Copy)]
+#[repr(u8)]
 pub enum TokenKind<'a> {
   /// `<name` — start of an opening tag. The name slice points into source.
   TagOpen { name: &'a str },
