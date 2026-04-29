@@ -13,9 +13,9 @@ async () => {
 <script lang="js" setup></script>
 
 <style>
-div {
+div &#123;
   color: red;
-}
+&#125;
 </style>
 </>;
 };

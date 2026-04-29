@@ -335,9 +335,9 @@ Program {
                                                                                         node_id: Cell {
                                                                                             value: NodeId(0),
                                                                                         },
-                                                                                        value: "</img>\n",
+                                                                                        value: "&lt;/img&gt;\n",
                                                                                         raw: Some(
-                                                                                            "</img>\n",
+                                                                                            "&lt;/img&gt;\n",
                                                                                         ),
                                                                                     },
                                                                                 ),
@@ -455,7 +455,7 @@ async () => {
 	<><template>
   <br />
   <input></>
-  <img /></img>
+  <img />&lt;/img&gt;
 </template>
 </>;
 };

@@ -6,7 +6,7 @@ async () => {
 	<><template>
   <br />
   <input></>
-  <img /></img>
+  <img />&lt;/img&gt;
 </template>
 </>;
 };
