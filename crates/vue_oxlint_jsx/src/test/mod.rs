@@ -1,3 +1,4 @@
+use crate::ParseConfig;
 use crate::parser::ParserImpl;
 pub use crate::parser::ParserImplReturn;
 use oxc_allocator::Allocator;
@@ -83,7 +84,9 @@ where
   let allocator = Allocator::default();
   let source_text = read_file(file_path);
 
-  let ret = ParserImpl::new(&allocator, &source_text, ParseOptions::default()).parse();
+  let ret =
+    ParserImpl::new(&allocator, &source_text, ParseOptions::default(), ParseConfig::default())
+      .parse();
 
   let result = f(&ret);
 
