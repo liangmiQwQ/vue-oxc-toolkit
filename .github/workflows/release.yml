@@ -44,6 +44,9 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
       - uses: voidzero-dev/setup-vp@v1
 
       - name: Generate Changelog
