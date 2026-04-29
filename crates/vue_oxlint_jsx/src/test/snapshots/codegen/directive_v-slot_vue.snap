@@ -9,7 +9,7 @@ async () => {
     {message}
   </> }}</Comp>
   <Comp v-slot:abc>{{ abc: () => <> abc </> }}</Comp>
-  <Comp v-slot:>{{ default: () => <></> }}</>
+  <Comp v-slot: />{{ default: () => <></> }}
   <Comp v-slot:header={}>{{ header: ({ message }) => <>
     {message}
   </> }}</Comp>

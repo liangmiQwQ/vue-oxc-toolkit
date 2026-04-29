@@ -5,7 +5,7 @@ expression: "&codegen"
 async () => {
 	<><template>
   <br />
-  <input></>
+  <input />
   <img />&lt;/img&gt;
 </template>
 </>;

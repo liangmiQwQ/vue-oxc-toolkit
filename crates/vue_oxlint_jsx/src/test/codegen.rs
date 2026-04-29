@@ -25,7 +25,7 @@ fn validate_all_codegen_syntax() {
           &allocator,
           &source_text,
           ParseOptions::default(),
-          ParseConfig::default(),
+          ParseConfig { codegen: true },
         )
         .parse();
         if ret.fatal {

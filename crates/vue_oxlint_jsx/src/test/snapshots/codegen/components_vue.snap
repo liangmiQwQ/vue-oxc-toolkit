@@ -6,8 +6,8 @@ import SomeComponent from "./SomeComponent.vue";
 import { motion } from "motion-v";
 async () => {
 	<><template>
-  <SomeComponent></>
-  <SomeComponent></>
+  <SomeComponent />
+  <SomeComponent />
   <Transition></Transition>
   <component></component>
   <motion.div></motion.div>
