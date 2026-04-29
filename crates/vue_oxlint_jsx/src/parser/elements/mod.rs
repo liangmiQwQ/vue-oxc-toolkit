@@ -217,12 +217,16 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
     let opening_element_name = element_name.clone_in(self.allocator);
 
     // Determine closing element based on tag type:
-    // - Self-closing tags (/>): closing element with empty name
+    // - Self-closing tags (/>): closing element with empty name (None in `codegen` mode)
     // - Void tags without />: None
     // - Normal tags with </tag>: closing element with tag name
     let closing_element = if location_span.source_text(self.source_text).ends_with("/>") {
       // Self-closing tag: create closing element with empty element name
-      Some(ast.jsx_closing_element(SPAN, ast.jsx_element_name_identifier(SPAN, ast.str(""))))
+      if self.config.codegen {
+        None
+      } else {
+        Some(ast.jsx_closing_element(SPAN, ast.jsx_element_name_identifier(SPAN, ast.str(""))))
+      }
     } else if is_void_tag!(tag_name) {
       // Void tag without />: no closing element
       None
