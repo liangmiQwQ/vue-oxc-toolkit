@@ -19,5 +19,4 @@ mod ast;
 mod lexer;
 mod parser;
 
-pub use oxc_diagnostics::OxcDiagnostic;
 pub use parser::{ParseOptions, ParsedSfc, ScriptProgram, parse, parse_to_json};

@@ -15,6 +15,7 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
+oxc_diagnostics = { workspace = true }
 napi = { workspace = true }
 napi-derive = { workspace = true }
 vue_oxlint_parser = { workspace = true }

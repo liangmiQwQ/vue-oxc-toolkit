@@ -579,6 +579,5 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { parseSync, plus100 } = nativeBinding
+const { parseSync } = nativeBinding
 export { parseSync }
-export { plus100 }

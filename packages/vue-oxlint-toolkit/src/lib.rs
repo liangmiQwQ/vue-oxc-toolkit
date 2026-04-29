@@ -10,7 +10,8 @@
 
 use napi::Error as NapiError;
 use napi_derive::napi;
-use vue_oxlint_parser::{OxcDiagnostic, ParseOptions, parse_to_json};
+use oxc_diagnostics::OxcDiagnostic;
+use vue_oxlint_parser::{ParseOptions, parse_to_json};
 
 /// Render an `OxcDiagnostic` (with its labels attached to the source) into a
 /// string suitable for a JS-side `Error.message`. The miette renderer gives
@@ -19,12 +20,6 @@ use vue_oxlint_parser::{OxcDiagnostic, ParseOptions, parse_to_json};
 fn diagnostic_to_napi(source: &str, d: OxcDiagnostic) -> NapiError {
   let report = d.with_source_code(source.to_string());
   NapiError::from_reason(format!("{report:?}"))
-}
-
-#[napi]
-#[must_use]
-pub const fn plus_100(input: u32) -> u32 {
-  input + 100
 }
 
 /// Parse a `.vue` SFC source string and return a JSON-serialised AST.

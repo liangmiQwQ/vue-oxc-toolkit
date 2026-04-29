@@ -11,5 +11,3 @@
  * Returns a JS-side `Error` when the SFC layout is malformed.
  */
 export declare function parseSync(source: string): string
-
-export declare function plus100(input: number): number

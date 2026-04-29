@@ -1758,6 +1758,7 @@ dependencies = [
  "napi",
  "napi-build",
  "napi-derive",
+ "oxc_diagnostics",
  "vue_oxlint_parser",
 ]
 

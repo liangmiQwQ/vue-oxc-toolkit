@@ -17,19 +17,7 @@ use oxc_str::Str;
 mod expr;
 use serde::Serialize;
 
-/// Byte-offset span (UTF-8 byte indices into the original SFC source).
-#[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
-pub struct Span {
-  pub start: u32,
-  pub end: u32,
-}
-
-impl Span {
-  #[must_use]
-  pub const fn new(start: u32, end: u32) -> Self {
-    Self { start, end }
-  }
-}
+pub use oxc_span::Span;
 
 /// Top-level result of parsing a `.vue` SFC.
 ///

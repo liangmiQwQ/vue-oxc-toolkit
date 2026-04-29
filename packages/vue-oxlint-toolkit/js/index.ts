@@ -1,7 +1,6 @@
-import { parseSync, plus100 } from '../bindings/index.js'
+import { parseSync } from '../bindings/index.js'
 import type * as VAst from './ast'
 
-export { plus100 }
 export type * from './ast'
 
 export interface ParseResult {
