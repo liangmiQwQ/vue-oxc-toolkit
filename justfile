@@ -24,13 +24,13 @@ update:
   vp update major
 
 test: 
+  just build
   cargo test --all-features --workspace
   vp test
 
 ready:
   git diff --exit-code --quiet
   just lint
-  just fix
   just build
   just test
   git status
@@ -39,6 +39,7 @@ ready:
 lint: 
   # cargo shear
   cargo clippy --workspace --all-targets --all-features -- -D warnings
+  cargo fmt --all -- --check
   vp check
 
 build:
