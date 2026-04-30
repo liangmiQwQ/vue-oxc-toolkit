@@ -1,34 +1,34 @@
 use oxc_allocator::Allocator;
 use oxc_ast::Comment;
-use oxc_codegen::Codegen as OxcCodegen;
+use oxc_codegen::Codegen;
 use oxc_diagnostics::OxcDiagnostic;
 use oxc_parser::ParseOptions;
 use oxc_span::{SourceType, Span};
 
 use crate::parser::{ParseConfig, ParserImpl};
 
-/// The return value of [`Codegen::build`].
+/// The return value of [`VueJsxCodegen::build`].
 #[non_exhaustive]
-pub struct CodegenReturn {
+pub struct VueJsxCodegenReturn {
   /// The generated JS/TS source produced from the Vue SFC.
   pub source_text: String,
   /// The detected source type (JSX vs TSX, module vs script).
   pub source_type: SourceType,
   /// Comments collected from the parsed source. Spans refer to the original
-  /// Vue SFC source, not [`CodegenReturn::source_text`].
+  /// Vue SFC source, not [`VueJsxCodegenReturn::source_text`].
   pub comments: Vec<Comment>,
   /// Irregular whitespace spans in the original Vue SFC source.
   pub irregular_whitespaces: Box<[Span]>,
   /// Diagnostics produced while parsing the Vue SFC.
   pub errors: Vec<OxcDiagnostic>,
-  /// `true` if parsing fatally failed; [`CodegenReturn::source_text`]
+  /// `true` if parsing fatally failed; [`VueJsxCodegenReturn::source_text`]
   /// will be empty in that case.
   pub panicked: bool,
 }
 
 /// Parses a Vue SFC and emits the resulting JS/TS source via `oxc_codegen`.
 ///
-/// Unlike [`crate::Parser`] this entry point does not surface the AST
+/// Unlike [`crate::VueJsxParser`] this entry point does not surface the AST
 /// — the parser allocator lives only for the duration of [`Self::build`] and
 /// is dropped before returning. Use this when you only need the generated
 /// code (e.g. for downstream tooling that lints or transforms the output).
@@ -36,22 +36,22 @@ pub struct CodegenReturn {
 /// # Examples
 ///
 /// ```
-/// use vue_oxlint_jsx::Codegen;
+/// use vue_oxlint_jsx::VueJsxCodegen;
 ///
 /// let source = r#"<template><div>{{ msg }}</div></template>
 /// <script setup>
 /// const msg = 'hello';
 /// </script>"#;
 ///
-/// let ret = Codegen::new(source).build();
+/// let ret = VueJsxCodegen::new(source).build();
 /// assert!(!ret.panicked);
 /// ```
-pub struct Codegen<'a> {
+pub struct VueJsxCodegen<'a> {
   source_text: &'a str,
   options: ParseOptions,
 }
 
-impl<'a> Codegen<'a> {
+impl<'a> VueJsxCodegen<'a> {
   #[must_use]
   pub fn new(source_text: &'a str) -> Self {
     Self { source_text, options: ParseOptions::default() }
@@ -66,14 +66,14 @@ impl<'a> Codegen<'a> {
 
   /// Parses the Vue SFC and runs `oxc_codegen` to produce JS/TS source.
   #[must_use]
-  pub fn build(self) -> CodegenReturn {
+  pub fn build(self) -> VueJsxCodegenReturn {
     let allocator = Allocator::default();
     let ret =
       ParserImpl::new(&allocator, self.source_text, self.options, ParseConfig { codegen: true })
         .parse();
 
     if ret.fatal {
-      return CodegenReturn {
+      return VueJsxCodegenReturn {
         source_text: String::new(),
         source_type: ret.program.source_type,
         comments: Vec::new(),
@@ -83,11 +83,11 @@ impl<'a> Codegen<'a> {
       };
     }
 
-    let source_text = OxcCodegen::new().build(&ret.program).code;
+    let source_text = Codegen::new().build(&ret.program).code;
     let source_type = ret.program.source_type;
     let comments = ret.program.comments.iter().copied().collect();
 
-    CodegenReturn {
+    VueJsxCodegenReturn {
       source_text,
       source_type,
       comments,
