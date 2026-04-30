@@ -1225,12 +1225,18 @@ impl Gen for NullLiteral {
 }
 
 impl GenExpr for NumericLiteral<'_> {
-  fn gen_expr(&self, p: &mut Codegen, precedence: Precedence, ctx: Context) {
+  fn gen_expr(&self, p: &mut Codegen, precedence: Precedence, _ctx: Context) {
     p.add_source_mapping(self.span);
+    let raw = self.raw_str();
+    if !raw.is_empty() {
+      // Preserve original notation (hex, octal, binary, numeric separators, etc.)
+      p.print_space_before_identifier();
+      p.print_str(raw);
+      return;
+    }
+    // Fallback for synthesized literals without raw representation
     let value = self.value;
-    if ctx.contains(Context::TYPESCRIPT) {
-      p.print_str(&self.raw_str());
-    } else if value.is_nan() {
+    if value.is_nan() {
       p.print_space_before_identifier();
       p.print_str("NaN");
     } else if value.is_infinite() {
@@ -1264,6 +1270,13 @@ impl GenExpr for BigIntLiteral<'_> {
   fn gen_expr(&self, p: &mut Codegen, precedence: Precedence, _ctx: Context) {
     p.print_space_before_identifier();
     p.add_source_mapping(self.span);
+    // Use raw to preserve original notation (hex: 0x10n, separators: 1_000n, etc.)
+    let raw = self.raw.as_str();
+    if !raw.is_empty() {
+      p.print_str(raw);
+      return;
+    }
+    // Fallback for synthesized literals without raw representation
     let value = self.value.as_str();
     if value.starts_with('-') && precedence >= Precedence::Prefix {
       p.print_ascii_byte(b'(');
@@ -1554,16 +1567,7 @@ impl Gen for ObjectProperty<'_> {
       }
     }
 
-    let mut shorthand = false;
-    if let PropertyKey::StaticIdentifier(key) = &self.key {
-      if key.name == "__proto__" {
-        shorthand = self.shorthand;
-      } else if let Expression::Identifier(ident) = self.value.without_parentheses()
-        && key.name == p.get_identifier_reference_name(ident)
-      {
-        shorthand = true;
-      }
-    }
+    let shorthand = self.shorthand;
 
     let mut computed = self.computed;
 
@@ -1615,20 +1619,10 @@ impl GenExpr for ArrowFunctionExpression<'_> {
       if let Some(type_parameters) = &self.type_parameters {
         type_parameters.print(p, ctx);
       }
-      let remove_params_wrap = self.params.items.len() == 1
-        && self.params.rest.is_none()
-        && self.type_parameters.is_none()
-        && self.return_type.is_none()
-        && {
-          let param = &self.params.items[0];
-          param.decorators.is_empty()
-            && !param.has_modifier()
-            && param.pattern.is_binding_identifier()
-            && param.type_annotation.is_none()
-            && param.initializer.is_none()
-            && !param.optional
-        };
-      p.wrap(!remove_params_wrap, |p| {
+      // Always wrap params to preserve explicit parentheses (e.g. `(x) => x` vs `x => x`).
+      // The AST does not record whether parens were present, so we choose the conservative
+      // form that always produces valid syntax.
+      p.wrap(true, |p| {
         self.params.print(p, ctx);
       });
       if let Some(return_type) = &self.return_type {
@@ -2087,10 +2081,9 @@ impl GenExpr for NewExpression<'_> {
         type_parameters.print(p, ctx);
       }
 
-      // Omit the "()" when safe to do so
-      if !self.arguments.is_empty() || precedence >= Precedence::Postfix {
-        p.print_arguments(self.span, &self.arguments, ctx);
-      }
+      // Always print argument list to preserve `new Foo()` vs `new Foo`.
+      // The AST does not record whether `()` was present for empty-arg calls.
+      p.print_arguments(self.span, &self.arguments, ctx);
     });
   }
 }
@@ -2718,24 +2711,7 @@ impl Gen for ObjectPattern<'_> {
 
 impl Gen for BindingProperty<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    let mut shorthand = false;
-    if let PropertyKey::StaticIdentifier(key) = &self.key {
-      match &self.value {
-        BindingPattern::BindingIdentifier(ident)
-          if key.name == p.get_binding_identifier_name(ident) =>
-        {
-          shorthand = true;
-        }
-        BindingPattern::AssignmentPattern(assignment_pattern) => {
-          if let BindingPattern::BindingIdentifier(ident) = &assignment_pattern.left
-            && key.name == p.get_binding_identifier_name(ident)
-          {
-            shorthand = true;
-          }
-        }
-        _ => {}
-      }
-    }
+    let shorthand = self.shorthand;
 
     if !shorthand {
       if self.computed {
