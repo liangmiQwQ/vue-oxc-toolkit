@@ -1,6 +1,5 @@
-use crate::ParseConfig;
-use crate::parser::ParserImpl;
 pub use crate::parser::ParserImplReturn;
+use crate::parser::{ParseConfig, ParserImpl};
 use oxc_allocator::Allocator;
 use oxc_ast::ast::Program;
 use oxc_ast_visit::Visit;
