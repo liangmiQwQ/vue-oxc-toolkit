@@ -1167,8 +1167,10 @@ impl GenExpr for Expression<'_> {
 }
 
 impl GenExpr for ParenthesizedExpression<'_> {
-  fn gen_expr(&self, p: &mut Codegen, precedence: Precedence, ctx: Context) {
-    self.expression.print_expr(p, precedence, ctx);
+  fn gen_expr(&self, p: &mut Codegen, _: Precedence, ctx: Context) {
+    p.wrap(true, |p| {
+      self.expression.print_expr(p, Precedence::Lowest, ctx.and_forbid_call(false));
+    });
   }
 }
 
