@@ -1,0 +1,46 @@
+[package]
+name = "oxc_codegen"
+version = "0.127.0"
+authors.workspace = true
+categories.workspace = true
+edition.workspace = true
+homepage.workspace = true
+include = ["/examples", "/src"]
+keywords.workspace = true
+license.workspace = true
+publish = true
+repository.workspace = true
+rust-version.workspace = true
+description.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+doctest = true
+
+[dependencies]
+oxc_allocator = { workspace = true }
+oxc_ast = { workspace = true }
+oxc_data_structures = { workspace = true, features = ["code_buffer", "slice_iter", "stack"] }
+oxc_index = { workspace = true }
+oxc_semantic = { workspace = true }
+oxc_sourcemap = { workspace = true, optional = true }
+oxc_span = { workspace = true }
+oxc_str = { workspace = true }
+oxc_syntax = { workspace = true }
+
+bitflags = { workspace = true }
+cow-utils = { workspace = true }
+dragonbox_ecma = { workspace = true }
+itoa = { workspace = true }
+rustc-hash = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }
+oxc_parser = { workspace = true }
+pico-args = { workspace = true }
+
+[features]
+default = ["sourcemap"]
+sourcemap = ["dep:oxc_sourcemap"]

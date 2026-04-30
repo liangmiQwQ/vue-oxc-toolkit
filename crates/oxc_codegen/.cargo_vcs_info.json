@@ -1,0 +1,6 @@
+{
+  "git": {
+    "sha1": "161d6b5583ad2d881d08fc9a560604fbfe482f8e"
+  },
+  "path_in_vcs": "crates/oxc_codegen"
+}
