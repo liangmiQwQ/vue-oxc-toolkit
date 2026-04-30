@@ -10,14 +10,17 @@ use oxc_parser::ParseOptions;
 use oxc_span::{SourceType, Span};
 use oxc_syntax::module_record::ModuleRecord;
 
-use crate::ParseConfig;
-
 mod codegen;
 mod elements;
 mod error;
 mod modules;
 mod parse;
 mod script;
+
+#[derive(Debug, Clone, Copy, Default)]
+pub struct ParseConfig {
+  pub codegen: bool,
+}
 
 pub struct ScriptBlock<'a> {
   directives: ArenaVec<'a, Directive<'a>>,

@@ -1,9 +1,7 @@
 #![deny(clippy::all)]
 
-use oxc_allocator::Allocator;
 use oxc_ast::ast::CommentKind;
-use oxc_codegen::Codegen;
-use vue_oxlint_jsx::{ParseConfig, VueOxcParser};
+use vue_oxlint_jsx::{CodegenMode, VueOxcCodegen};
 
 use napi_derive::napi;
 
@@ -43,18 +41,13 @@ pub struct NativeTransformResult {
 #[must_use]
 #[allow(clippy::needless_pass_by_value, reason = "N-API owns string arguments at the boundary.")]
 pub fn transform_jsx(source: String) -> NativeTransformResult {
-  let allocator = Allocator::default();
-  let ret =
-    VueOxcParser::new(&allocator, &source).with_config(ParseConfig { codegen: true }).parse();
-  let script_kind = if ret.program.source_type.is_typescript() { "tsx" } else { "jsx" }.to_string();
-  let source_text =
-    if ret.panicked { String::new() } else { Codegen::new().build(&ret.program).code };
+  let ret = VueOxcCodegen::new(&source).build(CodegenMode::new());
+  let script_kind = if ret.source_type.is_typescript() { "tsx" } else { "jsx" }.to_string();
 
   NativeTransformResult {
-    source_text,
+    source_text: ret.source_text,
     script_kind,
     comments: ret
-      .program
       .comments
       .iter()
       .map(|comment| {

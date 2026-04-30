@@ -1,13 +1,12 @@
 use oxc_allocator::Allocator;
 use oxc_parser::ParseOptions;
 
-use crate::{ParseConfig, parser::ParserImpl};
+use crate::{CodegenMode, VueOxcCodegen};
 
 /// Tests for codegen
 /// For downstream use
 #[test]
 fn validate_all_codegen_syntax() {
-  use oxc_codegen::Codegen;
   use std::path::Path;
 
   fn visit_dir(path: &Path, results: &mut Vec<(String, Vec<String>)>) {
@@ -20,19 +19,11 @@ fn validate_all_codegen_syntax() {
         let file_path =
           path.strip_prefix("fixtures").unwrap().to_str().unwrap().trim_start_matches('/');
         let source_text = std::fs::read_to_string(&path).unwrap();
-        let allocator = Allocator::default();
-        let ret = ParserImpl::new(
-          &allocator,
-          &source_text,
-          ParseOptions::default(),
-          ParseConfig { codegen: true },
-        )
-        .parse();
-        if ret.fatal {
+        let ret = VueOxcCodegen::new(&source_text).build(CodegenMode::new());
+        if ret.panicked {
           continue;
         }
-        let js = Codegen::new().build(&ret.program);
-        let codegen = js.code;
+        let codegen = ret.source_text;
 
         // Store codegen as snapshot
         let snap_name = super::snapshot_name(file_path);
@@ -44,8 +35,7 @@ fn validate_all_codegen_syntax() {
         });
 
         let new_allocator = Allocator::default();
-        let source_type = ret.program.source_type;
-        let reparsed = oxc_parser::Parser::new(&new_allocator, &codegen, source_type)
+        let reparsed = oxc_parser::Parser::new(&new_allocator, &codegen, ret.source_type)
           .with_options(ParseOptions::default())
           .parse();
         if !reparsed.errors.is_empty() {

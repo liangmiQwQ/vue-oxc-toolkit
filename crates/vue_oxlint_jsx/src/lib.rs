@@ -5,24 +5,21 @@ use oxc_parser::ParseOptions;
 use oxc_span::Span;
 use oxc_syntax::module_record::ModuleRecord;
 
-use crate::parser::{ParserImpl, ParserImplReturn};
+use crate::parser::{ParseConfig, ParserImpl, ParserImplReturn};
 
+mod codegen;
 mod irregular_whitespaces;
 mod parser;
 
 #[cfg(test)]
 mod test;
 
-#[derive(Debug, Clone, Copy, Default)]
-pub struct ParseConfig {
-  pub codegen: bool,
-}
+pub use crate::codegen::{CodegenMode, VueOxcCodegen, VueOxcCodegenReturn};
 
 pub struct VueOxcParser<'a> {
   allocator: &'a Allocator,
   source_text: &'a str,
   options: ParseOptions,
-  config: ParseConfig,
 }
 
 /// The return value of [`VueOxcParser::parse`].
@@ -61,12 +58,7 @@ impl<'a> VueOxcParser<'a> {
   /// assert!(!ret.panicked);
   /// ```
   pub fn new(allocator: &'a Allocator, source_text: &'a str) -> Self {
-    Self {
-      allocator,
-      source_text,
-      options: ParseOptions::default(),
-      config: ParseConfig::default(),
-    }
+    Self { allocator, source_text, options: ParseOptions::default() }
   }
 
   /// Overrides the [`ParseOptions`] passed to the underlying `oxc_parser`.
@@ -88,13 +80,6 @@ impl<'a> VueOxcParser<'a> {
   #[must_use]
   pub const fn with_options(mut self, options: ParseOptions) -> Self {
     self.options = options;
-    self
-  }
-
-  /// Overrides the [`ParseConfig`]
-  #[must_use]
-  pub const fn with_config(mut self, config: ParseConfig) -> Self {
-    self.config = config;
     self
   }
 }
@@ -124,7 +109,8 @@ impl<'a> VueOxcParser<'a> {
   #[must_use]
   pub fn parse(self) -> VueParserReturn<'a> {
     let ParserImplReturn { program, errors, fatal, module_record } =
-      ParserImpl::new(self.allocator, self.source_text, self.options, self.config).parse();
+      ParserImpl::new(self.allocator, self.source_text, self.options, ParseConfig::default())
+        .parse();
 
     if fatal {
       VueParserReturn {
@@ -139,7 +125,9 @@ impl<'a> VueOxcParser<'a> {
         program,
         errors,
         panicked: false,
-        irregular_whitespaces: self.get_irregular_whitespaces(),
+        irregular_whitespaces: irregular_whitespaces::collect_irregular_whitespaces(
+          self.source_text,
+        ),
         module_record,
       }
     }
