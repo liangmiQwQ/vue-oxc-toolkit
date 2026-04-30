@@ -1,11 +1,24 @@
 use oxc_allocator::Allocator;
 use oxc_ast::Comment;
-use oxc_codegen::Codegen;
 use oxc_diagnostics::OxcDiagnostic;
 use oxc_parser::ParseOptions;
 use oxc_span::{SourceType, Span};
 
 use crate::parser::{ParseConfig, ParserImpl};
+
+#[allow(
+  clippy::branches_sharing_code,
+  clippy::doc_markdown,
+  clippy::missing_const_for_fn,
+  clippy::option_if_let_else,
+  unfulfilled_lint_expectations,
+  clippy::useless_let_if_seq,
+  clippy::wildcard_imports
+)]
+#[path = "oxc/lib.rs"]
+mod oxc;
+
+pub use self::oxc::Codegen;
 
 /// The return value of [`VueJsxCodegen::build`].
 #[non_exhaustive]
