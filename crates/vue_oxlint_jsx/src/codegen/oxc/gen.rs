@@ -14,10 +14,6 @@ use super::{
   binary_expr_visitor::{BinaryExpressionVisitor, Binaryish, BinaryishOperator},
 };
 
-const PURE_COMMENT: &str = "/* @__PURE__ */ ";
-const NO_SIDE_EFFECTS_NEW_LINE_COMMENT: &str = "/* @__NO_SIDE_EFFECTS__ */\n";
-const NO_SIDE_EFFECTS_COMMENT: &str = "/* @__NO_SIDE_EFFECTS__ */ ";
-
 /// Generate source code for an AST node.
 pub trait Gen: GetSpan {
   /// Generate code for an AST node.
@@ -77,7 +73,7 @@ impl Gen for Directive<'_> {
     let directive = self.directive.as_str();
 
     let mut bytes = directive.as_bytes().iter();
-    let mut quote = p.quote;
+    let mut quote = Quote::Single;
     while let Some(&b) = bytes.next() {
       match b {
         b'"' => {
@@ -121,10 +117,6 @@ impl Gen for Statement<'_> {
       Self::ReturnStatement(stmt) => stmt.print(p, ctx),
       Self::FunctionDeclaration(decl) => {
         p.print_comments_at(decl.span.start);
-        if decl.pure && p.options.print_annotation_comment() {
-          p.print_indent();
-          p.print_str(NO_SIDE_EFFECTS_NEW_LINE_COMMENT);
-        }
         p.print_indent();
         decl.print(p, ctx);
         p.print_soft_newline();
@@ -199,10 +191,6 @@ impl Gen for Statement<'_> {
 impl Gen for ExpressionStatement<'_> {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
     p.print_comments_at(self.span.start);
-    if !p.options.minify && (p.indent > 0 || p.print_next_indent_as_space) {
-      p.print_indent();
-      p.add_source_mapping(self.span);
-    }
     p.start_of_stmt = p.code_len();
     p.print_expression(&self.expression);
     p.print_semicolon_after_statement();
@@ -563,9 +551,6 @@ impl Gen for ReturnStatement<'_> {
 impl Gen for LabeledStatement<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     p.print_comments_at(self.span.start);
-    if !p.options.minify && (p.indent > 0 || p.print_next_indent_as_space) {
-      p.print_indent();
-    }
     p.print_space_before_identifier();
     p.add_source_mapping(self.span);
     self.label.print(p, ctx);
@@ -614,11 +599,6 @@ impl Gen for CatchClause<'_> {
     }
     p.print_soft_space();
     p.print_comments_at(self.body.span.start);
-    // Consume the space flag set by comment printing to ensure proper spacing before the opening brace
-    if !p.options.minify && p.print_next_indent_as_space {
-      p.print_hard_space();
-      p.print_next_indent_as_space = false;
-    }
     p.print_block_statement(&self.body, ctx);
   }
 }
@@ -771,7 +751,6 @@ impl Gen for FunctionBody<'_> {
       // Print trailing statement comments.
       if let Some(comments) = comments_at_end {
         p.print_comments(&comments);
-        p.print_next_indent_as_space = false;
       }
     });
     p.needs_semicolon = false;
@@ -992,12 +971,6 @@ impl Gen for ImportAttribute<'_> {
 impl Gen for ExportNamedDeclaration<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     p.print_comments_at(self.span.start);
-    if let Some(Declaration::FunctionDeclaration(func)) = &self.declaration
-      && func.pure
-      && p.options.print_annotation_comment()
-    {
-      p.print_str(NO_SIDE_EFFECTS_NEW_LINE_COMMENT);
-    }
     p.add_source_mapping(self.span);
     p.print_indent();
     p.print_str("export");
@@ -1092,7 +1065,6 @@ impl Gen for ExportSpecifier<'_> {
     if let Some(comments) = p.get_comments(self.local.span().start) {
       p.print_comments(&comments);
       p.print_soft_space();
-      p.print_next_indent_as_space = false;
     }
     self.local.print(p, ctx);
     let local_name = get_module_export_name(&self.local, p);
@@ -1102,7 +1074,6 @@ impl Gen for ExportSpecifier<'_> {
       if let Some(comments) = p.get_comments(self.exported.span().start) {
         p.print_comments(&comments);
         p.print_soft_space();
-        p.print_next_indent_as_space = false;
       }
       self.exported.print(p, ctx);
     }
@@ -1155,12 +1126,6 @@ impl Gen for ExportAllDeclaration<'_> {
 impl Gen for ExportDefaultDeclaration<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     p.print_comments_at(self.span.start);
-    if let ExportDefaultDeclarationKind::FunctionDeclaration(func) = &self.declaration
-      && func.pure
-      && p.options.print_annotation_comment()
-    {
-      p.print_str(NO_SIDE_EFFECTS_NEW_LINE_COMMENT);
-    }
     p.add_source_mapping(self.span);
     p.print_indent();
     p.print_str("export default ");
@@ -1216,15 +1181,9 @@ impl GenExpr for Expression<'_> {
       Self::SequenceExpression(expr) => expr.print_expr(p, precedence, ctx),
       // Function expressions
       Self::ArrowFunctionExpression(func) => {
-        if func.pure && p.options.print_annotation_comment() {
-          p.print_str(NO_SIDE_EFFECTS_COMMENT);
-        }
         func.print_expr(p, precedence, ctx);
       }
       Self::FunctionExpression(func) => {
-        if func.pure && p.options.print_annotation_comment() {
-          p.print_str(NO_SIDE_EFFECTS_COMMENT);
-        }
         func.print(p, ctx);
       }
       // This and super
@@ -1335,7 +1294,7 @@ impl GenExpr for NumericLiteral<'_> {
       p.print_space_before_identifier();
       p.print_str("NaN");
     } else if value.is_infinite() {
-      let wrap = (p.options.minify && precedence >= Precedence::Multiply)
+      let wrap = precedence >= Precedence::Multiply
         || (value.is_sign_negative() && precedence >= Precedence::Prefix);
       p.wrap(wrap, |p| {
         if value.is_sign_negative() {
@@ -1344,11 +1303,7 @@ impl GenExpr for NumericLiteral<'_> {
         } else {
           p.print_space_before_identifier();
         }
-        if p.options.minify {
-          p.print_str("1/0");
-        } else {
-          p.print_str("Infinity");
-        }
+        p.print_str("1/0");
       });
     } else if value.is_sign_positive() {
       p.print_space_before_identifier();
@@ -1474,17 +1429,9 @@ impl GenExpr for CallExpression<'_> {
   fn gen_expr(&self, p: &mut Codegen, precedence: Precedence, ctx: Context) {
     let is_statement = p.start_of_stmt == p.code_len();
     let is_export_default = p.start_of_default_export == p.code_len();
-    let mut wrap = precedence >= Precedence::New || ctx.intersects(Context::FORBID_CALL);
-    let pure = self.pure && p.options.print_annotation_comment();
-    if !wrap && pure && precedence >= Precedence::Postfix {
-      wrap = true;
-    }
+    let wrap = precedence >= Precedence::New || ctx.intersects(Context::FORBID_CALL);
 
     p.wrap(wrap, |p| {
-      if pure {
-        p.add_source_mapping(self.span);
-        p.print_str(PURE_COMMENT);
-      }
       if is_export_default {
         p.start_of_default_export = p.code_len();
       } else if is_statement {
@@ -1593,10 +1540,6 @@ impl GenExpr for ObjectExpression<'_> {
           p.print_soft_space();
           if let Some(comments) = p.get_comments(item.span().start) {
             p.print_comments(&comments);
-            if p.print_next_indent_as_space {
-              p.print_hard_space();
-              p.print_next_indent_as_space = false;
-            }
           }
         }
         item.print(p, ctx);
@@ -1743,8 +1686,7 @@ impl GenExpr for ArrowFunctionExpression<'_> {
       if let Some(type_parameters) = &self.type_parameters {
         type_parameters.print(p, ctx);
       }
-      let remove_params_wrap = p.options.minify
-        && self.params.items.len() == 1
+      let remove_params_wrap = self.params.items.len() == 1
         && self.params.rest.is_none()
         && self.type_parameters.is_none()
         && self.return_type.is_none()
@@ -1823,32 +1765,21 @@ impl GenExpr for UpdateExpression<'_> {
 impl GenExpr for UnaryExpression<'_> {
   fn gen_expr(&self, p: &mut Codegen, precedence: Precedence, ctx: Context) {
     p.wrap(precedence >= self.precedence(), |p| {
-            let operator = self.operator.as_str();
-            if self.operator.is_keyword() {
-                p.print_space_before_identifier();
-                p.add_source_mapping(self.span);
-                p.print_str(operator);
-                p.print_soft_space();
-            } else {
-                p.print_space_before_operator(self.operator.into());
-                p.add_source_mapping(self.span);
-                p.print_str(operator);
-                p.prev_op = Some(self.operator.into());
-                p.prev_op_end = p.code().len();
-            }
-            // Forbid `delete Infinity`, which is syntax error in strict mode.
-            let is_delete_infinity = self.operator == UnaryOperator::Delete
-                && !p.options.minify
-                && matches!(&self.argument, Expression::NumericLiteral(lit) if lit.value.is_sign_positive() && lit.value.is_infinite());
-            if is_delete_infinity {
-                p.print_str("(0,");
-                p.print_soft_space();
-            }
-            self.argument.print_expr(p, Precedence::Exponentiation, ctx);
-            if is_delete_infinity{
-                p.print_ascii_byte(b')');
-            }
-        });
+      let operator = self.operator.as_str();
+      if self.operator.is_keyword() {
+        p.print_space_before_identifier();
+        p.add_source_mapping(self.span);
+        p.print_str(operator);
+        p.print_soft_space();
+      } else {
+        p.print_space_before_operator(self.operator.into());
+        p.add_source_mapping(self.span);
+        p.print_str(operator);
+        p.prev_op = Some(self.operator.into());
+        p.prev_op_end = p.code().len();
+      }
+      self.argument.print_expr(p, Precedence::Exponentiation, ctx);
+    });
   }
 }
 
@@ -1919,10 +1850,6 @@ impl GenExpr for ConditionalExpression<'_> {
       p.print_soft_space();
       if let Some(comments) = p.get_comments(self.alternate.span().start) {
         p.print_comments(&comments);
-        if p.print_next_indent_as_space {
-          p.print_hard_space();
-          p.print_next_indent_as_space = false;
-        }
       }
       self.alternate.print_expr(p, Precedence::Yield, ctx & Context::FORBID_IN);
     });
@@ -2076,7 +2003,7 @@ impl Gen for AssignmentTargetPropertyIdentifier<'_> {
 
 impl Gen for AssignmentTargetPropertyProperty<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    let omit_key = if p.options.minify {
+    let omit_key = {
       let key_name = match &self.name {
         PropertyKey::StaticIdentifier(ident) => Some(&ident.name),
         _ => None,
@@ -2086,8 +2013,6 @@ impl Gen for AssignmentTargetPropertyProperty<'_> {
         (Some(key_name), Some(value_name)) => key_name == value_name,
         _ => false,
       }
-    } else {
-      false
     };
     if !omit_key {
       match &self.name {
@@ -2142,13 +2067,6 @@ impl GenExpr for ImportExpression<'_> {
   fn gen_expr(&self, p: &mut Codegen, precedence: Precedence, ctx: Context) {
     let wrap = precedence >= Precedence::New || ctx.intersects(Context::FORBID_CALL);
 
-    let has_comment_before_right_paren =
-      p.options.print_annotation_comment() && self.span.end > 0 && p.has_comment(self.span.end - 1);
-    let has_comment = p.options.print_annotation_comment()
-      && (has_comment_before_right_paren
-        || p.has_comment(self.source.span().start)
-        || self.options.as_ref().is_some_and(|options| p.has_comment(options.span().start)));
-
     p.wrap(wrap, |p| {
       p.print_space_before_identifier();
       p.add_source_mapping(self.span);
@@ -2158,32 +2076,11 @@ impl GenExpr for ImportExpression<'_> {
         p.print_str(phase.as_str());
       }
       p.print_ascii_byte(b'(');
-      if has_comment {
-        p.indent();
-      }
-      if p.print_expr_comments(self.source.span().start) {
-        p.print_indent();
-      } else if has_comment {
-        p.print_soft_newline();
-        p.print_indent();
-      }
       self.source.print_expr(p, Precedence::Comma, Context::empty());
       if let Some(options) = &self.options {
         p.print_comma();
-        if has_comment {
-          p.print_soft_newline();
-          p.print_indent();
-        } else {
-          p.print_soft_space();
-        }
+        p.print_soft_space();
         options.gen_expr(p, Precedence::Comma, Context::empty());
-      }
-      if has_comment {
-        // Handle `/* comment */);`
-        if !has_comment_before_right_paren || !p.print_expr_comments(self.span.end - 1) {
-          p.print_soft_newline();
-        }
-        p.dedent();
       }
       p.print_ascii_byte(b')');
     });
@@ -2253,15 +2150,8 @@ impl GenExpr for ChainExpression<'_> {
 
 impl GenExpr for NewExpression<'_> {
   fn gen_expr(&self, p: &mut Codegen, precedence: Precedence, ctx: Context) {
-    let mut wrap = precedence >= self.precedence();
-    let pure = self.pure && p.options.print_annotation_comment();
-    if precedence >= Precedence::Postfix && pure {
-      wrap = true;
-    }
+    let wrap = precedence >= self.precedence();
     p.wrap(wrap, |p| {
-      if pure {
-        p.print_str(PURE_COMMENT);
-      }
       p.print_space_before_identifier();
       p.add_source_mapping(self.span);
       p.print_str("new");
@@ -2271,8 +2161,8 @@ impl GenExpr for NewExpression<'_> {
         type_parameters.print(p, ctx);
       }
 
-      // Omit the "()" when minifying, but only when safe to do so
-      if !p.options.minify || !self.arguments.is_empty() || precedence >= Precedence::Postfix {
+      // Omit the "()" when safe to do so
+      if !self.arguments.is_empty() || precedence >= Precedence::Postfix {
         p.print_arguments(self.span, &self.arguments, ctx);
       }
     });
@@ -2307,9 +2197,7 @@ impl GenExpr for TSNonNullExpression<'_> {
   fn gen_expr(&self, p: &mut Codegen, _precedence: Precedence, ctx: Context) {
     self.expression.print_expr(p, Precedence::Postfix, ctx);
     p.print_ascii_byte(b'!');
-    if p.options.minify {
-      p.print_hard_space();
-    }
+    p.print_hard_space();
   }
 }
 
@@ -2317,9 +2205,7 @@ impl GenExpr for TSInstantiationExpression<'_> {
   fn gen_expr(&self, p: &mut Codegen, precedence: Precedence, ctx: Context) {
     self.expression.print_expr(p, precedence, ctx);
     self.type_arguments.print(p, ctx);
-    if p.options.minify {
-      p.print_hard_space();
-    }
+    p.print_hard_space();
   }
 }
 

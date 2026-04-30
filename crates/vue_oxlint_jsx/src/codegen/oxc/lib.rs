@@ -26,26 +26,20 @@ mod comment;
 mod context;
 mod r#gen;
 mod operator;
-mod options;
 mod str;
 
 use binary_expr_visitor::BinaryExpressionVisitor;
-use comment::CommentsMap;
 use operator::Operator;
 use str::{Quote, cold_branch, is_script_close_tag};
 
 pub use context::Context;
 pub use r#gen::{Gen, GenExpr};
-pub use options::{CodegenOptions, LegalComment};
 
 /// Output from [`Codegen::build`]
 #[non_exhaustive]
 pub struct CodegenReturn {
   /// The generated source code.
   pub code: String,
-
-  /// All the legal comments returned from [LegalComment::Linked] or [LegalComment::External].
-  pub legal_comments: Vec<Comment>,
 }
 
 /// A code generator for printing JavaScript and TypeScript code.
@@ -67,8 +61,6 @@ pub struct CodegenReturn {
 /// assert_eq!(js.code, "const a = 1 + 2;\n");
 /// ```
 pub struct Codegen<'a> {
-  pub(crate) options: CodegenOptions,
-
   /// Original source code of the AST
   source_text: Option<&'a str>,
 
@@ -84,7 +76,6 @@ pub struct Codegen<'a> {
   prev_op_end: usize,
   prev_reg_exp_end: usize,
   need_space_before_dot: usize,
-  print_next_indent_as_space: bool,
   binary_expr_stack: Stack<BinaryExpressionVisitor<'a>>,
   class_stack: Stack<ClassId>,
   next_class_id: ClassId,
@@ -100,19 +91,6 @@ pub struct Codegen<'a> {
   start_of_stmt: usize,
   start_of_arrow_expr: usize,
   start_of_default_export: usize,
-
-  /// Track the current indentation level
-  indent: u32,
-
-  /// Fast path for [CodegenOptions::single_quote]
-  quote: Quote,
-
-  // Builders
-  comments: CommentsMap,
-
-  /// Sorted, deduped `attached_to` keys for pending legal comments. Lets
-  /// `print_legal_orphans_before` flush via `partition_point` + `drain`.
-  legal_comment_keys: Vec<u32>,
 }
 
 impl Default for Codegen<'_> {
@@ -140,16 +118,13 @@ impl<'a> Codegen<'a> {
   /// This is equivalent to [`Codegen::default`].
   #[must_use]
   pub fn new() -> Self {
-    let options = CodegenOptions::default();
     Self {
-      options,
       source_text: None,
       scoping: None,
       private_member_mappings: None,
       code: CodeBuffer::default(),
       needs_semicolon: false,
       need_space_before_dot: 0,
-      print_next_indent_as_space: false,
       binary_expr_stack: Stack::with_capacity(12),
       class_stack: Stack::with_capacity(4),
       next_class_id: ClassId::from_usize(0),
@@ -160,20 +135,7 @@ impl<'a> Codegen<'a> {
       start_of_arrow_expr: 0,
       start_of_default_export: 0,
       is_jsx: false,
-      indent: 0,
-      quote: Quote::Double,
-      comments: CommentsMap::default(),
-      legal_comment_keys: Vec::new(),
     }
-  }
-
-  /// Pass options to the code generator.
-  #[must_use]
-  pub fn with_options(mut self, options: CodegenOptions) -> Self {
-    self.quote = if options.single_quote { Quote::Single } else { Quote::Double };
-    self.code = CodeBuffer::with_indent(options.indent_char, options.indent_width);
-    self.options = options;
-    self
   }
 
   /// Sets the source text for the code generator.
@@ -209,15 +171,11 @@ impl<'a> Codegen<'a> {
   ///
   #[must_use]
   pub fn build(mut self, program: &Program<'a>) -> CodegenReturn {
-    self.quote = if self.options.single_quote { Quote::Single } else { Quote::Double };
     self.source_text = Some(program.source_text);
-    self.indent = self.options.initial_indent;
     self.code.reserve(program.source_text.len());
-    self.build_comments(&program.comments);
     program.print(&mut self, Context::default());
-    let legal_comments = self.handle_eof_linked_or_external_comments(program);
     let code = self.code.into_string();
-    CodegenReturn { code, legal_comments }
+    CodegenReturn { code }
   }
 
   /// Turn what's been built so far into a string. Like [`build`],
@@ -379,11 +337,8 @@ impl<'a> Codegen<'a> {
   }
 
   #[inline]
-  fn print_soft_space(&mut self) {
-    if !self.options.minify {
-      self.print_ascii_byte(b' ');
-    }
-  }
+  #[expect(clippy::unused_self, clippy::needless_pass_by_ref_mut)]
+  fn print_soft_space(&mut self) {}
 
   #[inline]
   fn print_hard_space(&mut self) {
@@ -391,11 +346,8 @@ impl<'a> Codegen<'a> {
   }
 
   #[inline]
-  fn print_soft_newline(&mut self) {
-    if !self.options.minify {
-      self.print_ascii_byte(b'\n');
-    }
-  }
+  #[expect(clippy::unused_self, clippy::needless_pass_by_ref_mut)]
+  fn print_soft_newline(&mut self) {}
 
   #[inline]
   fn print_hard_newline(&mut self) {
@@ -442,18 +394,12 @@ impl<'a> Codegen<'a> {
   }
 
   #[inline]
-  fn indent(&mut self) {
-    if !self.options.minify {
-      self.indent += 1;
-    }
-  }
+  #[expect(clippy::unused_self, clippy::needless_pass_by_ref_mut)]
+  fn indent(&mut self) {}
 
   #[inline]
-  fn dedent(&mut self) {
-    if !self.options.minify {
-      self.indent -= 1;
-    }
-  }
+  #[expect(clippy::unused_self, clippy::needless_pass_by_ref_mut)]
+  fn dedent(&mut self) {}
 
   #[inline]
   fn enter_class(&mut self) {
@@ -484,25 +430,12 @@ impl<'a> Codegen<'a> {
   }
 
   #[inline]
-  fn print_indent(&mut self) {
-    if self.options.minify {
-      return;
-    }
-    if self.print_next_indent_as_space {
-      self.print_hard_space();
-      self.print_next_indent_as_space = false;
-      return;
-    }
-    self.code.print_indent(self.indent as usize);
-  }
+  #[expect(clippy::unused_self, clippy::needless_pass_by_ref_mut)]
+  fn print_indent(&mut self) {}
 
   #[inline]
   fn print_semicolon_after_statement(&mut self) {
-    if self.options.minify {
-      self.needs_semicolon = true;
-    } else {
-      self.print_str(";\n");
-    }
+    self.needs_semicolon = true;
   }
 
   #[inline]
@@ -559,19 +492,15 @@ impl<'a> Codegen<'a> {
   fn print_body(&mut self, stmt: &Statement<'_>, need_space: bool, ctx: Context) {
     match stmt {
       Statement::BlockStatement(stmt) => {
-        self.print_soft_space();
         self.print_block_statement(stmt, ctx);
-        self.print_soft_newline();
       }
       Statement::EmptyStatement(_) => {
         self.print_semicolon();
-        self.print_soft_newline();
       }
       stmt => {
-        if need_space && self.options.minify {
+        if need_space {
           self.print_hard_space();
         }
-        self.print_next_indent_as_space = true;
         stmt.print(self, ctx);
       }
     }
@@ -617,25 +546,7 @@ impl<'a> Codegen<'a> {
 
     self.print_legal_orphans_before(first.span().start);
 
-    // Ensure first string literal is not a directive.
-    let mut first_needs_parens = false;
-    if directives.is_empty()
-      && !self.options.minify
-      && let Statement::ExpressionStatement(s) = first
-    {
-      let s = s.expression.without_parentheses();
-      if matches!(s, Expression::StringLiteral(_)) {
-        first_needs_parens = true;
-        self.print_ascii_byte(b'(');
-        s.print_expr(self, Precedence::Lowest, ctx);
-        self.print_ascii_byte(b')');
-        self.print_semicolon_after_statement();
-      }
-    }
-
-    if !first_needs_parens {
-      first.print(self, ctx);
-    }
+    first.print(self, ctx);
 
     self.print_stmts_with_orphan_flush(rest, scope_end, ctx);
   }
