@@ -202,7 +202,7 @@ The `Comp` element's children contain a `JSXExpressionContainer` holding an `Obj
 
 ## Text and Interpolation
 
-- **Plain Text**: Mapped to `JSXText`.
+- **Plain Text**: Dropped. The parser does not emit JSX nodes for template text.
 - **Interpolation** (`{{ msg }}`): Mapped to `JSXExpressionContainer` containing the JavaScript expression.
 
 ## Comments

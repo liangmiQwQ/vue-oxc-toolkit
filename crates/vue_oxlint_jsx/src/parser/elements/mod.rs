@@ -4,9 +4,7 @@ use oxc_ast::{
   ast::{Expression, JSXAttributeItem, JSXChild, JSXExpression, PropertyKind, Statement},
 };
 use oxc_span::{GetSpanMut, SPAN, Span};
-use vue_compiler_core::parser::{
-  AstNode, Directive, DirectiveArg, ElemProp, Element, SourceNode, TextNode,
-};
+use vue_compiler_core::parser::{AstNode, Directive, DirectiveArg, ElemProp, Element, SourceNode};
 
 use crate::{
   is_void_tag,
@@ -49,8 +47,8 @@ fn kebab_to_case(s: &str, pascal: bool) -> String {
 impl<'a: 'b, 'b> ParserImpl<'a> {
   fn parse_children(
     &mut self,
-    start: u32,
-    end: u32,
+    _start: u32,
+    _end: u32,
     children: Vec<AstNode<'a>>,
   ) -> ArenaVec<'a, JSXChild<'a>> {
     let ast = self.ast;
@@ -58,27 +56,6 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
       return ast.vec();
     }
     let mut result = self.ast.vec_with_capacity(children.len() + 2);
-
-    // Process the whitespaces text there <div>____<br>_____</div>
-    if let Some(first) = children.first()
-      && matches!(first, AstNode::Element(_) | AstNode::Interpolation(_))
-      && start != first.get_location().start.offset as u32
-    {
-      let span = Span::new(start, first.get_location().start.offset as u32);
-      if let Some(text) = self.parse_text_span(span) {
-        result.push(text);
-      }
-    }
-
-    let last = if let Some(last) = children.last()
-      && matches!(last, AstNode::Element(_) | AstNode::Interpolation(_))
-      && end != last.get_location().end.offset as u32
-    {
-      let span = Span::new(last.get_location().end.offset as u32, end);
-      self.parse_text_span(span)
-    } else {
-      None
-    };
 
     let mut v_if_manager = VIfManager::new(&ast);
     for child in children {
@@ -101,11 +78,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
             result.push(child);
           }
         }
-        AstNode::Text(text) => {
-          if let Some(text) = self.parse_text(&text) {
-            result.push(text);
-          }
-        }
+        AstNode::Text(_) => {}
         AstNode::Comment(comment) => result.push(self.parse_comment(&comment)),
         AstNode::Interpolation(interp) => result.push(self.parse_interpolation(&interp)),
       }
@@ -115,10 +88,6 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
       // If the last element is v-if / v-else-if / v-else, push all the children
       result.push(chain);
     }
-    if let Some(last) = last {
-      result.push(last);
-    }
-
     result
   }
 
@@ -425,26 +394,6 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
       JSXExpression::from(self.ast.expression_identifier(SPAN, "undefined"))
     } else {
       self.ast.jsx_expression_empty_expression(SPAN)
-    }
-  }
-
-  fn parse_text(&self, text: &TextNode<'a>) -> Option<JSXChild<'a>> {
-    if self.config.codegen {
-      None
-    } else {
-      let content = text.text.iter().map(|t| t.raw).collect::<String>();
-      let ast_str = self.ast.str(&content);
-      Some(self.ast.jsx_child_text(text.location.span(), ast_str, Some(ast_str)))
-    }
-  }
-
-  pub(super) fn parse_text_span(&self, span: Span) -> Option<JSXChild<'a>> {
-    if self.config.codegen {
-      None
-    } else {
-      let text = span.source_text(self.source_text);
-      let ast_str = self.ast.str(text);
-      Some(self.ast.jsx_child_text(span, ast_str, Some(ast_str)))
     }
   }
 
