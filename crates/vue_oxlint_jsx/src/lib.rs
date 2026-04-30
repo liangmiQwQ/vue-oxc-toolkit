@@ -4,5 +4,5 @@ mod parser;
 #[cfg(test)]
 mod test;
 
-pub use crate::codegen::{CodegenMode, VueOxcCodegen, VueOxcCodegenReturn};
-pub use crate::parser::{VueOxcParser, VueParserReturn};
+pub use crate::codegen::{Codegen, CodegenReturn};
+pub use crate::parser::{Parser, ParserReturn};

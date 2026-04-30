@@ -2,7 +2,7 @@ use std::hint::black_box;
 
 use criterion::{Criterion, criterion_group, criterion_main};
 use oxc_allocator::Allocator;
-use vue_oxlint_jsx::VueOxcParser;
+use vue_oxlint_jsx::Parser as VueParser;
 
 fn bench(c: &mut Criterion) {
   let mut group = c.benchmark_group("vue_parse_by_size");
@@ -18,7 +18,7 @@ fn bench(c: &mut Criterion) {
     #[allow(clippy::cast_precision_loss)]
     {
       let allocator = Allocator::default();
-      let _ = black_box(VueOxcParser::new(&allocator, html).parse());
+      let _ = black_box(VueParser::new(&allocator, html).parse());
       let used = allocator.used_bytes();
 
       println!(
@@ -32,7 +32,7 @@ fn bench(c: &mut Criterion) {
     group.bench_function(name, |b| {
       b.iter(|| {
         let allocator = Allocator::new();
-        black_box(VueOxcParser::new(&allocator, html).parse());
+        black_box(VueParser::new(&allocator, html).parse());
       });
     });
   }
