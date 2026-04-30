@@ -26,6 +26,7 @@ Cargo workspace members live in `crates/*`, `packages/*`, and `benchmark/`.
 - **`crates/vue_oxlint_jsx`** — the active crate. Parses a Vue SFC and produces either a JS/TS AST (`VueJsxParser`) or generated source text (`VueJsxCodegen`).
   - `parser/` — One of the most core part, including SFC tokenization, script/template handling, module-record building, irregular-whitespace tracking, and Vue-specific element handlers (`elements/v_for.rs`, `v_if.rs`, `v_slot.rs`, `directive.rs`).
   - `codegen/` — wraps `parser` and transform the ast into source_text, producing `VueJsxCodegenReturn { source_text, source_type, comments, irregular_whitespaces, errors, panicked }`.
+  - `codegen/oxc/` — vendored fork of `oxc_codegen`, scoped to the Vue crate so codegen changes can be made locally without waiting on upstream releases. The local fork intentionally omits sourcemap support.
   - `test/` — `test_ast!` and `test_module_record!` macros driving snapshot tests in `test/snapshots/`. `test_ast!` runs both AST and codegen checks on each fixture.
   - Public API is intentionally narrow: `VueJsxParser`/`VueJsxParserReturn` + `VueJsxCodegen`/`VueJsxCodegenReturn` (re-exported from `lib.rs`).
 

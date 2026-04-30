@@ -13,14 +13,22 @@ description.workspace = true
 [dependencies]
 oxc_allocator = { workspace = true }
 oxc_ast = { workspace = true }
-oxc_codegen = { workspace = true }
+oxc_data_structures = { workspace = true, features = ["code_buffer", "slice_iter", "stack"] }
 oxc_diagnostics = { workspace = true }
+oxc_index = { workspace = true }
 oxc_parser = { workspace = true }
+oxc_semantic = { workspace = true }
 oxc_span = { workspace = true }
+oxc_str = { workspace = true }
 oxc_syntax = { workspace = true }
 
+bitflags = { workspace = true }
+cow-utils = { workspace = true }
+dragonbox_ecma = { workspace = true }
+itoa = { workspace = true }
 memchr = { workspace = true }
 regex = { workspace = true }
+rustc-hash = { workspace = true }
 vue-compiler-core = { workspace = true }
 
 [dev-dependencies]

@@ -37,14 +37,22 @@ vue_oxlint_parser = { path = "crates/vue_oxlint_parser" }
 oxc_allocator = ">=0.128.0"
 oxc_ast = ">=0.128.0"
 oxc_ast_visit = ">=0.128.0"
-oxc_codegen = ">=0.128.0"
+oxc_data_structures = ">=0.128.0"
 oxc_diagnostics = ">=0.128.0"
+oxc_index = ">=4.1.0"
 oxc_parser = ">=0.128.0"
+oxc_semantic = ">=0.128.0"
 oxc_span = ">=0.128.0"
+oxc_str = ">=0.128.0"
 oxc_syntax = ">=0.128.0"
 
+bitflags = "2.10.0"
+cow-utils = "0.1.3"
+dragonbox_ecma = "0.1.0"
+itoa = "1.0.17"
 memchr = "2.8.0"
 regex = "1.12.3"
+rustc-hash = "2.1.1"
 vue-compiler-core = "0.1.0"
 
 napi = { version = "3.8.6", features = ["napi9"] }
