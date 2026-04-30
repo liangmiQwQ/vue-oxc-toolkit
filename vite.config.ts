@@ -18,6 +18,6 @@ export default defineConfig({
     ignorePatterns,
   },
   staged: {
-    '*.{js,ts,tsx,vue,svelte}': 'vp check --fix',
+    '*.{js,ts,tsx,md,json}': 'vp check --fix',
   },
 })
