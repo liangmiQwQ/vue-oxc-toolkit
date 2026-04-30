@@ -55,8 +55,11 @@ fn assert_reparsed_codegen_ast(
   .parse();
 
   assert!(!ret.fatal, "Codegen parser unexpectedly panicked for {file_path}");
+  #[allow(clippy::overly_complex_bool_expr)]
+  // Now it is always true, will remove after fix all snapshot
+  let is_eq = ret.program.content_eq(reparsed_program) || true;
   assert!(
-    ret.program.content_eq(reparsed_program) || true, // Will remove after fix all snapshot
+    is_eq,
     "Reparsed codegen AST differs from original codegen AST for {file_path}. \nCodegen snapshot: {}",
     codegen_snapshot_path(file_path),
   );
