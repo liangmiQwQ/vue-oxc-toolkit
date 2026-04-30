@@ -40,7 +40,7 @@ Cargo workspace members live in `crates/*`, `packages/*`, and `benchmark/`.
 
 ## Architectural notes for changes in `vue_oxlint_jsx`
 
-- `ParserImpl` (in `parser/mod.rs`) owns an arena allocator, the original SFC source, and a mutable copy of the source bytes (`mut_ptr_source_text`) which Vue-specific transformations rewrite in place before passing the result to `oxc_parser`. Spans on the resulting AST refer to *original SFC* offsets, not the rewritten buffer.
+- `ParserImpl` (in `parser/mod.rs`) owns an arena allocator, the original SFC source, and a mutable copy of the source bytes (`mut_ptr_source_text`) which Vue-specific transformations rewrite in place before passing the result to `oxc_parser`. Spans on the resulting AST refer to _original SFC_ offsets, not the rewritten buffer.
 - A `ScriptBlock` is collected for the global `<script>` and the `<script setup>` block independently (`global` and `setup`); they're stitched into a single `Program` during parse.
 - Comments and irregular whitespaces are tracked separately because they're stripped/relocated during the SFC→JS rewrite but must be reported back with original-source spans.
 - The codegen entry point (`VueJsxCodegen`) drops the parser allocator before returning — only owned data is exposed. Use `VueJsxParser` instead if you need the AST itself.
@@ -56,4 +56,3 @@ The current parsing still happens in `vue_oxlint_jsx`, powered by `vue-compiler-
 - Rust formatting via `.rustfmt.toml` (run `just fmt`). JS formatting/linting via `vp check`.
 - Run `just ready` after your do changes and commits.
 - Consder to update (ATTENTION: it's `update` not `add`) AGENTS.md to sync after you made change.
-
