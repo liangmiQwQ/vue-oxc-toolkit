@@ -14,16 +14,10 @@ edition = "2024"
 rust-version = "1.92.0"
 name = "oxc_codegen"
 version = "0.127.0"
-authors = [
-    "Boshen <boshenc@gmail.com>",
-    "Oxc contributors",
-]
+authors = ["Boshen <boshenc@gmail.com>", "Oxc contributors"]
 build = false
-include = [
-    "/examples",
-    "/src",
-]
-publish = true
+include = ["/examples", "/src"]
+publish = false
 autolib = false
 autobins = false
 autoexamples = false
@@ -32,18 +26,8 @@ autobenches = false
 description = "A collection of JavaScript tools written in Rust."
 homepage = "https://oxc.rs"
 readme = "README.md"
-keywords = [
-    "JavaScript",
-    "TypeScript",
-    "linter",
-    "minifier",
-    "parser",
-]
-categories = [
-    "compilers",
-    "development-tools",
-    "web-programming",
-]
+keywords = ["JavaScript", "TypeScript", "linter", "minifier", "parser"]
+categories = ["compilers", "development-tools", "web-programming"]
 license = "MIT"
 repository = "https://github.com/oxc-project/oxc"
 
@@ -80,18 +64,11 @@ version = "0.127.0"
 
 [dependencies.oxc_data_structures]
 version = "0.127.0"
-features = [
-    "code_buffer",
-    "slice_iter",
-    "stack",
-]
+features = ["code_buffer", "slice_iter", "stack"]
 
 [dependencies.oxc_index]
 version = "4.1.0"
-features = [
-    "nonmax",
-    "serde",
-]
+features = ["nonmax", "serde"]
 
 [dependencies.oxc_semantic]
 version = "0.127.0"
@@ -207,7 +184,4 @@ unused_unsafe = "warn"
 [lints.rust.unexpected_cfgs]
 level = "warn"
 priority = 0
-check-cfg = [
-    "cfg(coverage)",
-    "cfg(coverage_nightly)",
-]
+check-cfg = ["cfg(coverage)", "cfg(coverage_nightly)"]
