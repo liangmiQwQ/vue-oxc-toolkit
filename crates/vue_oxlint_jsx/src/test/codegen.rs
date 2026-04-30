@@ -31,7 +31,6 @@ fn validate_all_codegen_syntax() {
 }
 
 #[test]
-#[ignore = "Exploratory check for mapping through codegen reparse."]
 fn validate_codegen_reparse_ast_structure() {
   let result = validate_codegen_fixtures(CodegenValidationMode::Structure);
 
