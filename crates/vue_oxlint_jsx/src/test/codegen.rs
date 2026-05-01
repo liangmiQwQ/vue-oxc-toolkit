@@ -26,10 +26,7 @@ pub fn run_codegen_test(file_path: &str) {
   settings.set_snapshot_path("snapshots/codegen");
   settings.set_prepend_module_to_snapshot(false);
   settings.bind(|| {
-    insta::assert_snapshot!(
-      snap_name,
-      format!("=============== Source Text ===============\n\n{}\n\n=============== Mappings ===============\n\n{:#?}", ret.source_text, ret.mappings)
-    );
+    insta::assert_snapshot!(snap_name, ret.source_text);
   });
 
   let allocator = Allocator::default();
@@ -93,6 +90,82 @@ fn program_codegen_eq(origin: &Program, reparsed: &Program, mappings: &[Mapping]
 
 fn spans_overlap(a: Span, b: Span) -> bool {
   a.start < b.end && b.start < a.end
+}
+
+#[test]
+fn clean_script_statements_are_raw_copied() {
+  let source_text = read_file("scripts/codegen_fidelity.vue");
+  let ret = VueJsxCodegen::new(&source_text).build();
+
+  assert!(ret.source_text.contains("import { foo as foo, bar as baz } from './dep'"));
+  assert!(ret.source_text.contains("const decimal = 1.0"));
+  assert!(ret.source_text.contains("const escaped = '\\x41'"));
+  assert!(ret.source_text.contains("const attrs = <div label={'\\x42'} raw=\"\\x43\" />"));
+}
+
+#[test]
+fn clean_script_mappings_cover_raw_statement_segments() {
+  let source_text = read_file("scripts/codegen_fidelity.vue");
+  let ret = VueJsxCodegen::new(&source_text).build();
+  let statement = "const decimal = 1.0";
+  let original_span = find_span(&source_text, statement);
+  let codegen_span = find_span(&ret.source_text, statement);
+
+  assert!(ret.mappings.iter().any(|mapping| {
+    mapping.original_span == original_span && mapping.codegen_span == codegen_span
+  }));
+}
+
+#[test]
+fn synthetic_wrappers_do_not_map_to_the_whole_sfc() {
+  let source_text = read_file("scripts/mapping.vue");
+  let ret = VueJsxCodegen::new(&source_text).build();
+  let whole_sfc = Span::new(0, source_text.len() as u32);
+
+  assert!(!ret.mappings.iter().any(|mapping| mapping.original_span == whole_sfc));
+}
+
+#[test]
+fn dirty_template_boundary_owns_one_mapping() {
+  let source_text = "<template><div>{{ msg }}</div></template><script setup>const msg = 1</script>";
+  let ret = VueJsxCodegen::new(source_text).build();
+  let original_span = find_span(source_text, "<template><div>{{ msg }}</div></template>");
+  let mappings = ret
+    .mappings
+    .iter()
+    .filter(|mapping| mapping.original_span == original_span)
+    .collect::<Vec<_>>();
+
+  assert_eq!(mappings.len(), 1);
+  assert_eq!(
+    mappings[0].codegen_span.source_text(&ret.source_text),
+    "<template><div>{msg}</div></template>",
+  );
+}
+
+#[test]
+fn generated_diagnostics_remap_to_dirty_vue_boundary() {
+  let source_text = "<template><div>{{ msg }}</div></template><script setup>const msg = 1</script>";
+  let ret = VueJsxCodegen::new(source_text).build();
+  let diagnostic_start = find_span(&ret.source_text, "{msg}").start + 1;
+  let mapping = ret
+    .mappings
+    .iter()
+    .filter(|mapping| {
+      mapping.codegen_span.start <= diagnostic_start && diagnostic_start < mapping.codegen_span.end
+    })
+    .min_by_key(|mapping| mapping.codegen_span.size())
+    .expect("diagnostic should resolve through a mapping");
+
+  assert_eq!(
+    mapping.original_span,
+    find_span(source_text, "<template><div>{{ msg }}</div></template>"),
+  );
+}
+
+fn find_span(source_text: &str, needle: &str) -> Span {
+  let start = source_text.find(needle).expect("test fixture should contain needle") as u32;
+  Span::sized(start, needle.len() as u32)
 }
 
 fn collect_spans(program: &Program) -> Vec<(String, Span)> {
