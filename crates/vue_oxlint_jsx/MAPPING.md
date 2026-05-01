@@ -79,11 +79,17 @@ Vue elements are mapped to `JSXElement` or `JSXFragment`.
 
 ### Closing Elements
 
-The `closing_element` of a `JSXElement` is determined by the tag syntax:
+The `closing_element` of a `JSXElement` is determined by the tag syntax. The two output modes diverge here:
 
-- **Self-Closing Tags** (`<div />`, `<img />`, `<Component />`): Have a `JSXClosingElement` with an **empty element name** (`name: ""`). This distinguishes them from void tags.
-- **Void Tags without Self-Closing Syntax** (`<br>`, `<input>`, `<img>`): Have `closing_element: None`.
-- **Normal Tags with Explicit Closing** (`<div></div>`): Have a `JSXClosingElement` with the proper element name.
+- **Self-Closing Tags** (`<div />`, `<img />`, `<Component />`):
+  - `default`: `JSXClosingElement` with an **empty element name** (`name: ""`) to distinguish them from void tags.
+  - `codegen`: `JSXClosingElement` with the proper element name, so the regenerated source is re-parseable and so transformed children (e.g. `v-slot` wrappers) stay inside the element.
+- **Void Tags without Self-Closing Syntax** (`<br>`, `<input>`, `<img>`):
+  - `default`: `closing_element: None`.
+  - `codegen`: `JSXClosingElement` with the proper element name.
+- **Normal Tags with Explicit Closing** (`<div></div>`): `JSXClosingElement` with the proper element name in both modes.
+
+In `codegen` mode the built-in `<component>` tag is also emitted as a `Component` (`uppercase`), so the original tag name round-trips through codegen.
 
 ### Example
 
@@ -95,10 +101,22 @@ The `closing_element` of a `JSXElement` is determined by the tag syntax:
 </template>
 ```
 
+`default` mode:
+
 ```jsx
 <template>
   <img></>
   <input>
+  <div></div>
+</template>
+```
+
+`codegen` mode:
+
+```jsx
+<template>
+  <img></img>
+  <input></input>
   <div></div>
 </template>
 ```
