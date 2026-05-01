@@ -2,18 +2,28 @@ import { it, expect } from 'vite-plus/test'
 import { transformJsx } from '../js'
 
 it('transforms Vue SFCs to generated JSX', () => {
-  const result = transformJsx(`<script setup lang="ts">
+  const source = `<script setup lang="ts">
 const msg: string = 'hello'
 </script>
 
 <template>
   <div>{{ msg }}</div>
-</template>`)
+</template>`
+  const result = transformJsx(source)
 
   expect(result.scriptKind).toBe('tsx')
   expect(result.sourceText).toContain("const msg:string='hello';")
   expect(result.sourceText).toContain('<div>{msg}</div>')
-  expect(result.mappings).toBeUndefined()
+
+  const originalStart = source.indexOf('msg }}</')
+  const virtualStart = result.sourceText.indexOf('{msg}') + 1
+
+  expect(result.mappings).toContainEqual({
+    virtualStart,
+    virtualEnd: virtualStart + 'msg'.length,
+    originalStart,
+    originalEnd: originalStart + 'msg'.length,
+  })
 })
 
 it('returns parser metadata', () => {

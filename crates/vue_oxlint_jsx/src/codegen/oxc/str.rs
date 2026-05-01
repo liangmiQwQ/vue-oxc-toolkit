@@ -29,8 +29,6 @@ impl Quote {
 impl Codegen<'_> {
   /// Print a [`StringLiteral`].
   pub(crate) fn print_string_literal(&mut self, s: &StringLiteral<'_>, allow_backtick: bool) {
-    self.add_source_mapping(s.span);
-
     if let Some(raw) = &s.raw {
       self.print_str(raw.as_str());
       return;

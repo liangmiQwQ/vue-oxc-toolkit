@@ -18,7 +18,7 @@ use crate::parser::{ParseConfig, ParserImpl};
 #[path = "oxc/lib.rs"]
 mod oxc;
 
-pub use self::oxc::Codegen;
+pub use self::oxc::{Codegen, SourceMapping};
 
 /// The return value of [`VueJsxCodegen::build`].
 #[non_exhaustive]
@@ -32,6 +32,8 @@ pub struct VueJsxCodegenReturn {
   pub comments: Vec<Comment>,
   /// Irregular whitespace spans in the original Vue SFC source.
   pub irregular_whitespaces: Box<[Span]>,
+  /// Generated source ranges mapped back to original Vue SFC source ranges.
+  pub mappings: Vec<SourceMapping>,
   /// Diagnostics produced while parsing the Vue SFC.
   pub errors: Vec<OxcDiagnostic>,
   /// `true` if parsing fatally failed; [`VueJsxCodegenReturn::source_text`]
@@ -91,12 +93,14 @@ impl<'a> VueJsxCodegen<'a> {
         source_type: ret.program.source_type,
         comments: Vec::new(),
         irregular_whitespaces: Box::new([]),
+        mappings: Vec::new(),
         errors: ret.errors,
         panicked: true,
       };
     }
 
-    let source_text = Codegen::new().build(&ret.program).code;
+    let codegen_ret = Codegen::new().build(&ret.program);
+    let source_text = codegen_ret.code;
     let source_type = ret.program.source_type;
     let comments = ret.program.comments.iter().copied().collect();
 
@@ -105,6 +109,7 @@ impl<'a> VueJsxCodegen<'a> {
       source_type,
       comments,
       irregular_whitespaces: ret.irregular_whitespaces,
+      mappings: codegen_ret.mappings,
       errors: ret.errors,
       panicked: false,
     }

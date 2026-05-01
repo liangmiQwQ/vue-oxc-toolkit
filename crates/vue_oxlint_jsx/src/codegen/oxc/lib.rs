@@ -39,6 +39,17 @@ pub use r#gen::{Gen, GenExpr};
 pub struct CodegenReturn {
   /// The generated source code.
   pub code: String,
+  /// Generated source ranges mapped back to original source ranges.
+  pub mappings: Vec<SourceMapping>,
+}
+
+/// A generated range mapped back to an original source range.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SourceMapping {
+  pub virtual_start: u32,
+  pub virtual_end: u32,
+  pub original_start: u32,
+  pub original_end: u32,
 }
 
 /// A code generator for printing JavaScript and TypeScript code.
@@ -70,6 +81,8 @@ pub struct Codegen<'a> {
 
   /// Output Code
   code: CodeBuffer,
+  mappings: Vec<SourceMapping>,
+  mapping_stack: Vec<Option<usize>>,
 
   // states
   prev_op_end: usize,
@@ -122,6 +135,8 @@ impl<'a> Codegen<'a> {
       scoping: None,
       private_member_mappings: None,
       code: CodeBuffer::default(),
+      mappings: Vec::new(),
+      mapping_stack: Vec::new(),
       needs_semicolon: false,
       need_space_before_dot: 0,
       binary_expr_stack: Stack::with_capacity(12),
@@ -174,12 +189,12 @@ impl<'a> Codegen<'a> {
     self.code.reserve(program.source_text.len());
     program.print(&mut self, Context::default());
     let code = self.code.into_string();
-    CodegenReturn { code }
+    CodegenReturn { code, mappings: self.mappings }
   }
 
   /// Turn what's been built so far into a string. Like [`build`],
   /// this fininishes a print and returns the generated source code. Unlike
-  /// [`build`], no source map is generated.
+  /// [`build`], collected mappings are discarded.
   ///
   /// This is more useful for cases that progressively build code using [`print_expression`].
   ///
@@ -335,6 +350,31 @@ impl<'a> Codegen<'a> {
     self.code().len()
   }
 
+  pub(crate) fn enter_mapping(&mut self, span: Span) {
+    if span.start == 0 && span.end == 0 {
+      self.mapping_stack.push(None);
+      return;
+    }
+
+    let index = self.mappings.len();
+    let virtual_start = self.code_len() as u32;
+    self.mappings.push(SourceMapping {
+      virtual_start,
+      virtual_end: virtual_start,
+      original_start: span.start,
+      original_end: span.end,
+    });
+    self.mapping_stack.push(Some(index));
+  }
+
+  pub(crate) fn leave_mapping(&mut self) {
+    let Some(index) = self.mapping_stack.pop().flatten() else {
+      return;
+    };
+
+    self.mappings[index].virtual_end = self.code_len() as u32;
+  }
+
   #[inline]
   #[expect(clippy::unused_self, clippy::needless_pass_by_ref_mut)]
   fn print_soft_space(&mut self) {}
@@ -460,8 +500,7 @@ impl<'a> Codegen<'a> {
     self.print_ascii_byte(b'=');
   }
 
-  fn print_curly_braces<F: FnOnce(&mut Self)>(&mut self, span: Span, single_line: bool, op: F) {
-    self.add_source_mapping(span);
+  fn print_curly_braces<F: FnOnce(&mut Self)>(&mut self, _span: Span, single_line: bool, op: F) {
     self.print_ascii_byte(b'{');
     if !single_line {
       self.print_soft_newline();
@@ -475,8 +514,7 @@ impl<'a> Codegen<'a> {
     self.print_ascii_byte(b'}');
   }
 
-  fn print_block_start(&mut self, span: Span) {
-    self.add_source_mapping(span);
+  fn print_block_start(&mut self, _span: Span) {
     self.print_ascii_byte(b'{');
     self.print_soft_newline();
     self.indent();
@@ -558,11 +596,10 @@ impl<'a> Codegen<'a> {
     }
   }
 
-  fn print_arguments(&mut self, span: Span, arguments: &[Argument<'_>], ctx: Context) {
+  fn print_arguments(&mut self, _span: Span, arguments: &[Argument<'_>], ctx: Context) {
     self.print_ascii_byte(b'(');
     self.print_list(arguments, ctx);
     self.print_ascii_byte(b')');
-    self.add_source_mapping_end(span);
   }
 
   fn get_identifier_reference_name(&self, reference: &IdentifierReference<'a>) -> &'a str {
@@ -725,16 +762,4 @@ impl<'a> Codegen<'a> {
       self.need_space_before_dot = self.code_len();
     }
   }
-
-  #[inline]
-  #[expect(clippy::needless_pass_by_ref_mut, clippy::unused_self)]
-  fn add_source_mapping(&mut self, _span: Span) {}
-
-  #[inline]
-  #[expect(clippy::needless_pass_by_ref_mut, clippy::unused_self)]
-  fn add_source_mapping_end(&mut self, _span: Span) {}
-
-  #[inline]
-  #[expect(clippy::needless_pass_by_ref_mut, clippy::unused_self)]
-  fn add_source_mapping_for_name(&mut self, _span: Span, _name: &str) {}
 }

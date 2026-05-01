@@ -22,7 +22,9 @@ pub trait Gen: GetSpan {
   /// Generate code for an AST node. Alias for `gen`.
   #[inline]
   fn print(&self, p: &mut Codegen, ctx: Context) {
+    p.enter_mapping(self.span());
     self.r#gen(p, ctx);
+    p.leave_mapping();
   }
 }
 
@@ -34,7 +36,9 @@ pub trait GenExpr: GetSpan {
   /// Generate code for an expression, respecting operator precedence. Alias for `gen_expr`.
   #[inline]
   fn print_expr(&self, p: &mut Codegen, precedence: Precedence, ctx: Context) {
+    p.enter_mapping(self.span());
     self.gen_expr(p, precedence, ctx);
+    p.leave_mapping();
   }
 }
 
@@ -62,7 +66,6 @@ impl Gen for Hashbang<'_> {
 
 impl Gen for Directive<'_> {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_indent();
     // A Use Strict Directive may not contain an EscapeSequence or LineContinuation.
     // So here should print original `directive` value, the `expression` value is escaped str.
@@ -192,7 +195,6 @@ impl Gen for IfStatement<'_> {
 
 fn print_if(if_stmt: &IfStatement<'_>, p: &mut Codegen, ctx: Context) {
   p.print_space_before_identifier();
-  p.add_source_mapping(if_stmt.span);
   p.print_str("if");
   p.print_soft_space();
   p.print_ascii_byte(b'(');
@@ -282,7 +284,6 @@ impl Gen for ForStatement<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     p.print_indent();
     p.print_space_before_identifier();
-    p.add_source_mapping(self.span);
     p.print_str("for");
     p.print_soft_space();
     p.print_ascii_byte(b'(');
@@ -314,7 +315,6 @@ impl Gen for ForInStatement<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     p.print_indent();
     p.print_space_before_identifier();
-    p.add_source_mapping(self.span);
     p.print_str("for");
     p.print_soft_space();
     p.print_ascii_byte(b'(');
@@ -333,7 +333,6 @@ impl Gen for ForOfStatement<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     p.print_indent();
     p.print_space_before_identifier();
-    p.add_source_mapping(self.span);
     p.print_str("for");
     if self.r#await {
       p.print_str(" await");
@@ -379,7 +378,6 @@ impl Gen for WhileStatement<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     p.print_indent();
     p.print_space_before_identifier();
-    p.add_source_mapping(self.span);
     p.print_str("while");
     p.print_soft_space();
     p.print_ascii_byte(b'(');
@@ -393,7 +391,6 @@ impl Gen for DoWhileStatement<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     p.print_indent();
     p.print_space_before_identifier();
-    p.add_source_mapping(self.span);
     p.print_str("do");
     match &self.body {
       Statement::BlockStatement(block) => {
@@ -423,7 +420,6 @@ impl Gen for DoWhileStatement<'_> {
 impl Gen for EmptyStatement {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
     p.print_indent();
-    p.add_source_mapping(self.span);
     p.print_semicolon();
     p.print_soft_newline();
   }
@@ -433,7 +429,6 @@ impl Gen for ContinueStatement<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     p.print_indent();
     p.print_space_before_identifier();
-    p.add_source_mapping(self.span);
     p.print_str("continue");
     if let Some(label) = &self.label {
       p.print_soft_space();
@@ -447,7 +442,6 @@ impl Gen for BreakStatement<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     p.print_indent();
     p.print_space_before_identifier();
-    p.add_source_mapping(self.span);
     p.print_str("break");
     if let Some(label) = &self.label {
       p.print_soft_space();
@@ -461,7 +455,6 @@ impl Gen for SwitchStatement<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     p.print_indent();
     p.print_space_before_identifier();
-    p.add_source_mapping(self.span);
     p.print_str("switch");
     p.print_soft_space();
     p.print_ascii_byte(b'(');
@@ -482,7 +475,6 @@ impl Gen for SwitchCase<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     p.print_semicolon_if_needed();
     p.print_indent();
-    p.add_source_mapping(self.span);
     match &self.test {
       Some(test) => {
         p.print_str("case");
@@ -510,7 +502,6 @@ impl Gen for ReturnStatement<'_> {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
     p.print_indent();
     p.print_space_before_identifier();
-    p.add_source_mapping(self.span);
     p.print_str("return");
     if let Some(arg) = &self.argument {
       p.print_soft_space();
@@ -523,7 +514,6 @@ impl Gen for ReturnStatement<'_> {
 impl Gen for LabeledStatement<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     p.print_space_before_identifier();
-    p.add_source_mapping(self.span);
     self.label.print(p, ctx);
     p.print_colon();
     p.print_body(&self.body, false, ctx);
@@ -534,12 +524,11 @@ impl Gen for TryStatement<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     p.print_indent();
     p.print_space_before_identifier();
-    p.add_source_mapping(self.span);
     p.print_str("try");
     p.print_soft_space();
     p.print_block_statement(&self.block, ctx);
     if let Some(handler) = &self.handler {
-      handler.r#gen(p, ctx);
+      handler.print(p, ctx);
     }
     if let Some(finalizer) = &self.finalizer {
       p.print_soft_space();
@@ -575,7 +564,6 @@ impl Gen for ThrowStatement<'_> {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
     p.print_indent();
     p.print_space_before_identifier();
-    p.add_source_mapping(self.span);
     p.print_str("throw");
     p.print_soft_space();
     p.print_expression(&self.argument);
@@ -587,7 +575,6 @@ impl Gen for WithStatement<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     p.print_indent();
     p.print_space_before_identifier();
-    p.add_source_mapping(self.span);
     p.print_str("with");
     p.print_ascii_byte(b'(');
     p.print_expression(&self.object);
@@ -600,7 +587,6 @@ impl Gen for DebuggerStatement {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
     p.print_indent();
     p.print_space_before_identifier();
-    p.add_source_mapping(self.span);
     p.print_str("debugger");
     p.print_semicolon_after_statement();
   }
@@ -608,7 +594,6 @@ impl Gen for DebuggerStatement {
 
 impl Gen for VariableDeclaration<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_space_before_identifier();
     if self.declare {
       p.print_str("declare ");
@@ -656,7 +641,6 @@ impl Gen for Function<'_> {
     let ctx = ctx.and_forbid_call(false);
     p.wrap(wrap, |p| {
       p.print_space_before_identifier();
-      p.add_source_mapping(self.span);
       if self.declare {
         p.print_str("declare ");
       }
@@ -711,7 +695,6 @@ impl Gen for FunctionBody<'_> {
 
 impl Gen for FormalParameter<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_decorators(&self.decorators, ctx);
     if let Some(accessibility) = self.accessibility {
       p.print_space_before_identifier();
@@ -748,7 +731,6 @@ impl Gen for FormalParameter<'_> {
 
 impl Gen for FormalParameterRest<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_decorators(&self.decorators, ctx);
     self.rest.print(p, ctx);
     if let Some(type_annotation) = &self.type_annotation {
@@ -774,7 +756,6 @@ impl Gen for FormalParameters<'_> {
 
 impl Gen for ImportDeclaration<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_indent();
     p.print_space_before_identifier();
     p.print_str("import");
@@ -887,13 +868,11 @@ impl Gen for ImportDeclaration<'_> {
 
 impl Gen for WithClause<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_str(match self.keyword {
       WithClauseKeyword::With => "with",
       WithClauseKeyword::Assert => "assert",
     });
     p.print_soft_space();
-    p.add_source_mapping(self.span);
     p.print_ascii_byte(b'{');
     if !self.with_entries.is_empty() {
       p.print_soft_space();
@@ -922,7 +901,6 @@ impl Gen for ImportAttribute<'_> {
 
 impl Gen for ExportNamedDeclaration<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_indent();
     p.print_str("export");
     if let Some(decl) = &self.declaration {
@@ -1034,7 +1012,6 @@ impl Gen for ModuleExportName<'_> {
 
 impl Gen for ExportAllDeclaration<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_indent();
     p.print_str("export");
     if self.export_kind.is_type() {
@@ -1066,7 +1043,6 @@ impl Gen for ExportAllDeclaration<'_> {
 
 impl Gen for ExportDefaultDeclaration<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_indent();
     p.print_str("export default ");
     self.declaration.print(p, ctx);
@@ -1180,7 +1156,6 @@ impl Gen for IdentifierReference<'_> {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
     let name = p.get_identifier_reference_name(self);
     p.print_space_before_identifier();
-    p.add_source_mapping_for_name(self.span, name);
     p.print_str(name);
   }
 }
@@ -1188,7 +1163,6 @@ impl Gen for IdentifierReference<'_> {
 impl Gen for IdentifierName<'_> {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
     p.print_space_before_identifier();
-    p.add_source_mapping_for_name(self.span, &self.name);
     p.print_str(self.name.as_str());
   }
 }
@@ -1197,7 +1171,6 @@ impl Gen for BindingIdentifier<'_> {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
     let name = p.get_binding_identifier_name(self);
     p.print_space_before_identifier();
-    p.add_source_mapping_for_name(self.span, name);
     p.print_str(name);
   }
 }
@@ -1205,14 +1178,12 @@ impl Gen for BindingIdentifier<'_> {
 impl Gen for LabelIdentifier<'_> {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
     p.print_space_before_identifier();
-    p.add_source_mapping_for_name(self.span, &self.name);
     p.print_str(self.name.as_str());
   }
 }
 
 impl Gen for BooleanLiteral {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_space_before_identifier();
     p.print_str(self.as_str());
   }
@@ -1221,14 +1192,12 @@ impl Gen for BooleanLiteral {
 impl Gen for NullLiteral {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
     p.print_space_before_identifier();
-    p.add_source_mapping(self.span);
     p.print_str("null");
   }
 }
 
 impl GenExpr for NumericLiteral<'_> {
   fn gen_expr(&self, p: &mut Codegen, precedence: Precedence, ctx: Context) {
-    p.add_source_mapping(self.span);
     let value = self.value;
     if let Some(raw) = &self.raw {
       p.print_space_before_identifier();
@@ -1268,7 +1237,6 @@ impl GenExpr for NumericLiteral<'_> {
 impl GenExpr for BigIntLiteral<'_> {
   fn gen_expr(&self, p: &mut Codegen, precedence: Precedence, _ctx: Context) {
     p.print_space_before_identifier();
-    p.add_source_mapping(self.span);
     if let Some(raw) = &self.raw {
       p.print_str(raw.as_str());
       return;
@@ -1288,7 +1256,6 @@ impl GenExpr for BigIntLiteral<'_> {
 
 impl Gen for RegExpLiteral<'_> {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
-    p.add_source_mapping(self.span);
     // Avoid forming a single-line comment or "</script" sequence
     let last = p.last_byte();
     if last == Some(b'/')
@@ -1319,7 +1286,6 @@ impl Gen for StringLiteral<'_> {
 impl Gen for ThisExpression {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
     p.print_space_before_identifier();
-    p.add_source_mapping(self.span);
     p.print_str("this");
   }
 }
@@ -1420,7 +1386,6 @@ impl Gen for ArrayExpressionElement<'_> {
 
 impl Gen for SpreadElement<'_> {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_ellipsis();
     self.argument.print_expr(p, Precedence::Comma, Context::empty());
   }
@@ -1429,7 +1394,6 @@ impl Gen for SpreadElement<'_> {
 impl Gen for ArrayExpression<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     let is_multi_line = self.elements.len() > 2;
-    p.add_source_mapping(self.span);
     p.print_ascii_byte(b'[');
     if is_multi_line {
       p.indent();
@@ -1455,7 +1419,6 @@ impl Gen for ArrayExpression<'_> {
       p.print_indent();
     }
     p.print_ascii_byte(b']');
-    p.add_source_mapping_end(self.span);
   }
 }
 
@@ -1466,7 +1429,6 @@ impl GenExpr for ObjectExpression<'_> {
     let is_multi_line = len > 1;
     let wrap = p.start_of_stmt == n || p.start_of_arrow_expr == n;
     p.wrap(wrap, |p| {
-      p.add_source_mapping(self.span);
       p.print_ascii_byte(b'{');
       if is_multi_line {
         p.indent();
@@ -1491,7 +1453,6 @@ impl GenExpr for ObjectExpression<'_> {
         p.print_soft_space();
       }
       p.print_ascii_byte(b'}');
-      p.add_source_mapping_end(self.span);
     });
   }
 }
@@ -1508,7 +1469,6 @@ impl Gen for ObjectPropertyKind<'_> {
 impl Gen for ObjectProperty<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     if let Expression::FunctionExpression(func) = &self.value {
-      p.add_source_mapping(self.span);
       let is_accessor = match &self.kind {
         PropertyKind::Init => false,
         PropertyKind::Get => {
@@ -1607,7 +1567,6 @@ impl GenExpr for ArrowFunctionExpression<'_> {
     p.wrap(precedence >= Precedence::Assign || self.pife, |p| {
       if self.r#async {
         p.print_space_before_identifier();
-        p.add_source_mapping(self.span);
         p.print_str("async");
         p.print_soft_space();
       }
@@ -1641,7 +1600,6 @@ impl GenExpr for YieldExpression<'_> {
   fn gen_expr(&self, p: &mut Codegen, precedence: Precedence, _ctx: Context) {
     p.wrap(precedence >= Precedence::Assign, |p| {
       p.print_space_before_identifier();
-      p.add_source_mapping(self.span);
       p.print_str("yield");
       if self.delegate {
         p.print_ascii_byte(b'*');
@@ -1660,14 +1618,12 @@ impl GenExpr for UpdateExpression<'_> {
     p.wrap(precedence >= self.precedence(), |p| {
       if self.prefix {
         p.print_space_before_operator(self.operator.into());
-        p.add_source_mapping(self.span);
         p.print_str(operator);
         p.prev_op = Some(self.operator.into());
         p.prev_op_end = p.code().len();
         self.argument.print_expr(p, Precedence::Prefix, ctx);
       } else {
         p.print_space_before_operator(self.operator.into());
-        p.add_source_mapping(self.span);
         self.argument.print_expr(p, Precedence::Postfix, ctx);
         p.print_str(operator);
         p.prev_op = Some(self.operator.into());
@@ -1683,12 +1639,10 @@ impl GenExpr for UnaryExpression<'_> {
       let operator = self.operator.as_str();
       if self.operator.is_keyword() {
         p.print_space_before_identifier();
-        p.add_source_mapping(self.span);
         p.print_str(operator);
         p.print_soft_space();
       } else {
         p.print_space_before_operator(self.operator.into());
-        p.add_source_mapping(self.span);
         p.print_str(operator);
         p.prev_op = Some(self.operator.into());
         p.prev_op_end = p.code().len();
@@ -1720,7 +1674,6 @@ impl GenExpr for BinaryExpression<'_> {
 impl GenExpr for PrivateInExpression<'_> {
   fn gen_expr(&self, p: &mut Codegen, precedence: Precedence, ctx: Context) {
     p.wrap(precedence >= Precedence::Compare, |p| {
-      p.add_source_mapping(self.span);
       self.left.print(p, ctx);
       p.print_str(" in ");
       self.right.print_expr(p, Precedence::Equals, Context::FORBID_IN);
@@ -1775,7 +1728,6 @@ impl GenExpr for AssignmentExpression<'_> {
     let wrap = (p.start_of_stmt == n || p.start_of_arrow_expr == n)
       && matches!(self.left, AssignmentTarget::ObjectAssignmentTarget(_));
     p.wrap(wrap || precedence >= self.precedence(), |p| {
-      p.add_source_mapping(self.span);
       self.left.print(p, ctx);
       p.print_soft_space();
       p.print_str(self.operator.as_str());
@@ -1824,7 +1776,6 @@ impl Gen for AssignmentTargetPattern<'_> {
 
 impl Gen for ArrayAssignmentTarget<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_ascii_byte(b'[');
     for (i, item) in self.elements.iter().enumerate() {
       if i != 0 {
@@ -1850,7 +1801,6 @@ impl Gen for ArrayAssignmentTarget<'_> {
 
 impl Gen for ObjectAssignmentTarget<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_ascii_byte(b'{');
     p.print_list(&self.properties, ctx);
     if let Some(target) = &self.rest {
@@ -1981,7 +1931,6 @@ impl GenExpr for ImportExpression<'_> {
 
     p.wrap(wrap, |p| {
       p.print_space_before_identifier();
-      p.add_source_mapping(self.span);
       p.print_str("import");
       if let Some(phase) = self.phase {
         p.print_ascii_byte(b'.');
@@ -1992,7 +1941,7 @@ impl GenExpr for ImportExpression<'_> {
       if let Some(options) = &self.options {
         p.print_comma();
         p.print_soft_space();
-        options.gen_expr(p, Precedence::Comma, Context::empty());
+        options.print_expr(p, Precedence::Comma, Context::empty());
       }
       p.print_ascii_byte(b')');
     });
@@ -2001,7 +1950,6 @@ impl GenExpr for ImportExpression<'_> {
 
 impl Gen for TemplateLiteral<'_> {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_ascii_byte(b'`');
     debug_assert_eq!(self.quasis.len(), self.expressions.len() + 1);
     let (first_quasi, remaining_quasis) = self.quasis.split_first().unwrap();
@@ -2010,7 +1958,6 @@ impl Gen for TemplateLiteral<'_> {
       p.print_str("${");
       p.print_expression(expr);
       p.print_ascii_byte(b'}');
-      p.add_source_mapping(quasi.span);
       p.print_str_escaping_script_close_tag(quasi.value.raw.as_str());
     }
     p.print_ascii_byte(b'`');
@@ -2019,7 +1966,6 @@ impl Gen for TemplateLiteral<'_> {
 
 impl Gen for TaggedTemplateExpression<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    p.add_source_mapping(self.span);
     self.tag.print_expr(p, Precedence::Postfix, Context::empty());
     if let Some(type_parameters) = &self.type_arguments {
       type_parameters.print(p, ctx);
@@ -2031,7 +1977,6 @@ impl Gen for TaggedTemplateExpression<'_> {
 impl Gen for Super {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
     p.print_space_before_identifier();
-    p.add_source_mapping(self.span);
     p.print_str("super");
   }
 }
@@ -2040,7 +1985,6 @@ impl GenExpr for AwaitExpression<'_> {
   fn gen_expr(&self, p: &mut Codegen, precedence: Precedence, ctx: Context) {
     p.wrap(precedence >= self.precedence(), |p| {
       p.print_space_before_identifier();
-      p.add_source_mapping(self.span);
       p.print_str("await");
       p.print_soft_space();
       self.argument.print_expr(p, Precedence::Exponentiation, ctx);
@@ -2065,7 +2009,6 @@ impl GenExpr for NewExpression<'_> {
     let wrap = precedence >= self.precedence();
     p.wrap(wrap, |p| {
       p.print_space_before_identifier();
-      p.add_source_mapping(self.span);
       p.print_str("new");
       p.print_soft_space();
       self.callee.print_expr(p, Precedence::New, Context::FORBID_CALL);
@@ -2137,7 +2080,6 @@ impl GenExpr for TSTypeAssertion<'_> {
 impl Gen for MetaProperty<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     p.print_space_before_identifier();
-    p.add_source_mapping(self.span);
     self.meta.print(p, ctx);
     p.print_ascii_byte(b'.');
     self.property.print(p, ctx);
@@ -2153,7 +2095,6 @@ impl Gen for Class<'_> {
       p.enter_class();
       p.print_decorators(&self.decorators, ctx);
       p.print_space_before_identifier();
-      p.add_source_mapping(self.span);
       if self.declare {
         p.print_str("declare ");
       }
@@ -2228,7 +2169,6 @@ impl Gen for ClassElement<'_> {
 
 impl Gen for JSXIdentifier<'_> {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
-    p.add_source_mapping_for_name(self.span, &self.name);
     p.print_str(self.name.as_str());
   }
 }
@@ -2348,7 +2288,6 @@ impl Gen for JSXElement<'_> {
     // Opening element.
     // Cannot `impl Gen for JSXOpeningElement` because it needs to know value of `self.closing_element`
     // to determine whether to print a trailing `/`.
-    p.add_source_mapping(self.opening_element.span);
     p.print_ascii_byte(b'<');
     self.opening_element.name.print(p, ctx);
     if let Some(type_arguments) = &self.opening_element.type_arguments {
@@ -2378,7 +2317,6 @@ impl Gen for JSXElement<'_> {
 
     // Closing element
     if let Some(closing_element) = &self.closing_element {
-      p.add_source_mapping(closing_element.span);
       p.print_str("</");
       closing_element.name.print(p, ctx);
       p.print_ascii_byte(b'>');
@@ -2388,21 +2326,18 @@ impl Gen for JSXElement<'_> {
 
 impl Gen for JSXOpeningFragment {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_str("<>");
   }
 }
 
 impl Gen for JSXClosingFragment {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_str("</>");
   }
 }
 
 impl Gen for JSXText<'_> {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_str(self.value.as_str());
   }
 }
@@ -2439,7 +2374,6 @@ impl Gen for JSXFragment<'_> {
 
 impl Gen for StaticBlock<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_str("static");
     p.print_soft_space();
     let single_line = self.body.is_empty();
@@ -2452,7 +2386,6 @@ impl Gen for StaticBlock<'_> {
 
 impl Gen for MethodDefinition<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_decorators(&self.decorators, ctx);
     if let Some(accessibility) = &self.accessibility {
       p.print_space_before_identifier();
@@ -2534,7 +2467,6 @@ impl Gen for MethodDefinition<'_> {
 
 impl Gen for PropertyDefinition<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_decorators(&self.decorators, ctx);
     if self.declare {
       p.print_space_before_identifier();
@@ -2595,7 +2527,6 @@ impl Gen for PropertyDefinition<'_> {
 
 impl Gen for AccessorProperty<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_decorators(&self.decorators, ctx);
     if self.r#type.is_abstract() {
       p.print_space_before_identifier();
@@ -2648,7 +2579,6 @@ impl Gen for AccessorProperty<'_> {
 
 impl Gen for PrivateIdentifier<'_> {
   fn r#gen(&self, p: &mut Codegen, _ctx: Context) {
-    p.add_source_mapping_for_name(self.span, &self.name);
     p.print_ascii_byte(b'#');
 
     if let Some(mangled) = p.private_member_mappings.as_ref().and_then(|mappings| {
@@ -2676,7 +2606,6 @@ impl Gen for BindingPattern<'_> {
 
 impl Gen for ObjectPattern<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    p.add_source_mapping(self.span);
     if self.is_empty() {
       p.print_str("{}");
       return;
@@ -2716,7 +2645,6 @@ impl Gen for BindingProperty<'_> {
 
 impl Gen for BindingRestElement<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_ellipsis();
     self.argument.print(p, ctx);
   }
@@ -2724,7 +2652,6 @@ impl Gen for BindingRestElement<'_> {
 
 impl Gen for ArrayPattern<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
-    p.add_source_mapping(self.span);
     p.print_ascii_byte(b'[');
     for (index, item) in self.elements.iter().enumerate() {
       if index != 0 {
@@ -2773,8 +2700,6 @@ impl Gen for Decorator<'_> {
         _ => true,
       }
     }
-
-    p.add_source_mapping(self.span);
     p.print_ascii_byte(b'@');
     let wrap = need_wrap(&self.expression);
     p.wrap(wrap, |p| {
@@ -3248,7 +3173,7 @@ impl Gen for TSSignature<'_> {
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     match self {
       Self::TSIndexSignature(signature) => signature.print(p, ctx),
-      Self::TSPropertySignature(signature) => signature.r#gen(p, ctx),
+      Self::TSPropertySignature(signature) => signature.print(p, ctx),
       Self::TSCallSignatureDeclaration(signature) => {
         if let Some(type_parameters) = signature.type_parameters.as_ref() {
           type_parameters.print(p, ctx);
@@ -3658,7 +3583,6 @@ impl Gen for TSEnumMember<'_> {
       }
       TSEnumMemberName::ComputedTemplateString(decl) => {
         let quasi = decl.quasis.first().unwrap();
-        p.add_source_mapping(quasi.span);
 
         p.print_str("[`");
         p.print_str(quasi.value.raw.as_str());
@@ -3737,7 +3661,6 @@ impl GenExpr for V8IntrinsicExpression<'_> {
       } else if is_statement {
         p.start_of_stmt = p.code_len();
       }
-      p.add_source_mapping(self.span);
       p.print_ascii_byte(b'%');
       self.name.print(p, Context::empty());
       p.print_arguments(self.span, &self.arguments, ctx);
