@@ -46,10 +46,14 @@ pub struct CodegenReturn {
 /// A generated range mapped back to an original source range.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SourceMapping {
-  pub virtual_start: u32,
-  pub virtual_end: u32,
-  pub original_start: u32,
-  pub original_end: u32,
+  pub codegen_span: Span,
+  pub original_span: Span,
+}
+
+impl SourceMapping {
+  pub fn new(codegen_span: Span, original_span: Span) -> Self {
+    Self { codegen_span, original_span }
+  }
 }
 
 /// A code generator for printing JavaScript and TypeScript code.
@@ -298,13 +302,10 @@ impl<'a> Codegen<'a> {
     }
 
     let index = self.mappings.len();
-    let virtual_start = self.code_len() as u32;
-    self.mappings.push(SourceMapping {
-      virtual_start,
-      virtual_end: virtual_start,
-      original_start: span.start,
-      original_end: span.end,
-    });
+    self.mappings.push(SourceMapping::new(
+      Span::sized(self.code_len() as u32, 0 /* Placeholder, will override when leaving */),
+      span,
+    ));
     self.mapping_stack.push(Some(index));
   }
 
@@ -313,7 +314,7 @@ impl<'a> Codegen<'a> {
       return;
     };
 
-    self.mappings[index].virtual_end = self.code_len() as u32;
+    self.mappings[index].codegen_span.end = self.code_len() as u32;
   }
 
   #[inline]

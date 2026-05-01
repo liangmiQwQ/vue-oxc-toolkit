@@ -98,10 +98,10 @@ pub fn transform_jsx(source: String) -> NativeTransformResult {
       .mappings
       .iter()
       .map(|mapping| NativeMapping {
-        virtual_start: mapping.virtual_start,
-        virtual_end: mapping.virtual_end,
-        original_start: mapping.original_start,
-        original_end: mapping.original_end,
+        virtual_start: mapping.codegen_span.start,
+        virtual_end: mapping.codegen_span.end,
+        original_start: mapping.original_span.start,
+        original_end: mapping.original_span.end,
       })
       .collect(),
   }
