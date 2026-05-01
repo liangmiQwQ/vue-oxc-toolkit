@@ -13,6 +13,13 @@ export interface NativeDiagnostic {
   end: number
 }
 
+export interface NativeMapping {
+  virtualStart: number
+  virtualEnd: number
+  originalStart: number
+  originalEnd: number
+}
+
 export interface NativeRange {
   start: number
   end: number
@@ -24,6 +31,7 @@ export interface NativeTransformResult {
   comments: Array<NativeComment>
   irregularWhitespaces: Array<NativeRange>
   errors: Array<NativeDiagnostic>
+  mappings: Array<NativeMapping>
 }
 
 export declare function transformJsx(source: string): NativeTransformResult

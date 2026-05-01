@@ -1,5 +1,5 @@
 import type { Comment, Diagnostic, Range } from '@oxlint/plugins'
-import type { NativeRange, NativeTransformResult } from '../bindings'
+import type { NativeMapping, NativeRange, NativeTransformResult } from '../bindings'
 import { transformJsx as nativeTransformJsx } from '../bindings'
 
 export interface Mapping {
@@ -21,6 +21,7 @@ export interface ToolkitTransformResult {
 export function transformJsx(source: string): ToolkitTransformResult {
   const result: NativeTransformResult = nativeTransformJsx(source)
   const locator = createLocator(source)
+  const virtualLocator = createLocator(result.sourceText)
 
   return {
     sourceText: result.sourceText,
@@ -38,7 +39,20 @@ export function transformJsx(source: string): ToolkitTransformResult {
       message: error.message,
       loc: toLocation(error, locator),
     })),
-    mappings: undefined as any,
+    mappings: result.mappings.map((mapping) => toMapping(mapping, locator, virtualLocator)),
+  }
+}
+
+function toMapping(
+  mapping: NativeMapping,
+  locator: ReturnType<typeof createLocator>,
+  virtualLocator: ReturnType<typeof createLocator>,
+): Mapping {
+  return {
+    virtualStart: virtualLocator.toIndex(mapping.virtualStart),
+    virtualEnd: virtualLocator.toIndex(mapping.virtualEnd),
+    originalStart: locator.toIndex(mapping.originalStart),
+    originalEnd: locator.toIndex(mapping.originalEnd),
   }
 }
 

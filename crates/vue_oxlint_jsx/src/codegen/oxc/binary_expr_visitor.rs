@@ -124,7 +124,7 @@ impl<'a> BinaryExpressionVisitor<'a> {
       };
 
       let Some(left_binary) = left_binary else {
-        left.gen_expr(p, v.left_precedence, v.ctx);
+        left.print_expr(p, v.left_precedence, v.ctx);
         v.visit_right_and_finish(p);
         break;
       };
@@ -208,7 +208,7 @@ impl<'a> BinaryExpressionVisitor<'a> {
     }
 
     if let Expression::PrivateInExpression(e) = self.e.left() {
-      e.gen_expr(p, Precedence::Lowest, Context::empty());
+      e.print_expr(p, Precedence::Lowest, Context::empty());
       self.visit_right_and_finish(p);
       return false;
     }
@@ -220,7 +220,7 @@ impl<'a> BinaryExpressionVisitor<'a> {
     p.print_soft_space();
     self.operator.r#gen(p);
     p.print_soft_space();
-    self.e.right().gen_expr(p, self.right_precedence, self.ctx);
+    self.e.right().print_expr(p, self.right_precedence, self.ctx);
     if self.wrap {
       p.print_ascii_byte(b')');
     }

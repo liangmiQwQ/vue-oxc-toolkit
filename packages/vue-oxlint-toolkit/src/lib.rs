@@ -28,6 +28,14 @@ pub struct NativeDiagnostic {
 }
 
 #[napi(object)]
+pub struct NativeMapping {
+  pub virtual_start: u32,
+  pub virtual_end: u32,
+  pub original_start: u32,
+  pub original_end: u32,
+}
+
+#[napi(object)]
 pub struct NativeTransformResult {
   pub source_text: String,
   #[napi(ts_type = "'jsx' | 'tsx'")]
@@ -35,6 +43,7 @@ pub struct NativeTransformResult {
   pub comments: Vec<NativeComment>,
   pub irregular_whitespaces: Vec<NativeRange>,
   pub errors: Vec<NativeDiagnostic>,
+  pub mappings: Vec<NativeMapping>,
 }
 
 #[napi]
@@ -83,6 +92,16 @@ pub fn transform_jsx(source: String) -> NativeTransformResult {
           });
 
         NativeDiagnostic { message: error.message.to_string(), start, end }
+      })
+      .collect(),
+    mappings: ret
+      .mappings
+      .iter()
+      .map(|mapping| NativeMapping {
+        virtual_start: mapping.virtual_start,
+        virtual_end: mapping.virtual_end,
+        original_start: mapping.original_start,
+        original_end: mapping.original_end,
       })
       .collect(),
   }
