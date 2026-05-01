@@ -155,7 +155,7 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
         ast.jsx_element_name_identifier_reference(name_span, ast.str(&name))
       } else {
         let name = ast.str(node.tag_name);
-        if node.is_component() {
+        if node.is_component() && !(self.config.codegen && tag_name == "component") {
           // For <KeepAlive />
           ast.jsx_element_name_identifier_reference(name_span, name)
         } else {
@@ -191,20 +191,21 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
     // Clone element_name for opening element (needed because we may consume it in closing element)
     let opening_element_name = element_name.clone_in(self.allocator);
 
-    // Determine closing element based on tag type:
-    // - Self-closing tags (/>): closing element with empty name (None in `codegen` mode)
-    // - Void tags without />: None
-    // - Normal tags with </tag>: closing element with tag name
+    // Determine closing element based on tag type.
+    // In codegen mode, keep a real closing element even for self-closing/void tags so
+    // transformed children, such as v-slot wrappers, stay inside the element.
     let closing_element = if location_span.source_text(self.source_text).ends_with("/>") {
-      // Self-closing tag: create closing element with empty element name
       if self.config.codegen {
-        None
+        Some(ast.jsx_closing_element(SPAN, element_name.clone_in(self.allocator)))
       } else {
         Some(ast.jsx_closing_element(SPAN, ast.jsx_element_name_identifier(SPAN, ast.str(""))))
       }
     } else if is_void_tag!(tag_name) {
-      // Void tag without />: no closing element
-      None
+      if self.config.codegen {
+        Some(ast.jsx_closing_element(SPAN, element_name.clone_in(self.allocator)))
+      } else {
+        None
+      }
     } else {
       // Normal tag with explicit closing tag
       Some(ast.jsx_closing_element(end_element_span, {
