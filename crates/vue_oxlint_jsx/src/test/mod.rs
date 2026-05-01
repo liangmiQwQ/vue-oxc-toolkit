@@ -23,7 +23,6 @@ macro_rules! test_ast {
       }
 
       #[test]
-      #[should_panic(expected = "Reparsed codegen AST differs from original codegen AST")]
       fn codegen() {
         $crate::test::run_codegen_test($file_path);
       }
