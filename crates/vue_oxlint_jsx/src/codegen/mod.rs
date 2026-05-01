@@ -123,4 +123,6 @@ mod tests {
   test_ast!(scripts_codegen_fidelity_vue, "scripts/codegen_fidelity.vue");
 
   test_ast!(scripts_mapping_vue, "scripts/mapping.vue");
+
+  test_ast!(scripts_directive_prologue_vue, "scripts/directive_prologue.vue");
 }

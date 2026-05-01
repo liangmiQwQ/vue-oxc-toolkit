@@ -525,6 +525,7 @@ impl<'a> Codegen<'a> {
     ctx: Context,
   ) {
     for directive in directives {
+      self.print_semicolon_if_needed();
       directive.print(self, ctx);
     }
     self.print_stmts(stmts, ctx);
