@@ -35,32 +35,7 @@ use str::{Quote, cold_branch, is_script_close_tag};
 pub use context::Context;
 pub use r#gen::{Gen, GenExpr};
 
-type DirtySpan = (u32, u32);
-
-#[derive(Default, Clone)]
-pub struct DirtySet {
-  nodes: FxHashSet<Address>,
-  spans: FxHashSet<DirtySpan>,
-}
-
-impl DirtySet {
-  pub(crate) fn insert_node(&mut self, address: Address) {
-    self.nodes.insert(address);
-  }
-
-  pub(crate) fn contains_node<T>(&self, node: &T) -> bool {
-    // SAFETY: codegen only calls this with references from the final arena AST.
-    self.nodes.contains(&unsafe { Address::from_ptr(node) })
-  }
-
-  pub(crate) fn insert_span(&mut self, span: Span) {
-    self.spans.insert((span.start, span.end));
-  }
-
-  pub(crate) fn contains_span(&self, span: Span) -> bool {
-    self.spans.contains(&(span.start, span.end))
-  }
-}
+pub type DirtySet = FxHashSet<Address>;
 
 /// Output from [`Codegen::build`]
 #[non_exhaustive]
@@ -377,7 +352,7 @@ impl<'a> Codegen<'a> {
 
   pub(crate) fn print_clean_node<T>(&mut self, node: &T) -> bool
   where
-    T: GetSpan,
+    T: GetSpan + ?Sized,
   {
     if self.suppressed_mapping_depth > 0 {
       return false;
@@ -392,7 +367,7 @@ impl<'a> Codegen<'a> {
       return false;
     }
 
-    if self.is_dirty_node(node) || self.is_dirty_span(span) || !self.is_clean_span(span) {
+    if !self.is_clean_span(span) {
       return false;
     }
 
@@ -408,7 +383,7 @@ impl<'a> Codegen<'a> {
 
   pub(crate) fn print_clean_statement<T>(&mut self, node: &T) -> bool
   where
-    T: GetSpan,
+    T: GetSpan + ?Sized,
   {
     if !self.print_clean_node(node) {
       return false;
@@ -428,15 +403,11 @@ impl<'a> Codegen<'a> {
 
   pub(crate) fn enter_node_mapping<T>(&mut self, node: &T) -> bool
   where
-    T: GetSpan,
+    T: GetSpan + ?Sized,
   {
     let span = node.span();
     if self.is_dirty_mode() {
       if span == SPAN || self.is_program_span(span) || self.suppressed_mapping_depth > 0 {
-        return false;
-      }
-
-      if !self.is_dirty_node(node) && !self.is_dirty_span(span) {
         return false;
       }
 
@@ -467,22 +438,6 @@ impl<'a> Codegen<'a> {
     };
 
     clean_ranges.iter().any(|range| range.start <= span.start && span.end <= range.end)
-  }
-
-  fn is_dirty_span(&self, span: Span) -> bool {
-    let Some(dirty_nodes) = &self.dirty_nodes else {
-      return false;
-    };
-
-    dirty_nodes.contains_span(span)
-  }
-
-  fn is_dirty_node<T>(&self, node: &T) -> bool {
-    let Some(dirty_nodes) = &self.dirty_nodes else {
-      return false;
-    };
-
-    dirty_nodes.contains_node(node)
   }
 
   fn is_dirty_mode(&self) -> bool {

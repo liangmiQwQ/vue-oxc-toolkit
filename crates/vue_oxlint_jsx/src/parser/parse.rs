@@ -6,7 +6,7 @@ use oxc_allocator::{self, Dummy, Vec as ArenaVec};
 use oxc_ast::ast::{Directive, Expression, FormalParameterKind, JSXChild, Program, Statement};
 use oxc_ast::{AstBuilder, NONE};
 
-use oxc_span::{GetSpan, SPAN, Span};
+use oxc_span::{SPAN, Span};
 use oxc_syntax::module_record::ModuleRecord;
 use vue_compiler_core::SourceLocation;
 use vue_compiler_core::parser::{AstNode, Element, ParseOption, Parser, WhitespaceStrategy};
@@ -50,8 +50,6 @@ impl<'a> ParserImpl<'a> {
           setup,
           sfc_struct_jsx_statement: sfc_return,
           clean_codegen_ranges,
-          mut dirty_nodes,
-          config,
           ..
         } = self;
 
@@ -61,8 +59,6 @@ impl<'a> ParserImpl<'a> {
           setup.directives,
           sfc_return,
           ast,
-          config.codegen,
-          &mut dirty_nodes,
         );
         let program = ast.program(
           Span::new(0, self.source_text.len() as u32),
@@ -73,7 +69,7 @@ impl<'a> ParserImpl<'a> {
           global.directives,
           body,
         );
-        let dirty_nodes = collect_dirty_nodes(&program, dirty_nodes);
+        let dirty_nodes = collect_dirty_nodes(&program, &clean_codegen_ranges);
 
         ParserImplReturn {
           program,
@@ -103,8 +99,6 @@ impl<'a> ParserImpl<'a> {
     setup_directives: ArenaVec<'a, Directive<'a>>,
     sfc_return: Option<Statement<'a>>,
     ast: AstBuilder<'a>,
-    codegen: bool,
-    dirty_nodes: &mut crate::codegen::DirtySet,
   ) -> ArenaVec<'a, Statement<'a>> {
     if let Some(ret) = sfc_return {
       setup.push(ret);
@@ -119,16 +113,12 @@ impl<'a> ParserImpl<'a> {
 
     let body = ast.alloc_function_body(SPAN, setup_directives, setup);
 
-    let setup_wrapper = ast.statement_expression(
+    statements.push(ast.statement_expression(
       SPAN,
       Expression::ArrowFunctionExpression(
         ast.alloc_arrow_function_expression(SPAN, false, true, NONE, params, NONE, body),
       ),
-    );
-    if codegen {
-      dirty_nodes.insert_span(setup_wrapper.span());
-    }
-    statements.push(setup_wrapper);
+    ));
 
     statements
   }
@@ -198,17 +188,15 @@ impl<'a> ParserImpl<'a> {
 
     self.sort_errors_and_commends();
 
-    self.sfc_struct_jsx_statement = Some(self.build_dirty(|ast| {
-      ast.statement_expression(
+    self.sfc_struct_jsx_statement = Some(self.ast.statement_expression(
+      SPAN,
+      self.ast.expression_jsx_fragment(
         SPAN,
-        ast.expression_jsx_fragment(
-          SPAN,
-          ast.jsx_opening_fragment(SPAN),
-          children,
-          ast.jsx_closing_fragment(SPAN),
-        ),
-      )
-    }));
+        self.ast.jsx_opening_fragment(SPAN),
+        children,
+        self.ast.jsx_closing_fragment(SPAN),
+      ),
+    ));
 
     ResParse::success(())
   }

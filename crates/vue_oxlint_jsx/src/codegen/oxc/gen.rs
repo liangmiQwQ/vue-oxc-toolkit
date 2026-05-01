@@ -15,7 +15,7 @@ use super::{
 };
 
 /// Generate source code for an AST node.
-pub trait Gen: GetSpan + Sized {
+pub trait Gen: GetSpan {
   /// Generate code for an AST node.
   fn r#gen(&self, p: &mut Codegen, ctx: Context);
 
@@ -33,7 +33,7 @@ pub trait Gen: GetSpan + Sized {
 }
 
 /// Generate source code for an expression.
-pub trait GenExpr: GetSpan + Sized {
+pub trait GenExpr: GetSpan {
   /// Generate code for an expression, respecting operator precedence.
   fn gen_expr(&self, p: &mut Codegen, precedence: Precedence, ctx: Context);
 
