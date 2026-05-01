@@ -13,26 +13,8 @@ pub fn format_program_codegen(program: &Program) -> String {
   Codegen::new().build(program).code
 }
 
-use oxc_ast_visit::{Visit, VisitMut};
+use oxc_ast_visit::Visit;
 use oxc_span::{ContentEq, GetSpan, SPAN, Span};
-
-struct SpanMapper {
-  mappings: Vec<Mapping>,
-}
-
-impl VisitMut<'_> for SpanMapper {
-  fn visit_span(&mut self, span: &mut Span) {
-    // Translate each codegen-output span back to its original SFC span.
-    // Spans with no mapping entry (synthetic nodes built with SPAN, or token-level
-    // nodes not yet covered by the mapping) are zeroed out so they compare equal
-    // to the SPAN placeholders in the origin AST.
-    *span = self
-      .mappings
-      .iter()
-      .find(|mapping| mapping.codegen_span == *span)
-      .map_or(SPAN, |mapping| mapping.original_span);
-  }
-}
 
 pub fn run_codegen_test(file_path: &str) {
   let source_text = read_file(file_path);
@@ -49,7 +31,7 @@ pub fn run_codegen_test(file_path: &str) {
   });
 
   let allocator = Allocator::default();
-  let mut reparsed = oxc_parser::Parser::new(&allocator, &codegen, ret.source_type)
+  let reparsed = oxc_parser::Parser::new(&allocator, &codegen, ret.source_type)
     .with_options(ParseOptions::default())
     .parse();
   assert!(
@@ -58,16 +40,14 @@ pub fn run_codegen_test(file_path: &str) {
     reparsed.errors,
   );
 
-  let mut span_mapper = SpanMapper { mappings: ret.mappings };
-  span_mapper.visit_program(&mut reparsed.program);
-
-  assert_reparsed_codegen_ast(file_path, &source_text, &reparsed.program);
+  assert_reparsed_codegen_ast(file_path, &source_text, &reparsed.program, ret.mappings);
 }
 
 fn assert_reparsed_codegen_ast(
   file_path: &str,
   source_text: &str,
   reparsed_program: &oxc_ast::ast::Program<'_>,
+  mappings: Vec<Mapping>,
 ) {
   let allocator = Allocator::default();
   let ret = ParserImpl::new(
@@ -79,29 +59,35 @@ fn assert_reparsed_codegen_ast(
   .parse();
 
   assert!(!ret.fatal, "Codegen parser unexpectedly panicked for {file_path}");
-  program_codegen_eq(&ret.program, reparsed_program, file_path);
+  program_codegen_eq(&ret.program, reparsed_program, mappings, file_path);
 }
 
-fn program_codegen_eq(origin: &Program, reparsed: &Program, file_path: &str) {
+fn program_codegen_eq(
+  origin: &Program,
+  reparsed: &Program,
+  mappings: Vec<Mapping>,
+  file_path: &str,
+) {
   assert!(origin.hashbang.content_eq(&reparsed.hashbang), "Hashbang differs for {file_path}");
   assert!(origin.directives.content_eq(&reparsed.directives), "Directives differs for {file_path}");
   assert!(origin.body.content_eq(&reparsed.body), "Body differs for {file_path}");
 
-  let origin_spans = collect_spans(origin);
-  let reparsed_spans = collect_spans(reparsed);
+  let origin_spans = collect_spans(origin, None);
+  let reparsed_spans = collect_spans(reparsed, Some(mappings));
   origin_spans.into_iter().zip(reparsed_spans).for_each(|(origin_span, reparsed_span)| {
     assert_eq!(origin_span, reparsed_span, "[MAPPING] Span differ for {file_path}");
   });
 }
 
-fn collect_spans(program: &Program) -> Vec<(String, Span)> {
-  let mut collector = SpanCollector { spans: Vec::new() };
+fn collect_spans(program: &Program, mappings: Option<Vec<Mapping>>) -> Vec<(String, Span)> {
+  let mut collector = SpanCollector { spans: Vec::new(), mappings };
   collector.visit_program(program);
   collector.spans
 }
 
 struct SpanCollector {
   spans: Vec<(String, Span)>,
+  mappings: Option<Vec<Mapping>>,
 }
 
 impl<'a> Visit<'a> for SpanCollector {
@@ -114,11 +100,21 @@ impl<'a> Visit<'a> for SpanCollector {
       return;
     }
 
+    let span = self.mappings.as_ref().map_or_else(
+      || kind.span(),
+      |mappings| {
+        mappings
+          .iter()
+          .find(|mapping| mapping.codegen_span == kind.span())
+          .map_or(SPAN, |mapping| mapping.original_span)
+      },
+    );
+
     let kind_str = format!("{kind:?}");
     let kind_name = match memchr::memchr(b'(', kind_str.as_bytes()) {
       Some(index) => kind_str[..index].to_owned(),
       None => kind_str,
     };
-    self.spans.push((kind_name, kind.span()));
+    self.spans.push((kind_name, span));
   }
 }
