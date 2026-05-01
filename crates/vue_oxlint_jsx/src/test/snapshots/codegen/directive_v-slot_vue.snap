@@ -1,5 +1,1932 @@
 ---
 source: crates/vue_oxlint_jsx/src/test/codegen.rs
-expression: "&codegen"
+expression: "format!(\"=============== Source Text ===============\\n\\n{}\\n\\n=============== Mappings ===============\\n\\n{:#?}\",\nret.source_text, ret.mappings)"
 ---
+=============== Source Text ===============
+
 async()=>{<><template><Comp v-slot:__v___={undefined}>{{default:({message})=><></>}}</Comp><Comp v-slot:header={undefined}>{{header:({message})=><>{message}</>}}</Comp><Comp v-slot:abc>{{abc:()=><></>}}</Comp><Comp v-slot:__v___>{{default:()=><></>}}</Comp><Comp v-slot:header={undefined}>{{header:({message})=><>{message}</>}}</Comp><Comp v-slot:__v___={undefined}>{{default:({message})=><>{message}</>}}</Comp><Comp v-slot:__v_key___={undefined}>{{[key]:({message})=><>{message}</>}}</Comp><Comp v-slot:header={undefined}>{{header:(user)=><>{user.name}</>}}</Comp></template></>};
+
+=============== Mappings ===============
+
+[
+    Mapping {
+        codegen_span: Span {
+            start: 0,
+            end: 582,
+        },
+        original_span: Span {
+            start: 0,
+            end: 412,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 12,
+            end: 577,
+        },
+        original_span: Span {
+            start: 0,
+            end: 411,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 12,
+            end: 577,
+        },
+        original_span: Span {
+            start: 0,
+            end: 411,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 13,
+            end: 21,
+        },
+        original_span: Span {
+            start: 1,
+            end: 9,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 13,
+            end: 21,
+        },
+        original_span: Span {
+            start: 1,
+            end: 9,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 22,
+            end: 91,
+        },
+        original_span: Span {
+            start: 13,
+            end: 42,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 22,
+            end: 91,
+        },
+        original_span: Span {
+            start: 13,
+            end: 42,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 23,
+            end: 27,
+        },
+        original_span: Span {
+            start: 14,
+            end: 18,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 23,
+            end: 27,
+        },
+        original_span: Span {
+            start: 14,
+            end: 18,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 28,
+            end: 53,
+        },
+        original_span: Span {
+            start: 19,
+            end: 34,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 28,
+            end: 53,
+        },
+        original_span: Span {
+            start: 19,
+            end: 34,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 28,
+            end: 41,
+        },
+        original_span: Span {
+            start: 19,
+            end: 20,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 28,
+            end: 41,
+        },
+        original_span: Span {
+            start: 19,
+            end: 20,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 28,
+            end: 34,
+        },
+        original_span: Span {
+            start: 19,
+            end: 20,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 35,
+            end: 41,
+        },
+        original_span: Span {
+            start: 20,
+            end: 20,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 42,
+            end: 53,
+        },
+        original_span: Span {
+            start: 21,
+            end: 34,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 42,
+            end: 53,
+        },
+        original_span: Span {
+            start: 21,
+            end: 34,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 65,
+            end: 74,
+        },
+        original_span: Span {
+            start: 21,
+            end: 34,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 65,
+            end: 74,
+        },
+        original_span: Span {
+            start: 22,
+            end: 33,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 65,
+            end: 74,
+        },
+        original_span: Span {
+            start: 22,
+            end: 33,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 65,
+            end: 74,
+        },
+        original_span: Span {
+            start: 22,
+            end: 33,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 66,
+            end: 73,
+        },
+        original_span: Span {
+            start: 24,
+            end: 31,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 66,
+            end: 73,
+        },
+        original_span: Span {
+            start: 24,
+            end: 31,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 66,
+            end: 73,
+        },
+        original_span: Span {
+            start: 24,
+            end: 31,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 86,
+            end: 90,
+        },
+        original_span: Span {
+            start: 37,
+            end: 41,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 86,
+            end: 90,
+        },
+        original_span: Span {
+            start: 37,
+            end: 41,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 91,
+            end: 168,
+        },
+        original_span: Span {
+            start: 45,
+            end: 101,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 91,
+            end: 168,
+        },
+        original_span: Span {
+            start: 45,
+            end: 101,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 92,
+            end: 96,
+        },
+        original_span: Span {
+            start: 46,
+            end: 50,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 92,
+            end: 96,
+        },
+        original_span: Span {
+            start: 46,
+            end: 50,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 97,
+            end: 122,
+        },
+        original_span: Span {
+            start: 51,
+            end: 72,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 97,
+            end: 122,
+        },
+        original_span: Span {
+            start: 51,
+            end: 72,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 97,
+            end: 110,
+        },
+        original_span: Span {
+            start: 51,
+            end: 58,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 97,
+            end: 110,
+        },
+        original_span: Span {
+            start: 51,
+            end: 58,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 97,
+            end: 103,
+        },
+        original_span: Span {
+            start: 51,
+            end: 52,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 104,
+            end: 110,
+        },
+        original_span: Span {
+            start: 52,
+            end: 58,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 111,
+            end: 122,
+        },
+        original_span: Span {
+            start: 59,
+            end: 72,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 111,
+            end: 122,
+        },
+        original_span: Span {
+            start: 59,
+            end: 72,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 125,
+            end: 131,
+        },
+        original_span: Span {
+            start: 52,
+            end: 58,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 125,
+            end: 131,
+        },
+        original_span: Span {
+            start: 52,
+            end: 58,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 133,
+            end: 142,
+        },
+        original_span: Span {
+            start: 59,
+            end: 72,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 133,
+            end: 142,
+        },
+        original_span: Span {
+            start: 60,
+            end: 71,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 133,
+            end: 142,
+        },
+        original_span: Span {
+            start: 60,
+            end: 71,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 133,
+            end: 142,
+        },
+        original_span: Span {
+            start: 60,
+            end: 71,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 134,
+            end: 141,
+        },
+        original_span: Span {
+            start: 62,
+            end: 69,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 134,
+            end: 141,
+        },
+        original_span: Span {
+            start: 62,
+            end: 69,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 134,
+            end: 141,
+        },
+        original_span: Span {
+            start: 62,
+            end: 69,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 147,
+            end: 156,
+        },
+        original_span: Span {
+            start: 78,
+            end: 91,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 147,
+            end: 156,
+        },
+        original_span: Span {
+            start: 78,
+            end: 91,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 148,
+            end: 155,
+        },
+        original_span: Span {
+            start: 81,
+            end: 88,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 148,
+            end: 155,
+        },
+        original_span: Span {
+            start: 81,
+            end: 88,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 148,
+            end: 155,
+        },
+        original_span: Span {
+            start: 81,
+            end: 88,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 163,
+            end: 167,
+        },
+        original_span: Span {
+            start: 96,
+            end: 100,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 163,
+            end: 167,
+        },
+        original_span: Span {
+            start: 96,
+            end: 100,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 168,
+            end: 209,
+        },
+        original_span: Span {
+            start: 104,
+            end: 133,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 168,
+            end: 209,
+        },
+        original_span: Span {
+            start: 104,
+            end: 133,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 169,
+            end: 173,
+        },
+        original_span: Span {
+            start: 105,
+            end: 109,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 169,
+            end: 173,
+        },
+        original_span: Span {
+            start: 105,
+            end: 109,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 174,
+            end: 184,
+        },
+        original_span: Span {
+            start: 110,
+            end: 120,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 174,
+            end: 184,
+        },
+        original_span: Span {
+            start: 110,
+            end: 120,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 174,
+            end: 184,
+        },
+        original_span: Span {
+            start: 110,
+            end: 120,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 174,
+            end: 184,
+        },
+        original_span: Span {
+            start: 110,
+            end: 120,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 174,
+            end: 180,
+        },
+        original_span: Span {
+            start: 110,
+            end: 116,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 181,
+            end: 184,
+        },
+        original_span: Span {
+            start: 117,
+            end: 120,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 187,
+            end: 190,
+        },
+        original_span: Span {
+            start: 117,
+            end: 120,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 187,
+            end: 190,
+        },
+        original_span: Span {
+            start: 117,
+            end: 120,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 204,
+            end: 208,
+        },
+        original_span: Span {
+            start: 128,
+            end: 132,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 204,
+            end: 208,
+        },
+        original_span: Span {
+            start: 128,
+            end: 132,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 209,
+            end: 257,
+        },
+        original_span: Span {
+            start: 136,
+            end: 151,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 209,
+            end: 257,
+        },
+        original_span: Span {
+            start: 136,
+            end: 151,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 210,
+            end: 214,
+        },
+        original_span: Span {
+            start: 137,
+            end: 141,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 210,
+            end: 214,
+        },
+        original_span: Span {
+            start: 137,
+            end: 141,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 215,
+            end: 228,
+        },
+        original_span: Span {
+            start: 142,
+            end: 148,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 215,
+            end: 228,
+        },
+        original_span: Span {
+            start: 142,
+            end: 148,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 215,
+            end: 228,
+        },
+        original_span: Span {
+            start: 142,
+            end: 148,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 215,
+            end: 228,
+        },
+        original_span: Span {
+            start: 142,
+            end: 148,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 215,
+            end: 221,
+        },
+        original_span: Span {
+            start: 142,
+            end: 148,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 252,
+            end: 256,
+        },
+        original_span: Span {
+            start: 137,
+            end: 141,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 252,
+            end: 256,
+        },
+        original_span: Span {
+            start: 137,
+            end: 141,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 257,
+            end: 334,
+        },
+        original_span: Span {
+            start: 154,
+            end: 216,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 257,
+            end: 334,
+        },
+        original_span: Span {
+            start: 154,
+            end: 216,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 258,
+            end: 262,
+        },
+        original_span: Span {
+            start: 155,
+            end: 159,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 258,
+            end: 262,
+        },
+        original_span: Span {
+            start: 155,
+            end: 159,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 263,
+            end: 288,
+        },
+        original_span: Span {
+            start: 160,
+            end: 187,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 263,
+            end: 288,
+        },
+        original_span: Span {
+            start: 160,
+            end: 187,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 263,
+            end: 276,
+        },
+        original_span: Span {
+            start: 160,
+            end: 173,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 263,
+            end: 276,
+        },
+        original_span: Span {
+            start: 160,
+            end: 173,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 263,
+            end: 269,
+        },
+        original_span: Span {
+            start: 160,
+            end: 166,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 270,
+            end: 276,
+        },
+        original_span: Span {
+            start: 167,
+            end: 173,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 277,
+            end: 288,
+        },
+        original_span: Span {
+            start: 174,
+            end: 187,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 277,
+            end: 288,
+        },
+        original_span: Span {
+            start: 174,
+            end: 187,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 291,
+            end: 297,
+        },
+        original_span: Span {
+            start: 167,
+            end: 173,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 291,
+            end: 297,
+        },
+        original_span: Span {
+            start: 167,
+            end: 173,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 299,
+            end: 308,
+        },
+        original_span: Span {
+            start: 174,
+            end: 187,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 299,
+            end: 308,
+        },
+        original_span: Span {
+            start: 175,
+            end: 186,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 299,
+            end: 308,
+        },
+        original_span: Span {
+            start: 175,
+            end: 186,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 299,
+            end: 308,
+        },
+        original_span: Span {
+            start: 175,
+            end: 186,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 300,
+            end: 307,
+        },
+        original_span: Span {
+            start: 177,
+            end: 184,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 300,
+            end: 307,
+        },
+        original_span: Span {
+            start: 177,
+            end: 184,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 300,
+            end: 307,
+        },
+        original_span: Span {
+            start: 177,
+            end: 184,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 313,
+            end: 322,
+        },
+        original_span: Span {
+            start: 193,
+            end: 206,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 313,
+            end: 322,
+        },
+        original_span: Span {
+            start: 193,
+            end: 206,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 314,
+            end: 321,
+        },
+        original_span: Span {
+            start: 196,
+            end: 203,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 314,
+            end: 321,
+        },
+        original_span: Span {
+            start: 196,
+            end: 203,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 314,
+            end: 321,
+        },
+        original_span: Span {
+            start: 196,
+            end: 203,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 329,
+            end: 333,
+        },
+        original_span: Span {
+            start: 211,
+            end: 215,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 329,
+            end: 333,
+        },
+        original_span: Span {
+            start: 211,
+            end: 215,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 334,
+            end: 412,
+        },
+        original_span: Span {
+            start: 219,
+            end: 275,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 334,
+            end: 412,
+        },
+        original_span: Span {
+            start: 219,
+            end: 275,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 335,
+            end: 339,
+        },
+        original_span: Span {
+            start: 220,
+            end: 224,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 335,
+            end: 339,
+        },
+        original_span: Span {
+            start: 220,
+            end: 224,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 340,
+            end: 365,
+        },
+        original_span: Span {
+            start: 225,
+            end: 246,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 340,
+            end: 365,
+        },
+        original_span: Span {
+            start: 225,
+            end: 246,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 340,
+            end: 353,
+        },
+        original_span: Span {
+            start: 225,
+            end: 232,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 340,
+            end: 353,
+        },
+        original_span: Span {
+            start: 225,
+            end: 232,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 340,
+            end: 346,
+        },
+        original_span: Span {
+            start: 225,
+            end: 231,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 347,
+            end: 353,
+        },
+        original_span: Span {
+            start: 232,
+            end: 232,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 354,
+            end: 365,
+        },
+        original_span: Span {
+            start: 233,
+            end: 246,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 354,
+            end: 365,
+        },
+        original_span: Span {
+            start: 233,
+            end: 246,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 377,
+            end: 386,
+        },
+        original_span: Span {
+            start: 233,
+            end: 246,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 377,
+            end: 386,
+        },
+        original_span: Span {
+            start: 234,
+            end: 245,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 377,
+            end: 386,
+        },
+        original_span: Span {
+            start: 234,
+            end: 245,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 377,
+            end: 386,
+        },
+        original_span: Span {
+            start: 234,
+            end: 245,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 378,
+            end: 385,
+        },
+        original_span: Span {
+            start: 236,
+            end: 243,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 378,
+            end: 385,
+        },
+        original_span: Span {
+            start: 236,
+            end: 243,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 378,
+            end: 385,
+        },
+        original_span: Span {
+            start: 236,
+            end: 243,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 391,
+            end: 400,
+        },
+        original_span: Span {
+            start: 252,
+            end: 265,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 391,
+            end: 400,
+        },
+        original_span: Span {
+            start: 252,
+            end: 265,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 392,
+            end: 399,
+        },
+        original_span: Span {
+            start: 255,
+            end: 262,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 392,
+            end: 399,
+        },
+        original_span: Span {
+            start: 255,
+            end: 262,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 392,
+            end: 399,
+        },
+        original_span: Span {
+            start: 255,
+            end: 262,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 407,
+            end: 411,
+        },
+        original_span: Span {
+            start: 270,
+            end: 274,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 407,
+            end: 411,
+        },
+        original_span: Span {
+            start: 270,
+            end: 274,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 412,
+            end: 492,
+        },
+        original_span: Span {
+            start: 278,
+            end: 339,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 412,
+            end: 492,
+        },
+        original_span: Span {
+            start: 278,
+            end: 339,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 413,
+            end: 417,
+        },
+        original_span: Span {
+            start: 279,
+            end: 283,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 413,
+            end: 417,
+        },
+        original_span: Span {
+            start: 279,
+            end: 283,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 418,
+            end: 447,
+        },
+        original_span: Span {
+            start: 284,
+            end: 310,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 418,
+            end: 447,
+        },
+        original_span: Span {
+            start: 284,
+            end: 310,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 418,
+            end: 435,
+        },
+        original_span: Span {
+            start: 284,
+            end: 296,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 418,
+            end: 435,
+        },
+        original_span: Span {
+            start: 284,
+            end: 296,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 418,
+            end: 424,
+        },
+        original_span: Span {
+            start: 284,
+            end: 290,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 425,
+            end: 435,
+        },
+        original_span: Span {
+            start: 291,
+            end: 296,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 436,
+            end: 447,
+        },
+        original_span: Span {
+            start: 297,
+            end: 310,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 436,
+            end: 447,
+        },
+        original_span: Span {
+            start: 297,
+            end: 310,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 451,
+            end: 454,
+        },
+        original_span: Span {
+            start: 292,
+            end: 295,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 451,
+            end: 454,
+        },
+        original_span: Span {
+            start: 292,
+            end: 295,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 451,
+            end: 454,
+        },
+        original_span: Span {
+            start: 292,
+            end: 295,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 457,
+            end: 466,
+        },
+        original_span: Span {
+            start: 297,
+            end: 310,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 457,
+            end: 466,
+        },
+        original_span: Span {
+            start: 298,
+            end: 309,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 457,
+            end: 466,
+        },
+        original_span: Span {
+            start: 298,
+            end: 309,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 457,
+            end: 466,
+        },
+        original_span: Span {
+            start: 298,
+            end: 309,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 458,
+            end: 465,
+        },
+        original_span: Span {
+            start: 300,
+            end: 307,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 458,
+            end: 465,
+        },
+        original_span: Span {
+            start: 300,
+            end: 307,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 458,
+            end: 465,
+        },
+        original_span: Span {
+            start: 300,
+            end: 307,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 471,
+            end: 480,
+        },
+        original_span: Span {
+            start: 316,
+            end: 329,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 471,
+            end: 480,
+        },
+        original_span: Span {
+            start: 316,
+            end: 329,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 472,
+            end: 479,
+        },
+        original_span: Span {
+            start: 319,
+            end: 326,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 472,
+            end: 479,
+        },
+        original_span: Span {
+            start: 319,
+            end: 326,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 472,
+            end: 479,
+        },
+        original_span: Span {
+            start: 319,
+            end: 326,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 487,
+            end: 491,
+        },
+        original_span: Span {
+            start: 334,
+            end: 338,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 487,
+            end: 491,
+        },
+        original_span: Span {
+            start: 334,
+            end: 338,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 492,
+            end: 566,
+        },
+        original_span: Span {
+            start: 342,
+            end: 399,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 492,
+            end: 566,
+        },
+        original_span: Span {
+            start: 342,
+            end: 399,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 493,
+            end: 497,
+        },
+        original_span: Span {
+            start: 343,
+            end: 347,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 493,
+            end: 497,
+        },
+        original_span: Span {
+            start: 343,
+            end: 347,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 498,
+            end: 523,
+        },
+        original_span: Span {
+            start: 348,
+            end: 368,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 498,
+            end: 523,
+        },
+        original_span: Span {
+            start: 348,
+            end: 368,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 498,
+            end: 511,
+        },
+        original_span: Span {
+            start: 348,
+            end: 361,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 498,
+            end: 511,
+        },
+        original_span: Span {
+            start: 348,
+            end: 361,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 498,
+            end: 504,
+        },
+        original_span: Span {
+            start: 348,
+            end: 354,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 505,
+            end: 511,
+        },
+        original_span: Span {
+            start: 355,
+            end: 361,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 512,
+            end: 523,
+        },
+        original_span: Span {
+            start: 362,
+            end: 368,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 512,
+            end: 523,
+        },
+        original_span: Span {
+            start: 362,
+            end: 368,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 526,
+            end: 532,
+        },
+        original_span: Span {
+            start: 355,
+            end: 361,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 526,
+            end: 532,
+        },
+        original_span: Span {
+            start: 355,
+            end: 361,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 534,
+            end: 538,
+        },
+        original_span: Span {
+            start: 362,
+            end: 368,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 534,
+            end: 538,
+        },
+        original_span: Span {
+            start: 363,
+            end: 367,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 534,
+            end: 538,
+        },
+        original_span: Span {
+            start: 363,
+            end: 367,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 534,
+            end: 538,
+        },
+        original_span: Span {
+            start: 363,
+            end: 367,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 543,
+            end: 554,
+        },
+        original_span: Span {
+            start: 374,
+            end: 389,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 543,
+            end: 554,
+        },
+        original_span: Span {
+            start: 374,
+            end: 389,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 544,
+            end: 553,
+        },
+        original_span: Span {
+            start: 377,
+            end: 386,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 544,
+            end: 553,
+        },
+        original_span: Span {
+            start: 377,
+            end: 386,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 544,
+            end: 553,
+        },
+        original_span: Span {
+            start: 377,
+            end: 386,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 544,
+            end: 548,
+        },
+        original_span: Span {
+            start: 377,
+            end: 381,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 544,
+            end: 548,
+        },
+        original_span: Span {
+            start: 377,
+            end: 381,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 549,
+            end: 553,
+        },
+        original_span: Span {
+            start: 382,
+            end: 386,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 561,
+            end: 565,
+        },
+        original_span: Span {
+            start: 394,
+            end: 398,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 561,
+            end: 565,
+        },
+        original_span: Span {
+            start: 394,
+            end: 398,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 568,
+            end: 576,
+        },
+        original_span: Span {
+            start: 402,
+            end: 410,
+        },
+    },
+    Mapping {
+        codegen_span: Span {
+            start: 568,
+            end: 576,
+        },
+        original_span: Span {
+            start: 402,
+            end: 410,
+        },
+    },
+]

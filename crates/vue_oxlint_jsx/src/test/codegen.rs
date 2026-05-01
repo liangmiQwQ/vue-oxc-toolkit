@@ -20,18 +20,20 @@ pub fn run_codegen_test(file_path: &str) {
   let source_text = read_file(file_path);
   let ret = VueJsxCodegen::new(&source_text).build();
   assert!(!ret.panicked, "Codegen unexpectedly panicked for {file_path}");
-  let codegen = ret.source_text;
 
   let snap_name = snapshot_name(file_path);
   let mut settings = insta::Settings::clone_current();
   settings.set_snapshot_path("snapshots/codegen");
   settings.set_prepend_module_to_snapshot(false);
   settings.bind(|| {
-    insta::assert_snapshot!(snap_name, &codegen);
+    insta::assert_snapshot!(
+      snap_name,
+      format!("=============== Source Text ===============\n\n{}\n\n=============== Mappings ===============\n\n{:#?}", ret.source_text, ret.mappings)
+    );
   });
 
   let allocator = Allocator::default();
-  let reparsed = oxc_parser::Parser::new(&allocator, &codegen, ret.source_type)
+  let reparsed = oxc_parser::Parser::new(&allocator, &ret.source_text, ret.source_type)
     .with_options(ParseOptions::default())
     .parse();
   assert!(
