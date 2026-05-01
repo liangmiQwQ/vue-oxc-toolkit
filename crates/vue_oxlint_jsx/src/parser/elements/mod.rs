@@ -191,9 +191,11 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
     // Clone element_name for opening element (needed because we may consume it in closing element)
     let opening_element_name = element_name.clone_in(self.allocator);
 
-    // Determine closing element based on tag type.
-    // In codegen mode, keep a real closing element even for self-closing/void tags so
-    // transformed children, such as v-slot wrappers, stay inside the element.
+    // Determine closing element based on tag type:
+    // - Self-closing tags (/>): closing element with empty name
+    // - Void tags without />: None
+    // - Normal tags with </tag>: closing element with tag name
+    // Always use </tag> in codegen mode (prevent tag-hoist in v-slot children)
     let closing_element = if location_span.source_text(self.source_text).ends_with("/>") {
       if self.config.codegen {
         Some(ast.jsx_closing_element(SPAN, element_name.clone_in(self.allocator)))
