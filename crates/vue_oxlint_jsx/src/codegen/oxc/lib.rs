@@ -381,13 +381,33 @@ impl<'a> Codegen<'a> {
     true
   }
 
+  pub(crate) fn print_clean_statement<T>(&mut self, node: &T) -> bool
+  where
+    T: GetSpan + ?Sized,
+  {
+    if !self.print_clean_node(node) {
+      return false;
+    }
+
+    let span = node.span();
+    let Some(source_text) = self.original_source_text else {
+      return true;
+    };
+
+    if !span.source_text(source_text).trim_end().ends_with(';') {
+      self.print_semicolon();
+    }
+    self.print_hard_newline();
+    true
+  }
+
   pub(crate) fn enter_node_mapping<T>(&mut self, node: &T) -> bool
   where
     T: GetSpan + ?Sized,
   {
     let span = node.span();
     if self.is_dirty_mode() {
-      if span == SPAN || self.suppressed_mapping_depth > 0 {
+      if span == SPAN || self.is_program_span(span) || self.suppressed_mapping_depth > 0 {
         return false;
       }
 
@@ -422,6 +442,14 @@ impl<'a> Codegen<'a> {
 
   fn is_dirty_mode(&self) -> bool {
     self.dirty_nodes.is_some() || self.clean_ranges.is_some()
+  }
+
+  fn is_program_span(&self, span: Span) -> bool {
+    let Some(source_text) = self.original_source_text else {
+      return false;
+    };
+
+    span.start == 0 && span.end == source_text.len() as u32
   }
 
   #[inline]

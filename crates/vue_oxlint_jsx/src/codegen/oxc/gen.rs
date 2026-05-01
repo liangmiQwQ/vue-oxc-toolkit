@@ -105,6 +105,16 @@ impl Gen for Directive<'_> {
 }
 
 impl Gen for Statement<'_> {
+  fn print(&self, p: &mut Codegen, ctx: Context) {
+    if p.print_clean_statement(self) {
+      return;
+    }
+
+    let entered = p.enter_node_mapping(self);
+    self.r#gen(p, ctx);
+    p.leave_node_mapping(entered);
+  }
+
   fn r#gen(&self, p: &mut Codegen, ctx: Context) {
     match self {
       // Most common statements first (based on parser order and frequency)
