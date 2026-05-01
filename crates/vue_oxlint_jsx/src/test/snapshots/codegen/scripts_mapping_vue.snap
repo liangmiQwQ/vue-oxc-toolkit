@@ -1,0 +1,5 @@
+---
+source: crates/vue_oxlint_jsx/src/test/codegen.rs
+expression: "&codegen"
+---
+1;async()=>{<><script></script></>};

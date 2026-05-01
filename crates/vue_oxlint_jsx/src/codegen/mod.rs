@@ -115,3 +115,12 @@ impl<'a> VueJsxCodegen<'a> {
     }
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use crate::test_ast;
+
+  test_ast!(scripts_codegen_fidelity_vue, "scripts/codegen_fidelity.vue");
+
+  test_ast!(scripts_mapping_vue, "scripts/mapping.vue");
+}
