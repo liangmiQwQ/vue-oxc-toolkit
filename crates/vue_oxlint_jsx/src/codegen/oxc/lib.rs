@@ -3,7 +3,7 @@
 //! Code adapted from
 //! * [esbuild](https://github.com/evanw/esbuild/blob/v0.24.0/internal/js_printer/js_printer.go)
 
-use std::{borrow::Cow, cmp, slice};
+use std::{cmp, slice};
 
 use cow_utils::CowUtils;
 
@@ -71,9 +71,6 @@ pub struct SourceMapping {
 /// assert_eq!(js.code, "const a = 1 + 2;\n");
 /// ```
 pub struct Codegen<'a> {
-  /// Original source code of the AST
-  source_text: Option<&'a str>,
-
   scoping: Option<Scoping>,
 
   /// Private member name mappings for mangling
@@ -111,18 +108,6 @@ impl Default for Codegen<'_> {
   }
 }
 
-impl<'a> From<Codegen<'a>> for String {
-  fn from(val: Codegen<'a>) -> Self {
-    val.into_source_text()
-  }
-}
-
-impl<'a> From<Codegen<'a>> for Cow<'a, str> {
-  fn from(val: Codegen<'a>) -> Self {
-    Cow::Owned(val.into_source_text())
-  }
-}
-
 // Public APIs
 impl<'a> Codegen<'a> {
   /// Create a new code generator.
@@ -131,7 +116,6 @@ impl<'a> Codegen<'a> {
   #[must_use]
   pub fn new() -> Self {
     Self {
-      source_text: None,
       scoping: None,
       private_member_mappings: None,
       code: CodeBuffer::default(),
@@ -152,57 +136,14 @@ impl<'a> Codegen<'a> {
     }
   }
 
-  /// Sets the source text for the code generator.
-  #[must_use]
-  pub fn with_source_text(mut self, source_text: &'a str) -> Self {
-    self.source_text = Some(source_text);
-    self
-  }
-
-  /// Set the symbol table used for identifier renaming.
-  ///
-  /// Can be used for easy renaming of variables (based on semantic analysis).
-  #[must_use]
-  pub fn with_scoping(mut self, scoping: Option<Scoping>) -> Self {
-    self.scoping = scoping;
-    self
-  }
-
-  /// Set private member name mappings for mangling.
-  ///
-  /// This allows renaming of private class members like `#field` -> `#a`.
-  /// The Vec contains per-class mappings, indexed by class declaration order.
-  #[must_use]
-  pub fn with_private_member_mappings(
-    mut self,
-    mappings: Option<IndexVec<ClassId, FxHashMap<String, CompactStr>>>,
-  ) -> Self {
-    self.private_member_mappings = mappings;
-    self
-  }
-
   /// Print a [`Program`] into a string of source code.
   ///
   #[must_use]
   pub fn build(mut self, program: &Program<'a>) -> CodegenReturn {
-    self.source_text = Some(program.source_text);
     self.code.reserve(program.source_text.len());
     program.print(&mut self, Context::default());
     let code = self.code.into_string();
     CodegenReturn { code, mappings: self.mappings }
-  }
-
-  /// Turn what's been built so far into a string. Like [`build`],
-  /// this fininishes a print and returns the generated source code. Unlike
-  /// [`build`], collected mappings are discarded.
-  ///
-  /// This is more useful for cases that progressively build code using [`print_expression`].
-  ///
-  /// [`build`]: Codegen::build
-  /// [`print_expression`]: Codegen::print_expression
-  #[must_use]
-  pub fn into_source_text(self) -> String {
-    self.code.into_string()
   }
 
   /// Push a single ASCII byte into the buffer.
@@ -376,17 +317,9 @@ impl<'a> Codegen<'a> {
   }
 
   #[inline]
-  #[expect(clippy::unused_self, clippy::needless_pass_by_ref_mut)]
-  fn print_soft_space(&mut self) {}
-
-  #[inline]
   fn print_hard_space(&mut self) {
     self.print_ascii_byte(b' ');
   }
-
-  #[inline]
-  #[expect(clippy::unused_self, clippy::needless_pass_by_ref_mut)]
-  fn print_soft_newline(&mut self) {}
 
   #[inline]
   fn print_hard_newline(&mut self) {
@@ -433,14 +366,6 @@ impl<'a> Codegen<'a> {
   }
 
   #[inline]
-  #[expect(clippy::unused_self, clippy::needless_pass_by_ref_mut)]
-  fn indent(&mut self) {}
-
-  #[inline]
-  #[expect(clippy::unused_self, clippy::needless_pass_by_ref_mut)]
-  fn dedent(&mut self) {}
-
-  #[inline]
   fn enter_class(&mut self) {
     let class_id = self.next_class_id;
     self.next_class_id = ClassId::from_usize(self.next_class_id.index() + 1);
@@ -467,10 +392,6 @@ impl<'a> Codegen<'a> {
       self.print_ascii_byte(b')');
     }
   }
-
-  #[inline]
-  #[expect(clippy::unused_self, clippy::needless_pass_by_ref_mut)]
-  fn print_indent(&mut self) {}
 
   #[inline]
   fn print_semicolon_after_statement(&mut self) {
@@ -500,29 +421,17 @@ impl<'a> Codegen<'a> {
     self.print_ascii_byte(b'=');
   }
 
-  fn print_curly_braces<F: FnOnce(&mut Self)>(&mut self, _span: Span, single_line: bool, op: F) {
+  fn print_curly_braces<F: FnOnce(&mut Self)>(&mut self, _single_line: bool, op: F) {
     self.print_ascii_byte(b'{');
-    if !single_line {
-      self.print_soft_newline();
-      self.indent();
-    }
     op(self);
-    if !single_line {
-      self.dedent();
-      self.print_indent();
-    }
     self.print_ascii_byte(b'}');
   }
 
-  fn print_block_start(&mut self, _span: Span) {
+  fn print_block_start(&mut self) {
     self.print_ascii_byte(b'{');
-    self.print_soft_newline();
-    self.indent();
   }
 
-  fn print_block_end(&mut self, _span: Span) {
-    self.dedent();
-    self.print_indent();
+  fn print_block_end(&mut self) {
     self.print_ascii_byte(b'}');
   }
 
@@ -545,7 +454,7 @@ impl<'a> Codegen<'a> {
 
   fn print_block_statement(&mut self, stmt: &BlockStatement<'_>, ctx: Context) {
     let single_line = stmt.body.is_empty();
-    self.print_curly_braces(stmt.span, single_line, |p| {
+    self.print_curly_braces(single_line, |p| {
       p.print_stmts(&stmt.body, ctx);
     });
     self.needs_semicolon = false;
@@ -578,7 +487,6 @@ impl<'a> Codegen<'a> {
     first.print(self, ctx);
     for item in rest {
       self.print_comma();
-      self.print_soft_space();
       item.print(self, ctx);
     }
   }
@@ -591,12 +499,11 @@ impl<'a> Codegen<'a> {
     first.print_expr(self, precedence, ctx);
     for item in rest {
       self.print_comma();
-      self.print_soft_space();
       item.print_expr(self, precedence, ctx);
     }
   }
 
-  fn print_arguments(&mut self, _span: Span, arguments: &[Argument<'_>], ctx: Context) {
+  fn print_arguments(&mut self, arguments: &[Argument<'_>], ctx: Context) {
     self.print_ascii_byte(b'(');
     self.print_list(arguments, ctx);
     self.print_ascii_byte(b')');

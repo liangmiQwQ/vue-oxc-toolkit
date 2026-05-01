@@ -217,9 +217,7 @@ impl<'a> BinaryExpressionVisitor<'a> {
   }
 
   pub fn visit_right_and_finish(&self, p: &mut Codegen) {
-    p.print_soft_space();
     self.operator.r#gen(p);
-    p.print_soft_space();
     self.e.right().print_expr(p, self.right_precedence, self.ctx);
     if self.wrap {
       p.print_ascii_byte(b')');
