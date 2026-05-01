@@ -40,17 +40,17 @@ pub struct CodegenReturn {
   /// The generated source code.
   pub code: String,
   /// Generated source ranges mapped back to original source ranges.
-  pub mappings: Vec<SourceMapping>,
+  pub mappings: Vec<Mapping>,
 }
 
 /// A generated range mapped back to an original source range.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct SourceMapping {
+pub struct Mapping {
   pub codegen_span: Span,
   pub original_span: Span,
 }
 
-impl SourceMapping {
+impl Mapping {
   pub fn new(codegen_span: Span, original_span: Span) -> Self {
     Self { codegen_span, original_span }
   }
@@ -82,7 +82,7 @@ pub struct Codegen<'a> {
 
   /// Output Code
   code: CodeBuffer,
-  mappings: Vec<SourceMapping>,
+  mappings: Vec<Mapping>,
   mapping_stack: Vec<Option<usize>>,
 
   // states
@@ -302,7 +302,7 @@ impl<'a> Codegen<'a> {
     }
 
     let index = self.mappings.len();
-    self.mappings.push(SourceMapping::new(
+    self.mappings.push(Mapping::new(
       Span::sized(self.code_len() as u32, 0 /* Placeholder, will override when leaving */),
       span,
     ));

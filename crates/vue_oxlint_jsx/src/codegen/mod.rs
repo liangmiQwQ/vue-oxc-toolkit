@@ -18,7 +18,7 @@ use crate::parser::{ParseConfig, ParserImpl};
 #[path = "oxc/lib.rs"]
 mod oxc;
 
-pub use self::oxc::{Codegen, SourceMapping};
+pub use self::oxc::{Codegen, Mapping};
 
 /// The return value of [`VueJsxCodegen::build`].
 #[non_exhaustive]
@@ -33,7 +33,7 @@ pub struct VueJsxCodegenReturn {
   /// Irregular whitespace spans in the original Vue SFC source.
   pub irregular_whitespaces: Box<[Span]>,
   /// Generated source ranges mapped back to original Vue SFC source ranges.
-  pub mappings: Vec<SourceMapping>,
+  pub mappings: Vec<Mapping>,
   /// Diagnostics produced while parsing the Vue SFC.
   pub errors: Vec<OxcDiagnostic>,
   /// `true` if parsing fatally failed; [`VueJsxCodegenReturn::source_text`]

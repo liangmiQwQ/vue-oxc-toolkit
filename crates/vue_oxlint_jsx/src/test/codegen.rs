@@ -1,6 +1,6 @@
 use crate::{
   VueJsxCodegen,
-  codegen::SourceMapping,
+  codegen::Mapping,
   parser::{ParseConfig, ParserImpl},
   test::{read_file, snapshot_name},
 };
@@ -17,7 +17,7 @@ use oxc_ast_visit::{Visit, VisitMut};
 use oxc_span::{ContentEq, GetSpan, SPAN, Span};
 
 struct SpanMapper {
-  mappings: Vec<SourceMapping>,
+  mappings: Vec<Mapping>,
 }
 
 impl VisitMut<'_> for SpanMapper {
