@@ -7,10 +7,20 @@ use oxc_allocator::Allocator;
 use oxc_ast::ast::Program;
 use oxc_codegen::Codegen;
 use oxc_parser::ParseOptions;
-use oxc_span::ContentEq;
 
 pub fn format_program_codegen(program: &Program) -> String {
   Codegen::new().build(program).code
+}
+
+use oxc_ast_visit::VisitMut;
+use oxc_span::{SPAN, Span};
+
+struct SpanMapper;
+
+impl VisitMut<'_> for SpanMapper {
+  fn visit_span(&mut self, span: &mut Span) {
+    *span = SPAN;
+  }
 }
 
 pub fn run_codegen_test(file_path: &str) {
@@ -28,9 +38,10 @@ pub fn run_codegen_test(file_path: &str) {
   });
 
   let allocator = Allocator::default();
-  let reparsed = oxc_parser::Parser::new(&allocator, &codegen, ret.source_type)
+  let mut reparsed = oxc_parser::Parser::new(&allocator, &codegen, ret.source_type)
     .with_options(ParseOptions::default())
     .parse();
+  SpanMapper.visit_program(&mut reparsed.program);
   assert!(
     reparsed.errors.is_empty(),
     "Invalid codegen syntax in {file_path}: {:#?}",
