@@ -17,8 +17,8 @@ use crate::parser::error::OxcErrorHandler;
 use crate::parser::irregular_whitespaces::collect_irregular_whitespaces;
 use crate::parser::{ResParse, ResParseExt};
 
-use super::ParserImpl;
 use super::ParserImplReturn;
+use super::{ParserImpl, dirty::collect_dirty_nodes};
 
 macro_rules! get_text_mode {
   ($name: expr) => {
@@ -49,26 +49,33 @@ impl<'a> ParserImpl<'a> {
           global,
           setup,
           sfc_struct_jsx_statement: sfc_return,
+          clean_codegen_ranges,
           ..
         } = self;
 
+        let body = Self::get_body_statements(
+          global.statements,
+          setup.statements,
+          setup.directives,
+          sfc_return,
+          ast,
+        );
+        let program = ast.program(
+          Span::new(0, self.source_text.len() as u32),
+          source_type.with_jsx(true),
+          source_text,
+          comments,
+          None, // no hashbang needed for vue files
+          global.directives,
+          body,
+        );
+        let dirty_nodes = collect_dirty_nodes(&program, &clean_codegen_ranges);
+
         ParserImplReturn {
-          program: ast.program(
-            Span::new(0, self.source_text.len() as u32),
-            source_type.with_jsx(true),
-            source_text,
-            comments,
-            None, // no hashbang needed for vue files
-            global.directives,
-            Self::get_body_statements(
-              global.statements,
-              setup.statements,
-              setup.directives,
-              sfc_return,
-              ast,
-            ),
-          ),
+          program,
           irregular_whitespaces: collect_irregular_whitespaces(source_text),
+          dirty_nodes,
+          clean_codegen_ranges: clean_codegen_ranges.into_boxed_slice(),
           fatal: false,
           errors,
           module_record,
@@ -80,6 +87,8 @@ impl<'a> ParserImpl<'a> {
         errors: self.errors,
         module_record: ModuleRecord::new(self.allocator),
         irregular_whitespaces: Box::new([]),
+        dirty_nodes: crate::codegen::DirtySet::default(),
+        clean_codegen_ranges: Box::new([]),
       },
     }
   }

@@ -49,6 +49,8 @@ impl<'a> ParserImpl<'a> {
         return ResParse::success(());
       }
 
+      self.clean_codegen_ranges.push(span);
+
       let is_setup = prop_finder(node, "setup").allow_empty().find().is_some();
       // Handle error if there are multiple script tags
       if is_setup {

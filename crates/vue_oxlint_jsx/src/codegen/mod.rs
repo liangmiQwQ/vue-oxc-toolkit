@@ -18,7 +18,7 @@ use crate::parser::{ParseConfig, ParserImpl};
 #[path = "oxc/lib.rs"]
 mod oxc;
 
-pub use self::oxc::{Codegen, Mapping};
+pub use self::oxc::{Codegen, DirtySet, Mapping};
 
 /// The return value of [`VueJsxCodegen::build`].
 #[non_exhaustive]
@@ -99,7 +99,10 @@ impl<'a> VueJsxCodegen<'a> {
       };
     }
 
-    let codegen_ret = Codegen::new().build(&ret.program);
+    let codegen_ret = Codegen::new()
+      .with_dirty_nodes(ret.dirty_nodes)
+      .with_clean_ranges(ret.clean_codegen_ranges)
+      .build(&ret.program);
     let source_text = codegen_ret.code;
     let source_type = ret.program.source_type;
     let comments = ret.program.comments.iter().copied().collect();

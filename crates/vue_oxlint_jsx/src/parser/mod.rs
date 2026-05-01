@@ -11,6 +11,7 @@ use oxc_span::{SourceType, Span};
 use oxc_syntax::module_record::ModuleRecord;
 
 mod codegen;
+mod dirty;
 mod elements;
 mod error;
 mod interface;
@@ -51,6 +52,7 @@ pub struct ParserImpl<'a> {
   global: ScriptBlock<'a>,
   setup: ScriptBlock<'a>,
   sfc_struct_jsx_statement: Option<Statement<'a>>,
+  clean_codegen_ranges: Vec<Span>,
 }
 
 impl<'a> ParserImpl<'a> {
@@ -85,6 +87,7 @@ impl<'a> ParserImpl<'a> {
       global: ScriptBlock { directives: ast.vec(), statements: ast.vec() },
       setup: ScriptBlock { directives: ast.vec(), statements: ast.vec() },
       sfc_struct_jsx_statement: None,
+      clean_codegen_ranges: vec![],
     }
   }
 }
@@ -93,6 +96,8 @@ pub struct ParserImplReturn<'a> {
   pub program: Program<'a>,
   pub module_record: ModuleRecord<'a>,
   pub irregular_whitespaces: Box<[Span]>,
+  pub dirty_nodes: crate::codegen::DirtySet,
+  pub clean_codegen_ranges: Box<[Span]>,
 
   pub fatal: bool,
   pub errors: Vec<OxcDiagnostic>,

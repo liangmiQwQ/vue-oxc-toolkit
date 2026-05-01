@@ -7,11 +7,12 @@ use std::{cmp, slice};
 
 use cow_utils::CowUtils;
 
+use oxc_allocator::Address;
 use oxc_ast::ast::*;
 use oxc_data_structures::{code_buffer::CodeBuffer, stack::Stack};
 use oxc_index::IndexVec;
 use oxc_semantic::Scoping;
-use oxc_span::Span;
+use oxc_span::{GetSpan, SPAN, Span};
 use oxc_str::CompactStr;
 use oxc_syntax::{
   class::ClassId,
@@ -19,7 +20,7 @@ use oxc_syntax::{
   operator::{BinaryOperator, UnaryOperator, UpdateOperator},
   precedence::Precedence,
 };
-use rustc_hash::FxHashMap;
+use rustc_hash::{FxHashMap, FxHashSet};
 
 mod binary_expr_visitor;
 mod context;
@@ -33,6 +34,8 @@ use str::{Quote, cold_branch, is_script_close_tag};
 
 pub use context::Context;
 pub use r#gen::{Gen, GenExpr};
+
+pub type DirtySet = FxHashSet<Address>;
 
 /// Output from [`Codegen::build`]
 #[non_exhaustive]
@@ -84,6 +87,10 @@ pub struct Codegen<'a> {
   code: CodeBuffer,
   mappings: Vec<Mapping>,
   mapping_stack: Vec<Option<usize>>,
+  dirty_nodes: Option<DirtySet>,
+  clean_ranges: Option<Box<[Span]>>,
+  original_source_text: Option<&'a str>,
+  suppressed_mapping_depth: usize,
 
   // states
   prev_op_end: usize,
@@ -125,6 +132,10 @@ impl<'a> Codegen<'a> {
       code: CodeBuffer::default(),
       mappings: Vec::new(),
       mapping_stack: Vec::new(),
+      dirty_nodes: None,
+      clean_ranges: None,
+      original_source_text: None,
+      suppressed_mapping_depth: 0,
       needs_semicolon: false,
       need_space_before_dot: 0,
       binary_expr_stack: Stack::with_capacity(12),
@@ -140,11 +151,24 @@ impl<'a> Codegen<'a> {
     }
   }
 
+  #[must_use]
+  pub fn with_dirty_nodes(mut self, dirty_nodes: DirtySet) -> Self {
+    self.dirty_nodes = Some(dirty_nodes);
+    self
+  }
+
+  #[must_use]
+  pub fn with_clean_ranges(mut self, clean_ranges: Box<[Span]>) -> Self {
+    self.clean_ranges = Some(clean_ranges);
+    self
+  }
+
   /// Print a [`Program`] into a string of source code.
   ///
   #[must_use]
   pub fn build(mut self, program: &Program<'a>) -> CodegenReturn {
     self.code.reserve(program.source_text.len());
+    self.original_source_text = Some(program.source_text);
     program.print(&mut self, Context::default());
     let code = self.code.into_string();
     CodegenReturn { code, mappings: self.mappings }
@@ -324,6 +348,80 @@ impl<'a> Codegen<'a> {
     }) {
       self.mappings.remove(index);
     }
+  }
+
+  pub(crate) fn print_clean_node<T>(&mut self, node: &T) -> bool
+  where
+    T: GetSpan + ?Sized,
+  {
+    if self.suppressed_mapping_depth > 0 {
+      return false;
+    }
+
+    if !self.is_dirty_mode() {
+      return false;
+    }
+
+    let span = node.span();
+    if span == SPAN {
+      return false;
+    }
+
+    if !self.is_clean_span(span) {
+      return false;
+    }
+
+    let Some(source_text) = self.original_source_text else {
+      return false;
+    };
+
+    self.enter_mapping(span);
+    self.print_str(span.source_text(source_text));
+    self.leave_mapping();
+    true
+  }
+
+  pub(crate) fn enter_node_mapping<T>(&mut self, node: &T) -> bool
+  where
+    T: GetSpan + ?Sized,
+  {
+    let span = node.span();
+    if self.is_dirty_mode() {
+      if span == SPAN || self.suppressed_mapping_depth > 0 {
+        return false;
+      }
+
+      self.enter_mapping(span);
+      self.suppressed_mapping_depth += 1;
+      return true;
+    }
+
+    self.enter_mapping(span);
+    true
+  }
+
+  pub(crate) fn leave_node_mapping(&mut self, entered: bool) {
+    if !entered {
+      return;
+    }
+
+    if self.is_dirty_mode() {
+      self.suppressed_mapping_depth -= 1;
+    }
+
+    self.leave_mapping();
+  }
+
+  fn is_clean_span(&self, span: Span) -> bool {
+    let Some(clean_ranges) = &self.clean_ranges else {
+      return false;
+    };
+
+    clean_ranges.iter().any(|range| range.start <= span.start && span.end <= range.end)
+  }
+
+  fn is_dirty_mode(&self) -> bool {
+    self.dirty_nodes.is_some() || self.clean_ranges.is_some()
   }
 
   #[inline]

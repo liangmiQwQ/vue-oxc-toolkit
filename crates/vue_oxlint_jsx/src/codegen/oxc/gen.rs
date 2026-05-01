@@ -22,9 +22,13 @@ pub trait Gen: GetSpan {
   /// Generate code for an AST node. Alias for `gen`.
   #[inline]
   fn print(&self, p: &mut Codegen, ctx: Context) {
-    p.enter_mapping(self.span());
+    if p.print_clean_node(self) {
+      return;
+    }
+
+    let entered = p.enter_node_mapping(self);
     self.r#gen(p, ctx);
-    p.leave_mapping();
+    p.leave_node_mapping(entered);
   }
 }
 
@@ -36,9 +40,13 @@ pub trait GenExpr: GetSpan {
   /// Generate code for an expression, respecting operator precedence. Alias for `gen_expr`.
   #[inline]
   fn print_expr(&self, p: &mut Codegen, precedence: Precedence, ctx: Context) {
-    p.enter_mapping(self.span());
+    if p.print_clean_node(self) {
+      return;
+    }
+
+    let entered = p.enter_node_mapping(self);
     self.gen_expr(p, precedence, ctx);
-    p.leave_mapping();
+    p.leave_node_mapping(entered);
   }
 }
 

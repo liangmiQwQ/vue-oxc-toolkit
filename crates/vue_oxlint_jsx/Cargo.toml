@@ -13,6 +13,7 @@ description.workspace = true
 [dependencies]
 oxc_allocator = { workspace = true }
 oxc_ast = { workspace = true }
+oxc_ast_visit = { workspace = true }
 oxc_data_structures = { workspace = true, features = ["code_buffer", "slice_iter", "stack"] }
 oxc_diagnostics = { workspace = true }
 oxc_index = { workspace = true }
@@ -33,7 +34,6 @@ vue-compiler-core = { workspace = true }
 
 [dev-dependencies]
 insta = { workspace = true }
-oxc_ast_visit = { workspace = true }
 oxc_codegen = { workspace = true }
 pretty_assertions = { workspace = true }
 
