@@ -53,6 +53,7 @@ pub struct ParserImpl<'a> {
   setup: ScriptBlock<'a>,
   sfc_struct_jsx_statement: Option<Statement<'a>>,
   clean_codegen_ranges: Vec<Span>,
+  dirty_nodes: crate::codegen::DirtySet,
 }
 
 impl<'a> ParserImpl<'a> {
@@ -88,7 +89,19 @@ impl<'a> ParserImpl<'a> {
       setup: ScriptBlock { directives: ast.vec(), statements: ast.vec() },
       sfc_struct_jsx_statement: None,
       clean_codegen_ranges: vec![],
+      dirty_nodes: crate::codegen::DirtySet::default(),
     }
+  }
+
+  fn build_dirty<T>(&mut self, build: impl FnOnce(AstBuilder<'a>) -> T) -> T
+  where
+    T: oxc_span::GetSpan,
+  {
+    let node = build(self.ast);
+    if self.config.codegen {
+      self.dirty_nodes.insert_span(node.span());
+    }
+    node
   }
 }
 

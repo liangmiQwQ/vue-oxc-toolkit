@@ -217,15 +217,16 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
       }))
     };
 
-    (
+    let child = self.build_dirty(|ast| {
       v_for_wrapper.wrap(ast.jsx_element(
         location_span,
         ast.jsx_opening_element(open_element_span, opening_element_name, NONE, attributes),
         children,
         closing_element,
-      )),
-      v_if_state,
-    )
+      ))
+    });
+
+    (child, v_if_state)
   }
 
   fn parse_prop(
@@ -401,7 +402,6 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
   }
 
   fn parse_comment(&mut self, comment: &SourceNode<'a>) -> JSXChild<'a> {
-    let ast = self.ast;
     let span = comment.location.span();
     let start = comment.source.as_ptr() as usize - self.source_text.as_ptr() as usize;
     let end = start + comment.source.len();
@@ -414,7 +414,9 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
         CommentKind::SingleLineBlock
       },
     ));
-    ast.jsx_child_expression_container(span, ast.jsx_expression_empty_expression(SPAN))
+    self.build_dirty(|ast| {
+      ast.jsx_child_expression_container(span, ast.jsx_expression_empty_expression(SPAN))
+    })
   }
 
   fn parse_interpolation(&mut self, introp: &SourceNode<'a>) -> JSXChild<'a> {
@@ -424,15 +426,14 @@ impl<'a: 'b, 'b> ParserImpl<'a> {
     // Expression starts after {{ (2 characters)
     let expr_start = introp.location.start.offset + 2;
 
-    ast.jsx_child_expression_container(
-      container_span,
-      self
-        .parse_pure_expression(Span::new(
-          expr_start as u32,
-          (expr_start + introp.source.len()) as u32,
-        ))
-        .map_or_else(|| ast.jsx_expression_empty_expression(SPAN), JSXExpression::from),
-    )
+    let expression = self
+      .parse_pure_expression(Span::new(
+        expr_start as u32,
+        (expr_start + introp.source.len()) as u32,
+      ))
+      .map_or_else(|| ast.jsx_expression_empty_expression(SPAN), JSXExpression::from);
+
+    self.build_dirty(|ast| ast.jsx_child_expression_container(container_span, expression))
   }
 
   pub fn parse_pure_expression(&mut self, span: Span) -> Option<Expression<'a>> {
