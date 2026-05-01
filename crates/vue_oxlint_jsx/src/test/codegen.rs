@@ -13,8 +13,8 @@ pub fn format_program_codegen(program: &Program) -> String {
   Codegen::new().build(program).code
 }
 
-use oxc_ast_visit::VisitMut;
-use oxc_span::{SPAN, Span};
+use oxc_ast_visit::{Visit, VisitMut};
+use oxc_span::{ContentEq, GetSpan, SPAN, Span};
 
 struct SpanMapper {
   mappings: Vec<SourceMapping>,
@@ -79,21 +79,34 @@ fn assert_reparsed_codegen_ast(
 }
 
 fn program_codegen_eq(left: &Program, right: &Program, file_path: &str) {
-  use pretty_assertions::assert_eq;
+  assert!(left.hashbang.content_eq(&right.hashbang), "Hashbang differs for {file_path}");
+  assert!(left.directives.content_eq(&right.directives), "Directives differs for {file_path}");
+  assert!(left.body.content_eq(&right.body), "Body differs for {file_path}");
 
-  assert_eq!(
-    format!("{:#?}", left.hashbang),
-    format!("{:#?}", right.hashbang),
-    "Hashbang differs for {file_path}",
-  );
-  assert_eq!(
-    format!("{:#?}", left.directives),
-    format!("{:#?}", right.directives),
-    "Directives differs for {file_path}",
-  );
-  assert_eq!(
-    format!("{:#?}", left.body),
-    format!("{:#?}", right.body),
-    "Body differs for {file_path}",
-  );
+  let left_spans = collect_spans(left);
+  let right_spans = collect_spans(right);
+  left_spans.into_iter().enumerate().for_each(|(index, span)| {
+    assert_eq!(span, right_spans[index], "[MAPPING] Index {index} differ for {file_path}");
+  });
+}
+
+fn collect_spans(program: &Program) -> Vec<(String, Span)> {
+  let mut collector = SpanCollector { spans: Vec::new() };
+  collector.visit_program(program);
+  collector.spans
+}
+
+struct SpanCollector {
+  spans: Vec<(String, Span)>,
+}
+
+impl<'a> Visit<'a> for SpanCollector {
+  fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
+    let kind_str = format!("{kind:?}");
+    let kind_name = match memchr::memchr(b'(', kind_str.as_bytes()) {
+      Some(index) => kind_str[..index].to_owned(),
+      None => kind_str,
+    };
+    self.spans.push((kind_name, kind.span()));
+  }
 }
