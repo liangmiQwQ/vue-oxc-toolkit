@@ -2,6 +2,8 @@
 
 `vue_oxlint_jsx` currently depends on `vue-compiler-core`, which is unmaintained, ships incomplete spans, and has accumulated a tower of patches in the JSX crate to compensate. This RFC proposes implementing `vue_oxlint_parser` as the first-party SFC parser for the toolkit, designed so both `vue_oxlint_jsx` and `packages/vue-oxlint-toolkit` consume the same AST without re-parsing embedded JavaScript.
 
+We should strictly follow the lexer/parser design mode in the coming parser. We should design the tokens carefully. the tokens will be returned as a part of components (As well as oxc_parser's estree token, for toolkit and its ESLint compatible js-plugins).
+
 ## Goals
 
 1. Replace `vue-compiler-core` with a Rust-native SFC parser owned by this repo.
@@ -19,18 +21,28 @@
 
 ## Top-Level AST
 
+This is simplified for implementation, and not the final AST structure, things like lifetime and detailed `///` comments are missing.
+
 ```
 VueSingleFileComponent {
-  children: Vec<VNode>,                 // SFC tags as a flat children list
-  script_comments: Vec<Comment>,        // ONLY comments from <script> / <script setup> bodies
+  children: ArenaVec<VNode>,                 // SFC tags as a flat children list
+  script_comments: ArenaVec<Comment>,        // ONLY comments from <script> / <script setup> bodies
+  source_type: SourceType,              // derived from <script (setup) lang>
+}
+
+struct VueParserReturn {
+  sfc: VueSingleFileComponent, // the core item
   irregular_whitespaces: Box<[Span]>,
   clean_spans: FxHashSet<Span>,
-  module_record: ModuleRecord,  // Moved from the current jsx crate
-  source_type: SourceType,              // derived from <script (setup) lang>
+  module_record: ModuleRecord,          // Moved from the current jsx crate
+  script_tokens: Vec<'a, Token>,            // Tokens, from oxc_parser (oxc_parser::config::RuntimeParserConfig::new(true)),
+  template_tokens: Vec<'a, Token>,        // Tokens from our first-party lexer,
   errors: Vec<OxcDiagnostic>,
   panicked: bool,                       // unrecoverable parse failure, like oxc_parser
 }
 ```
+
+`Tokens` are arranged in order. Vec is `oxc_parser::Token` (a packed `u128` with `kind()`, `span()`, etc.). Token spans are in original SFC byte-offset space. Consumers mapping to `vue-eslint-parser`-shaped output should include these in `Program.tokens`.
 
 HTML `<!-- -->` comments live as `VComment` nodes in the tree — they are _not_ flattened into `script_comments`. The two comment worlds stay separate; the ESTree adapter on the toolkit side will route script comments to `Program.comments` and leave template comments on their tree positions.
 
@@ -48,14 +60,14 @@ HTML `<!-- -->` comments live as `VComment` nodes in the tree — they are _not_
 
 Every embedded JS region is parsed during SFC parsing and stored as an `oxc_ast` node on the V-node it belongs to. Downstream never re-parses.
 
-| Source                                            | Strategy                                                                                             | Stored as                                                        |
-| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `<script>` / `<script setup>` body                | `oxc_parser::Parser::parse` on the slice (no wrap)                                                   | `Program` (directives + statements) on the `VElement`            |
-| `{{ expr }}`                                      | wrap as `(expr)`, unwrap                                                                             | `Expression` on `VInterpolation`                                 |
-| `:foo` / `v-bind` / `v-if` / `v-show` / `v-model` | parse as expression                                                                                  | `Expression` on the directive                                    |
-| `v-for="(a,i) in xs"`                             | regex-split on `\s(in\|of)\s`; wrap LHS as `((LHS)=>0)` to recover patterns; parse RHS as expression | `VForDirective { left: Vec<BindingPattern>, right: Expression }` |
-| `v-slot:name="(props)"`                           | wrap as `((props)=>0)` to get parameters                                                             | `VSlotDirective { params: Option<Vec<BindingPattern>> }`         |
-| `v-on` / `@evt`                                   | parse as statements list with `{ ... }` (BlockStatement) wrap                                        | `VOnExpression`                                                  |
+| Source                                            | Strategy                                                                                             | Stored as                                                    |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `<script>` / `<script setup>` body                | `oxc_parser::Parser::parse` on the slice (no wrap)                                                   | Program                                                      |
+| `{{ expr }}`                                      | wrap as `(expr)`, unwrap                                                                             | Expression                                                   |
+| `:foo` / `v-bind` / `v-if` / `v-show` / `v-model` | parse as expression                                                                                  | Expression                                                   |
+| `v-for="(a,i) in xs"`                             | regex-split on `\s(in\|of)\s`; wrap LHS as `((LHS)=>0)` to recover patterns; parse RHS as expression | `VForDirective { left: FormalParameter, right: Expression }` |
+| `v-slot:name="(props)"`                           | wrap as `((props)=>0)` to get parameters                                                             | `VSlotDirective { params: FormalParameter }`                 |
+| `v-on` / `@evt`                                   | parse as statements list with `{ ... }` (BlockStatement) wrap                                        | `VOnExpression { statements: ArenaVec<'b, Statement>}`       |
 
 ### Reusing the `oxc_parse` mutation trick
 
@@ -72,9 +84,15 @@ Two-allocator design with `'b: 'a`:
 - `'a` — owns all V\* nodes (`VueSingleFileComponent` and the V-tree).
 - `'b` — owns all nodes produced by `oxc_parser` (script `Program`s, embedded `Expression`s, `Statement`s, `BindingPattern`s, etc.) referenced from the V-tree.
 
-The parser's public API takes both allocators (or one of each, depending on the consumer's needs). Consumers:
+Why it probably can work? We have three core rules:
 
-- **`vue_oxlint_jsx`** uses the `'b` arena to allocate the emitted JSX `Program`, sharing it with the parsed JS nodes it incorporates by reference.
+- Nodes in 'a may reference nodes in 'b
+- Nodes in 'b will never reference nodes in 'a (oxc_parser's output).
+- Nodes in 'a and nodes in 'b will never be listed in the same Vec.
+
+The reason we design this is for performance. The AST has two consumers:
+
+- **`vue_oxlint_jsx`** Will read the whole AST (both 'a and 'b), and the `'b` arena to allocate the emitted JSX `Program`, means 'a allocator can be dropped after parsing.
 - **`packages/vue-oxlint-toolkit`** only reads/copies the AST during JSON serde to the JS side, so it does not allocate further into `'b`.
 
 This is unproven — flagging as a design risk to validate during phase 1.
@@ -88,10 +106,7 @@ The toolkit's napi layer constructs the `vue-eslint-parser`-shaped `Program` vie
 `vue-eslint-parser` nodes carry both `range: [start, end]` (UTF-16 offsets) and `loc: { start: {line, column}, end: {line, column} }`. Plan:
 
 - Keep raw `Span` (UTF-8 byte offsets) on every V-node in Rust.
-- Build a `LineColumnIndex` (line-start table + UTF-8↔UTF-16 conversion) once per source inside the toolkit's serde layer.
-- Resolve `(range, loc)` lazily as nodes are serialized. The conversion logic currently in `js/index.ts::createLocator` moves into Rust so it happens once, not per-rule.
-
-### CRLF normalization
+- Build a `LineColumnIndex` (line-start table + UTF-8↔UTF-16 conversion) once per source inside the toolkit's serde layer. (ATTENTION: DO NOT IMPLEMENT IT IN PARSER CRATE)
 
 `vue-eslint-parser` normalizes `\r\n` → `\n` for `loc` calculation but keeps `range` against the original source. `LineColumnIndex` handles this explicitly.
 
@@ -108,7 +123,7 @@ Mirror `oxc_parser`'s semantics:
 - Script syntax errors do not panic the SFC parse — the relevant block's `body` becomes empty/partial; template parsing continues.
 - Multiple `<template>` / `<script>` / `<script setup>` blocks: emit a diagnostic, keep the first of each, ignore the extras.
 
-Lexing modes (raw-text for `<script>`/`<style>`/`<textarea>`/`<title>`, foreign content for `<svg>`/`<math>`) follow `vue-eslint-parser`'s behavior exactly.
+Lexing modes (raw-text for `<script>`/`<style>`/`<textarea>`/`<title>`, `v-pre`, foreign content for `<svg>`/`<math>`) follow `vue-eslint-parser`'s behavior exactly.
 
 ## `clean_spans` Continuity
 
@@ -129,15 +144,29 @@ Once every V-node has a real span and embedded JS is pre-parsed:
 
 ## Migration Phases
 
-1. Tokenizer + minimal V-tree (`VElement`, `VText`, `VComment`, attributes), no embedded JS yet. Validate span fidelity against existing snapshots in `crates/vue_oxlint_jsx/test/snapshots`.
-2. Add `<script>` / `<script setup>` parsing + module record + comments + `clean_spans` + `source_type`.
-3. Add interpolation and pure-expression directives (`v-bind`, `v-if`, `v-show`, `v-model`, basic `v-on`).
-4. Add `v-for`, `v-slot`, and `v-on` statement-list form.
-5. Switch `vue_oxlint_jsx::ParserImpl` to consume the V-tree instead of `vue-compiler-core`. Element handlers shed re-parsing logic.
-6. Wire the napi package: V-tree → `vue-eslint-parser`-shaped `Program` adapter on the Rust side, serialized via `serde_json`, exposed alongside the existing `transformJsx`.
+1. Define V-tree asts, and parser structure, use `todo!()` to mark parse / lexe / metadata logic.
+2. Define Tokens (lexer/tokens.rs) (Compatible with vue-eslint-parser's), implement high-compatible lexer, including things like raw_text, v-pre.
+3. Copy utils functions from jsx crate for `<script>` / `<script setup>` parsing + module record + comments.
+4. Implement recursive descent parser, generate the ast. Handle all scripts part and template part.
+5. Move tests inside the jsx crate to project root, as global fixtures (use errors, panic, pass three directory, and storage .vue file flatly, adjust test code to traverse these files instead of calling test_ast! (change to only call once each crate)).
+6. Polish return value, add metadata in the return struct.
+
+---
+
+6. Switch `vue_oxlint_jsx::ParserImpl` to consume the result of the new parse instead of `vue-compiler-core`. Element handlers shed re-parsing logic.
 7. Drop the `vue-compiler-core` dependency.
 
+---
+
+8. Wire the napi package: V-tree → `vue-eslint-parser`-shaped `Program` adapter on the Rust side, serialized via `serde_json`
+9. Remove `transformJsx` from the napi package, build a `parse` function on both rust side (apply two-allocator (one parse + two consumes) logic) and binding on js side instead.
+10. Add fixture tests, `expect(parse(sourceText).ast).toEqual((await import('vue-eslint-parser')).parse(sourceText, {...}))`.
+
 Each phase keeps the JSX crate's existing test suite green; regressions surface immediately.
+
+## Tests
+
+Create a macro similar to jsx crate's test macro, do fixtures + snapshot tests.
 
 ## Open Questions
 
