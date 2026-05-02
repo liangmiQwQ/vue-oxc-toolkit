@@ -8,5 +8,8 @@ export default defineConfig({
       index: './js/index.ts',
     },
     dts: true,
+    deps: {
+      neverBundle: ['@eslint/plugin-kit'],
+    },
   },
 })

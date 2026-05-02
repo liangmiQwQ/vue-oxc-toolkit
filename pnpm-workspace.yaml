@@ -3,7 +3,7 @@ packages:
 
 catalogs:
   devtools:
-    vite-plus: ^0.1.19
+    vite-plus: ^0.1.20
     bumpp: ^11.0.1
     changelogithub: ^14.0.0
     semver: ^7.7.4
