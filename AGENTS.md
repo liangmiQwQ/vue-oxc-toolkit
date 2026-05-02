@@ -30,7 +30,7 @@ Cargo workspace members live in `crates/*`, `packages/*`, and `benchmark/`.
   - `test/` — `test_ast!` and `test_module_record!` macros driving snapshot tests in `test/snapshots/`. `test_ast!` runs both AST and codegen checks on each fixture.
   - Public API is intentionally narrow: `VueJsxParser`/`VueJsxParserReturn` + `VueJsxCodegen`/`VueJsxCodegenReturn` (re-exported from `lib.rs`).
 
-- **`crates/vue_oxlint_parser`** — placeholder crate intended as a Rust port of `vue-eslint-parser`. Currently only contains a `parse_vue()` stub (`todo!()`). Plan to implement it to replace the internal parser of `vue_oxlint_jsx` and provide custom AST apis for napi bindings so that other existing Vue js plugins will be compatible with it.
+- **`crates/vue_oxlint_parser`** — first-party Vue SFC parser (phases 1–4 implemented). Exposes `parse_sfc(allocator, source) -> VueSfcParserReturn` and the full V-tree AST (`VueSingleFileComponent`, `VNode`, `VElement`, `VStartTag`, `VDirective`, `VForDirective`, `VSlotDirective`, etc.). Replaces `vue-compiler-core` with a custom recursive-descent tokenizer. Script blocks are parsed once with `oxc_parser`; embedded JS expressions (interpolations, directives, v-for, v-slot, v-on) use the arena wrap-and-parse trick from `vue_oxlint_jsx`. Future phases: wire JSX crate to consume this V-tree (phase 5), NAPI adapter (phase 6), drop `vue-compiler-core` entirely (phase 7).
 
 - **`packages/vue-oxlint-toolkit`** — published npm package `vue-oxlint-toolkit`.
   - `src/lib.rs` — napi-rs cdylib exposing `transformJsx(source)` which calls `VueJsxCodegen::build` and converts results to N-API types (`NativeTransformResult`).
@@ -49,7 +49,7 @@ Cargo workspace members live in `crates/*`, `packages/*`, and `benchmark/`.
 
 ## Vue/SFC parsing context
 
-The current parsing still happens in `vue_oxlint_jsx`, powered by `vue-compiler-core`. But we plan to move it to the standalone crate `crates/vue_oxlint_parser` for the united parsing logic in the future.
+`vue_oxlint_jsx` still uses `vue-compiler-core` for its internal parse pass. `vue_oxlint_parser` now implements the standalone SFC parser (phases 1–4) that will replace it. The migration path is tracked in `rfcs/vue-oxlint-parser.md` phases 5–7.
 
 ## Conventions
 
