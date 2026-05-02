@@ -2,7 +2,7 @@
 
 `vue_oxlint_jsx` currently depends on `vue-compiler-core`, which is unmaintained, ships incomplete spans, and has accumulated a tower of patches in the JSX crate to compensate. This RFC proposes implementing `vue_oxlint_parser` as the first-party SFC parser for the toolkit, designed so both `vue_oxlint_jsx` and `packages/vue-oxlint-toolkit` consume the same AST without re-parsing embedded JavaScript.
 
-We should strictly follow the lexer/parser design mode in the coming parser. We should design the tokens carefully. the tokens will be returned as a part of components (As well as oxc_parser's estree token, for toolkit and its ESLint compatible js-plugins).
+We should strictly follow the lexer/parser and recursive-descent design mode in the coming parser. We should design the tokens carefully. the tokens will be returned as a part of components (As well as oxc_parser's estree token, for toolkit and its ESLint compatible js-plugins).
 
 ## Goals
 
@@ -11,6 +11,7 @@ We should strictly follow the lexer/parser design mode in the coming parser. We 
 3. Parse every embedded JS region exactly once during SFC parsing where practical.
 4. Strict, complete spans on every node — no missing locations.
 5. Preserve and extend the `clean_spans` mechanism from the clean-codegen-mapping RFC.
+6. Provide vue-eslint-parser compatible tokens processing
 
 ## Non-goals
 
