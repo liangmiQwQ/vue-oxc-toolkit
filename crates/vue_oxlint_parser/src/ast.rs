@@ -1,36 +1,21 @@
 //! AST types for Vue SFC parsing.
 
-use oxc_allocator::Vec as ArenaVec;
-use oxc_ast::ast::{BindingPattern, Expression, FormalParameters, Program, Statement};
-use oxc_diagnostics::OxcDiagnostic;
-use oxc_parser::Token;
+use oxc_ast::ast::{Expression, FormalParameters, Program, Statement};
 use oxc_span::{SourceType, Span};
-use oxc_syntax::module_record::ModuleRecord;
-use rustc_hash::FxHashSet;
 
 /// Top-level Vue SFC AST node
+#[derive(Debug)]
 pub struct VueSingleFileComponent<'a> {
   /// SFC tags as a flat children list
   pub children: Vec<VNode<'a>>,
   /// ONLY comments from `<script>` / `<script setup>` bodies
   pub script_comments: Vec<oxc_ast::Comment>,
-  /// Lexed JS tokens from `<script>` / `<script setup>` bodies.
-  ///
-  /// Collected via `oxc_parser::TokensParserConfig`. Required by
-  /// `vue-eslint-parser`-shaped consumers that need `Program.tokens`.
-  /// Token spans are in original SFC byte-offset space.
-  pub script_tokens: Vec<Token>,
-  pub irregular_whitespaces: Box<[Span]>,
-  pub clean_spans: FxHashSet<Span>,
-  pub module_record: ModuleRecord<'a>,
   /// Derived from `<script (setup) lang>` attribute
   pub source_type: SourceType,
-  pub errors: Vec<OxcDiagnostic>,
-  /// Unrecoverable parse failure, like `oxc_parser`
-  pub panicked: bool,
 }
 
 /// A V-tree node
+#[derive(Debug)]
 pub enum VNode<'a> {
   Element(VElement<'a>),
   Text(VText),
@@ -40,6 +25,7 @@ pub enum VNode<'a> {
 }
 
 /// An HTML/Vue element node
+#[derive(Debug)]
 pub struct VElement<'a> {
   pub start_tag: VStartTag<'a>,
   pub end_tag: Option<VEndTag>,
@@ -50,6 +36,7 @@ pub struct VElement<'a> {
 }
 
 /// A text node
+#[derive(Debug)]
 pub struct VText {
   /// Raw source text
   pub raw: String,
@@ -59,24 +46,28 @@ pub struct VText {
 }
 
 /// An HTML comment `<!-- ... -->`
+#[derive(Debug)]
 pub struct VComment {
   pub value: String,
   pub span: Span,
 }
 
 /// A mustache interpolation `{{ expr }}`
+#[derive(Debug)]
 pub struct VInterpolation<'a> {
   pub expression: Option<Expression<'a>>,
   pub span: Span,
 }
 
 /// A CDATA section `<![CDATA[...]]>`
+#[derive(Debug)]
 pub struct VCData {
   pub value: String,
   pub span: Span,
 }
 
 /// Opening tag of an element
+#[derive(Debug)]
 pub struct VStartTag<'a> {
   /// Span of the tag name in the source
   pub name_span: Span,
@@ -86,17 +77,20 @@ pub struct VStartTag<'a> {
 }
 
 /// Closing tag of an element
+#[derive(Debug)]
 pub struct VEndTag {
   pub span: Span,
 }
 
 /// Either a plain attribute or a Vue directive
+#[derive(Debug)]
 pub enum VAttrOrDirective<'a> {
   Attribute(VAttribute),
   Directive(VDirective<'a>),
 }
 
 /// A plain HTML attribute `name="value"`
+#[derive(Debug)]
 pub struct VAttribute {
   pub name: String,
   pub name_span: Span,
@@ -105,6 +99,7 @@ pub struct VAttribute {
 }
 
 /// The value part of an attribute
+#[derive(Debug)]
 pub struct VAttributeValue {
   pub raw: String,
   /// The span of the raw value content (without quotes)
@@ -112,6 +107,7 @@ pub struct VAttributeValue {
 }
 
 /// A Vue directive (v-*, :, @, #)
+#[derive(Debug)]
 pub struct VDirective<'a> {
   /// Full directive name, e.g. `v-bind`, `v-for`, `v-on`, etc.
   pub name: DirectiveName,
@@ -129,6 +125,7 @@ pub struct VDirective<'a> {
 }
 
 /// The name of a directive
+#[derive(Debug)]
 pub enum DirectiveName {
   /// `v-for`
   For,
@@ -153,6 +150,7 @@ pub enum DirectiveName {
 }
 
 /// Argument to a directive (static or dynamic)
+#[derive(Debug)]
 pub enum DirectiveArgument {
   Static(String, Span),
   /// Dynamic argument `:[expr]`
@@ -160,6 +158,7 @@ pub enum DirectiveArgument {
 }
 
 /// The parsed expression(s) from a directive value
+#[derive(Debug)]
 pub enum DirectiveExpression<'a> {
   /// A single expression (most directives)
   Expression(Expression<'a>),
@@ -172,14 +171,16 @@ pub enum DirectiveExpression<'a> {
 }
 
 /// Parsed `v-for` directive
+#[derive(Debug)]
 pub struct VForDirective<'a> {
-  /// Left-hand side binding patterns `(item, index, ...)`
-  pub left: ArenaVec<'a, BindingPattern<'a>>,
+  /// Left-hand side binding patterns `(item, index, ...)` as formal parameters
+  pub left: FormalParameters<'a>,
   /// Right-hand side expression `list`
   pub right: Expression<'a>,
 }
 
 /// Parsed `v-slot` directive
+#[derive(Debug)]
 pub struct VSlotDirective<'a> {
   /// Slot params `(props)` - the parsed formal parameters
   pub params: Option<FormalParameters<'a>>,

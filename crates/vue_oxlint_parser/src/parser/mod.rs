@@ -15,10 +15,12 @@ use rustc_hash::FxHashSet;
 
 pub mod attribute;
 pub mod element;
+pub mod error;
 pub mod expression;
 pub mod lexer;
 pub mod script;
 
+use crate::VueSfcParserReturn;
 use crate::ast::VueSingleFileComponent;
 use crate::irregular_whitespaces::collect_irregular_whitespaces;
 
@@ -221,10 +223,7 @@ impl<'a> Parser<'a> {
 }
 
 /// Public parse entry point
-pub fn parse_impl<'a>(
-  allocator: &'a Allocator,
-  source_text: &'a str,
-) -> VueSingleFileComponent<'a> {
+pub fn parse_impl<'a>(allocator: &'a Allocator, source_text: &'a str) -> VueSfcParserReturn<'a> {
   let mut parser = Parser::new(allocator, source_text);
 
   let children = parser.parse_children(None);
@@ -233,16 +232,20 @@ pub fn parse_impl<'a>(
   let irregular_whitespaces = collect_irregular_whitespaces(source_text);
   let panicked = parser.panicked;
 
-  VueSingleFileComponent {
+  let sfc = VueSingleFileComponent {
     children,
     script_comments: parser.script_comments,
-    script_tokens: parser.script_tokens,
-    irregular_whitespaces,
-    clean_spans: parser.clean_spans,
-    module_record: parser.module_record,
     source_type: parser.source_type,
+  };
+
+  VueSfcParserReturn {
+    sfc,
     errors: parser.errors,
     panicked,
+    clean_spans: parser.clean_spans,
+    irregular_whitespaces,
+    module_record: parser.module_record,
+    script_tokens: parser.script_tokens,
   }
 }
 

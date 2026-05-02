@@ -1,10 +1,10 @@
 //! Script element parsing: parse `<script>` and `<script setup>` blocks.
 
-use oxc_diagnostics::OxcDiagnostic;
 use oxc_span::{GetSpan, SourceType, Span};
 
 use crate::ast::{VAttrOrDirective, VStartTag};
 use crate::parser::Parser;
+use crate::parser::error;
 
 impl<'a> Parser<'a> {
   /// After parsing the body of a `<script>` element (as raw text), parse the JS inside.
@@ -24,20 +24,20 @@ impl<'a> Parser<'a> {
     if let Ok(source_type) = SourceType::from_extension(lang) {
       self.source_type = source_type;
     } else {
-      self.errors.push(OxcDiagnostic::error(format!("Unsupported script lang: {lang}")));
+      self.errors.push(error::unsupported_script_lang(lang));
       return None;
     }
 
     // Enforce single script / single script setup
     if is_setup {
       if self.setup_set {
-        self.errors.push(OxcDiagnostic::error("Multiple <script setup> tags found"));
+        self.errors.push(error::multiple_script_setup_tags());
         return None;
       }
       self.setup_set = true;
     } else {
       if self.script_set {
-        self.errors.push(OxcDiagnostic::error("Multiple <script> tags found"));
+        self.errors.push(error::multiple_script_tags());
         return None;
       }
       self.script_set = true;

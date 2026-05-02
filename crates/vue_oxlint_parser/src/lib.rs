@@ -10,145 +10,42 @@ pub mod ast;
 pub mod irregular_whitespaces;
 pub mod parser;
 
+#[cfg(test)]
+pub mod test;
+
 pub use ast::*;
 
 use oxc_allocator::Allocator;
+use oxc_diagnostics::OxcDiagnostic;
+use oxc_parser::Token;
+use oxc_span::Span;
+use oxc_syntax::module_record::ModuleRecord;
+use rustc_hash::FxHashSet;
 
 /// Public return type from [`parse_sfc`].
 pub struct VueSfcParserReturn<'a> {
   pub sfc: VueSingleFileComponent<'a>,
+  pub errors: Vec<OxcDiagnostic>,
+  pub panicked: bool,
+  pub clean_spans: FxHashSet<Span>,
+  pub irregular_whitespaces: Box<[Span]>,
+  pub module_record: ModuleRecord<'a>,
+  pub script_tokens: Vec<Token>,
 }
 
 /// Parse a Vue SFC source string and return the AST.
 #[must_use]
 pub fn parse_sfc<'a>(allocator: &'a Allocator, source_text: &'a str) -> VueSfcParserReturn<'a> {
-  let sfc = parser::parse_impl(allocator, source_text);
-  VueSfcParserReturn { sfc }
+  parser::parse_impl(allocator, source_text)
 }
 
 #[cfg(test)]
 mod tests {
-  use super::*;
-  use oxc_allocator::Allocator;
+  use crate::test::test_sfc;
 
-  #[test]
-  fn test_basic_sfc() {
-    let allocator = Allocator::default();
-    let src = "<template><div>hello</div></template>";
-    let ret = parse_sfc(&allocator, src);
-    assert!(!ret.sfc.panicked);
-    assert_eq!(ret.sfc.children.len(), 1);
-  }
-
-  #[test]
-  fn test_empty_sfc() {
-    let allocator = Allocator::default();
-    let src = "";
-    let ret = parse_sfc(&allocator, src);
-    assert!(!ret.sfc.panicked);
-    assert_eq!(ret.sfc.children.len(), 0);
-  }
-
-  #[test]
-  fn test_script_only() {
-    let allocator = Allocator::default();
-    let src = "<script>\nconst x = 1;\n</script>";
-    let ret = parse_sfc(&allocator, src);
-    assert!(!ret.sfc.panicked, "errors: {:?}", ret.sfc.errors);
-    assert_eq!(ret.sfc.children.len(), 1);
-  }
-
-  #[test]
-  fn test_script_and_template() {
-    let allocator = Allocator::default();
-    let src = r#"<script>
-export default {};
-</script>
-<template>
-  <div>Hello World</div>
-</template>"#;
-    let ret = parse_sfc(&allocator, src);
-    assert!(!ret.sfc.panicked, "errors: {:?}", ret.sfc.errors);
-    // Should have 2 children: script + template (plus maybe whitespace text nodes)
-    assert!(ret.sfc.children.len() >= 2);
-  }
-
-  #[test]
-  fn test_comment_node() {
-    let allocator = Allocator::default();
-    let src = "<!-- this is a comment --><template></template>";
-    let ret = parse_sfc(&allocator, src);
-    assert!(!ret.sfc.panicked);
-    // first child should be a comment
-    match &ret.sfc.children[0] {
-      VNode::Comment(c) => assert_eq!(c.value.trim(), "this is a comment"),
-      _ => panic!("Expected comment node"),
-    }
-  }
-
-  #[test]
-  fn test_self_closing_element() {
-    let allocator = Allocator::default();
-    let src = "<template><img src=\"test.png\" /></template>";
-    let ret = parse_sfc(&allocator, src);
-    assert!(!ret.sfc.panicked, "errors: {:?}", ret.sfc.errors);
-  }
-
-  #[test]
-  fn test_interpolation() {
-    let allocator = Allocator::default();
-    let src = "<template><div>{{ message }}</div></template>";
-    let ret = parse_sfc(&allocator, src);
-    assert!(!ret.sfc.panicked, "errors: {:?}", ret.sfc.errors);
-  }
-
-  #[test]
-  fn test_directive_v_if() {
-    let allocator = Allocator::default();
-    let src = r#"<template><div v-if="show">hello</div></template>"#;
-    let ret = parse_sfc(&allocator, src);
-    assert!(!ret.sfc.panicked, "errors: {:?}", ret.sfc.errors);
-  }
-
-  #[test]
-  fn test_directive_v_for() {
-    let allocator = Allocator::default();
-    let src = r#"<template><div v-for="item in items">{{ item }}</div></template>"#;
-    let ret = parse_sfc(&allocator, src);
-    assert!(!ret.sfc.panicked, "errors: {:?}", ret.sfc.errors);
-  }
-
-  #[test]
-  fn test_script_setup() {
-    let allocator = Allocator::default();
-    let src = r#"<script setup>
-import { ref } from 'vue';
-const count = ref(0);
-</script>
-<template>
-  <div>{{ count }}</div>
-</template>"#;
-    let ret = parse_sfc(&allocator, src);
-    assert!(!ret.sfc.panicked, "errors: {:?}", ret.sfc.errors);
-  }
-
-  #[test]
-  fn test_typescript_script() {
-    let allocator = Allocator::default();
-    let src = r#"<script lang="ts">
-interface Foo { bar: string }
-export default {} as Foo;
-</script>"#;
-    let ret = parse_sfc(&allocator, src);
-    assert!(!ret.sfc.panicked, "errors: {:?}", ret.sfc.errors);
-  }
-
-  #[test]
-  fn test_irregular_whitespaces() {
-    let allocator = Allocator::default();
-    let src = "<template>\u{000B}</template>";
-    let ret = parse_sfc(&allocator, src);
-    assert_eq!(ret.sfc.irregular_whitespaces.len(), 1);
-    assert_eq!(ret.sfc.irregular_whitespaces[0].start, 10);
-  }
+  test_sfc!(basic_vue, "basic.vue");
+  test_sfc!(script_setup, "script_setup.vue");
+  test_sfc!(typescript, "typescript.vue");
+  test_sfc!(directives, "directives.vue");
+  test_sfc!(interpolation, "interpolation.vue");
 }

@@ -1,7 +1,7 @@
 //! Expression parsing: interpolations, directives, v-for, v-slot, v-on.
 
 use oxc_allocator::CloneIn;
-use oxc_ast::ast::{Expression, Statement};
+use oxc_ast::ast::{Expression, FormalParameters, Statement};
 use oxc_span::Span;
 use regex::Regex;
 use std::sync::OnceLock;
@@ -79,8 +79,7 @@ impl<'a> Parser<'a> {
     // SAFETY: we checked bounds above
     let result = unsafe { self.oxc_parse_with_wrap(lhs_span, start_wrap, end_wrap) };
 
-    let left =
-      result.and_then(|(_, body, _)| extract_arrow_params_as_patterns(self.allocator, &body))?;
+    let left = result.and_then(|(_, body, _)| extract_arrow_params(self.allocator, &body))?;
 
     Some(DirectiveExpression::For(VForDirective { left, right }))
   }
@@ -194,29 +193,10 @@ fn extract_expression_from_body<'a>(
 }
 
 /// Extract binding patterns from arrow function params
-fn extract_arrow_params_as_patterns<'a>(
-  allocator: &'a oxc_allocator::Allocator,
-  body: &oxc_allocator::Vec<'a, Statement<'a>>,
-) -> Option<oxc_allocator::Vec<'a, oxc_ast::ast::BindingPattern<'a>>> {
-  for stmt in body {
-    if let Statement::ExpressionStatement(expr_stmt) = stmt
-      && let Expression::ArrowFunctionExpression(arrow) = &expr_stmt.expression
-    {
-      let mut items = oxc_allocator::Vec::new_in(allocator);
-      for param in &arrow.params.items {
-        items.push(param.pattern.clone_in(allocator));
-      }
-      return Some(items);
-    }
-  }
-  None
-}
-
-/// Extract formal parameters from arrow function
 fn extract_arrow_params<'a>(
   allocator: &'a oxc_allocator::Allocator,
   body: &oxc_allocator::Vec<'a, Statement<'a>>,
-) -> Option<oxc_ast::ast::FormalParameters<'a>> {
+) -> Option<FormalParameters<'a>> {
   for stmt in body {
     if let Statement::ExpressionStatement(expr_stmt) = stmt
       && let Expression::ArrowFunctionExpression(arrow) = &expr_stmt.expression

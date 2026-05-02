@@ -1,8 +1,10 @@
 //! Element and children parsing for Vue SFC tokenizer.
 
-use crate::ast::{VCData, VComment, VElement, VEndTag, VNode, VStartTag, VText};
+use crate::ast::{
+  DirectiveName, VAttrOrDirective, VCData, VComment, VElement, VEndTag, VNode, VStartTag, VText,
+};
 use crate::parser::Parser;
-use oxc_diagnostics::OxcDiagnostic;
+use crate::parser::error;
 use oxc_span::Span;
 
 /// Raw text elements: their content is never parsed for child elements/interpolations
@@ -23,10 +25,30 @@ fn is_void_tag(tag: &str) -> bool {
   VOID_TAGS.contains(&tag)
 }
 
+/// Check whether a start tag contains the `v-pre` directive.
+fn has_v_pre(start_tag: &VStartTag<'_>) -> bool {
+  for attr in &start_tag.attributes {
+    match attr {
+      VAttrOrDirective::Directive(d) => {
+        if matches!(&d.name, DirectiveName::Custom(name) if name == "pre") {
+          return true;
+        }
+      }
+      VAttrOrDirective::Attribute(a) => {
+        if a.name == "v-pre" {
+          return true;
+        }
+      }
+    }
+  }
+  false
+}
+
 impl<'a> Parser<'a> {
   /// Parse a list of children nodes, stopping at `</end_tag>` or EOF.
   /// If `end_tag` is None, we parse until EOF (top-level SFC children).
-  pub fn parse_children(&mut self, end_tag: Option<&str>) -> Vec<VNode<'a>> {
+  /// When `vpre` is true, `{{` is treated as plain text (v-pre semantics).
+  pub fn parse_children_impl(&mut self, end_tag: Option<&str>, vpre: bool) -> Vec<VNode<'a>> {
     let mut children = Vec::new();
 
     loop {
@@ -52,7 +74,7 @@ impl<'a> Parser<'a> {
         children.push(VNode::Comment(self.parse_comment()));
       } else if self.matches("<![CDATA[") {
         children.push(VNode::CData(self.parse_cdata()));
-      } else if self.matches("{{") {
+      } else if !vpre && self.matches("{{") {
         if let Some(interp) = self.parse_interpolation() {
           children.push(VNode::Interpolation(interp));
         }
@@ -71,6 +93,16 @@ impl<'a> Parser<'a> {
     }
 
     children
+  }
+
+  /// Parse children with normal interpolation handling.
+  pub fn parse_children(&mut self, end_tag: Option<&str>) -> Vec<VNode<'a>> {
+    self.parse_children_impl(end_tag, false)
+  }
+
+  /// Parse children in `v-pre` mode — `{{` is treated as plain text.
+  pub fn parse_children_vpre(&mut self, end_tag: Option<&str>) -> Vec<VNode<'a>> {
+    self.parse_children_impl(end_tag, true)
   }
 
   /// Peek ahead to get the name of the next closing tag `</name>`
@@ -136,7 +168,7 @@ impl<'a> Parser<'a> {
     loop {
       if self.is_eof() {
         let value = self.source_text[value_start..self.pos].to_string();
-        self.push_error(OxcDiagnostic::error("Unexpected EOF inside comment"));
+        self.push_error(error::unexpected_eof_in_comment());
         return VComment { value, span: Span::new(start, self.pos_u32()) };
       }
       if self.matches("-->") {
@@ -158,7 +190,7 @@ impl<'a> Parser<'a> {
     loop {
       if self.is_eof() {
         let value = self.source_text[value_start..self.pos].to_string();
-        self.push_error(OxcDiagnostic::error("Unexpected EOF inside CDATA"));
+        self.push_error(error::unexpected_eof_in_cdata());
         return VCData { value, span: Span::new(start, self.pos_u32()) };
       }
       if self.matches("]]>") {
@@ -181,7 +213,7 @@ impl<'a> Parser<'a> {
     let expr_start = self.pos;
     loop {
       if self.is_eof() {
-        self.push_error(OxcDiagnostic::error("Unexpected EOF inside interpolation"));
+        self.push_error(error::unexpected_eof_in_interpolation());
         return None;
       }
       if self.matches("}}") {
@@ -261,6 +293,9 @@ impl<'a> Parser<'a> {
       });
     }
 
+    // Check for v-pre before parsing children
+    let is_vpre = has_v_pre(&start_tag);
+
     // Parse children
     let (children, program) = if is_raw_text(&tag_name) {
       let (raw, content_span) = self.parse_raw_text_content(&tag_name);
@@ -279,6 +314,8 @@ impl<'a> Parser<'a> {
       };
 
       (text_children, program)
+    } else if is_vpre {
+      (self.parse_children_vpre(Some(&tag_name)), None)
     } else {
       (self.parse_children(Some(&tag_name)), None)
     };
@@ -323,7 +360,7 @@ impl<'a> Parser<'a> {
     loop {
       self.skip_whitespace();
       if self.is_eof() {
-        self.push_error(OxcDiagnostic::error("Unexpected EOF in start tag"));
+        self.push_error(error::unexpected_eof_in_tag());
         return None;
       }
       match self.current_byte()? {
