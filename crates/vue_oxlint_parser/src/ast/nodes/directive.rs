@@ -1,4 +1,4 @@
-//! All the directives defined there will be serialized into VAttribute struct with `{ directive: true }`
+//! All the directives defined there will be serialized into `VAttribute` struct with `{ directive: true }`
 
 use crate::ast::nodes::{
   attribute::VIdentifier,
