@@ -14,7 +14,7 @@
 //! single `Vec`.
 
 use oxc_allocator::Vec as ArenaVec;
-use oxc_ast::ast::{Expression, FormalParameter, Statement};
+use oxc_ast::ast::{Expression, FormalParameters, Program, Statement};
 use oxc_span::Span;
 
 /// Root of a parsed Vue SFC.
@@ -33,7 +33,7 @@ pub struct VueSingleFileComponent<'a, 'b> {
 
 /// A node in the V-tree.
 pub enum VNode<'a, 'b> {
-  Element(VElement<'a, 'b>),
+  Element(&'a VElement<'a, 'b>),
   Text(VText<'a>),
   Comment(VComment<'a>),
   Interpolation(VInterpolation<'b>),
@@ -59,7 +59,21 @@ pub struct VElement<'a, 'b> {
   /// `None` for self-closing or void elements.
   pub end_tag: Option<VEndTag>,
   pub children: ArenaVec<'a, VNode<'a, 'b>>,
+  /// Parsed JavaScript program for `<script>` / `<script setup>`.
+  pub script: Option<VScript<'b>>,
   pub span: Span,
+}
+
+pub struct VScript<'b> {
+  pub kind: VScriptKind,
+  pub body_span: Span,
+  pub program: Program<'b>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum VScriptKind {
+  Script,
+  Setup,
 }
 
 pub struct VStartTag<'a, 'b> {
@@ -127,16 +141,16 @@ pub enum VQuote {
 /// A Vue directive: `v-name:arg.mod1.mod2="expr"`, or its shorthand forms
 /// (`:`, `@`, `#`, `.`).
 pub struct VDirective<'a, 'b> {
-  pub key: VDirectiveKey<'a>,
+  pub key: VDirectiveKey<'a, 'b>,
   pub value: Option<VDirectiveValue<'a, 'b>>,
   pub span: Span,
 }
 
-pub struct VDirectiveKey<'a> {
+pub struct VDirectiveKey<'a, 'b> {
   /// Directive name without `v-` prefix (e.g. `bind`, `on`, `for`, `slot`).
   pub name: VDirectiveName<'a>,
   /// `:arg` part. May be a static identifier or a dynamic `[expr]` argument.
-  pub argument: Option<VDirectiveArgument<'a>>,
+  pub argument: Option<VDirectiveArgument<'a, 'b>>,
   /// `.mod` parts.
   pub modifiers: ArenaVec<'a, VDirectiveModifier<'a>>,
   /// Span covering the entire key (name + argument + modifiers), excluding
@@ -149,9 +163,11 @@ pub struct VDirectiveName<'a> {
   pub span: Span,
 }
 
-pub struct VDirectiveArgument<'a> {
+pub struct VDirectiveArgument<'a, 'b> {
   pub raw: &'a str,
   pub kind: VDirectiveArgumentKind,
+  /// Parsed expression inside `[arg]` for dynamic directive arguments.
+  pub expression: Option<&'b Expression<'b>>,
   pub span: Span,
 }
 
@@ -191,12 +207,12 @@ pub enum VDirectiveExpression<'a, 'b> {
 }
 
 pub struct VForDirective<'b> {
-  pub left: &'b FormalParameter<'b>,
+  pub left: &'b FormalParameters<'b>,
   pub right: &'b Expression<'b>,
 }
 
 pub struct VSlotDirective<'b> {
-  pub params: &'b FormalParameter<'b>,
+  pub params: &'b FormalParameters<'b>,
 }
 
 pub struct VOnExpression<'a, 'b> {

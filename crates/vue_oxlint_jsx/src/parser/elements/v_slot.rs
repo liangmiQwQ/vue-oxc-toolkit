@@ -1,15 +1,14 @@
-use oxc_allocator::{Allocator, CloneIn, TakeIn, Vec};
+use oxc_allocator::{CloneIn, Vec};
 use oxc_ast::{
   AstBuilder, NONE,
   ast::{
-    Expression, FormalParameterKind, FormalParameters, JSXAttributeName, JSXChild, JSXExpression,
-    ObjectPropertyKind, PropertyKey, PropertyKind,
+    FormalParameterKind, FormalParameters, JSXChild, JSXExpression, PropertyKey, PropertyKind,
   },
 };
-use oxc_span::{SPAN, Span};
-use vue_compiler_core::parser::Directive;
+use oxc_span::SPAN;
+use vue_oxlint_parser::ast::{VDirective, VDirectiveArgumentKind, VDirectiveExpression};
 
-use crate::parser::{ParserImpl, parse::SourceLocatonSpan};
+use crate::parser::ParserImpl;
 
 pub struct VSlotWrapper<'a, 'b> {
   ast: &'a AstBuilder<'b>,
@@ -20,74 +19,44 @@ pub struct VSlotWrapper<'a, 'b> {
 
 impl<'a> ParserImpl<'a> {
   pub fn analyze_v_slot(
-    &mut self,
-    dir: &Directive<'a>,
+    &self,
+    dir: &VDirective<'a, 'a>,
     wrapper: &mut VSlotWrapper<'_, 'a>,
-    dir_name: &JSXAttributeName<'a>,
+    _dir_name: &oxc_ast::ast::JSXAttributeName<'a>,
   ) {
     (|| {
       // --- Process Key ---
-      let JSXAttributeName::NamespacedName(name_space) = dir_name else {
-        // SAFETY: Directives' props name is always a namespaced name
-        unreachable!()
-      };
-      let key_span = name_space.name.span;
-      if key_span.is_empty() {
-        // Generate a dummy one
+      if let Some(argument) = &dir.key.argument {
+        if argument.kind == VDirectiveArgumentKind::Dynamic {
+          let expression = argument.expression?.clone_in(self.allocator);
+          wrapper.set_is_computed(true);
+          wrapper.set_key(expression.into());
+        } else {
+          wrapper.set_is_computed(false);
+          wrapper.set_key(self.ast.property_key_static_identifier(
+            argument.span,
+            self.codegen_directive_identifier(argument.raw),
+          ));
+        }
+      } else {
         wrapper.set_is_computed(false);
         wrapper.set_key(self.ast.property_key_static_identifier(SPAN, "default"));
-      } else {
-        // Parse with a object expression wrapper
-        let allocator = Allocator::new();
-        let Expression::ObjectExpression(mut object_expression) =
-          // SAFETY: warp with `({` and `})`
-          (unsafe { self.parse_expression(key_span, b"({", b":0})", &allocator)? })
-        else {
-          // SAFETY: We always wrap the source in object expression
-          unreachable!()
-        };
-        let ObjectPropertyKind::ObjectProperty(object_property) =
-          object_expression.properties.first_mut().unwrap()
-        else {
-          // SAFETY: must get wrapped
-          unreachable!()
-        };
-        if let PropertyKey::StaticIdentifier(_) = object_property.key {
-          wrapper.set_is_computed(false);
-        } else {
-          wrapper.set_is_computed(true);
-        }
-        wrapper.set_key(object_property.key.clone_in(self.allocator));
       }
 
       // --- Process Params ---
       // As vue use arrow function to wrap the slot content, we use it as well to deal with some edge cases
       // https://play.vuejs.org/#eNp9kD1PwzAQhv+KdXNJB5iigASoAwyAgNFLlBxpir/kO4dIkf87tquGDsBmvc9z9utb4Na5agoINTSM2qmW8UYaIZp7q52YLkhZrvfY9uivJSxCI1E7oIgSiifEchbGMrrNs4k22/VK2ABTZ83HOFQHsia9t2RXQpfcUaF/djxaQxJqUUhmrVL267Fk7ANuTnm3x+7zl/xAc84kvHgk9BNKWBm3fkA+4t3bE87pvEJt+6CS/Q98RbIq5I5H7S6YPtU+80rbB+2s59EM77SbGQ2dPpWLZjMWX0Jael7TX1//qXtZXZU5aSLEbzFYjTA=
-      if dir.has_empty_expr() {
+      if let Some(value) = &dir.value
+        && let VDirectiveExpression::VSlot(slot) = &value.expression
+      {
+        wrapper.set_params(slot.params.clone_in(self.allocator));
+      } else {
         wrapper.set_params(self.ast.formal_parameters(
           SPAN,
           FormalParameterKind::ArrowFormalParameters,
           self.ast.vec(),
           NONE,
         ));
-      } else {
-        let expr = dir.expression.as_ref().unwrap();
-        let allocator = Allocator::new();
-        // SAFETY: warp with `((` and `)=>0)`
-        let Expression::ArrowFunctionExpression(mut arrow_function_expression) = (unsafe {
-          self.parse_expression(
-            Span::sized(expr.location.span().start + 1, expr.content.raw.len() as u32),
-            b"((",
-            b")=>0)",
-            &allocator,
-          )?
-        }) else {
-          // SAFETY: We always wrap the source in arrow function expression
-          unreachable!()
-        };
-        wrapper.set_params(
-          arrow_function_expression.params.take_in(&allocator).clone_in(self.allocator),
-        );
       }
 
       Some(())

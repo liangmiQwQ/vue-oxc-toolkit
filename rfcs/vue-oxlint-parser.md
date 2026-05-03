@@ -1,6 +1,15 @@
 # RFC: `vue_oxlint_parser` — First-Party Vue SFC Parser
 
-`vue_oxlint_jsx` currently depends on `vue-compiler-core`, which is unmaintained, ships incomplete spans, and has accumulated a tower of patches in the JSX crate to compensate. This RFC proposes implementing `vue_oxlint_parser` as the first-party SFC parser for the toolkit, designed so both `vue_oxlint_jsx` and `packages/vue-oxlint-toolkit` consume the same AST without re-parsing embedded JavaScript.
+## Implementation status
+
+Implemented in `crates/vue_oxlint_parser`, `crates/vue_oxlint_jsx`, and `packages/vue-oxlint-toolkit`.
+
+- `vue_oxlint_jsx` now consumes `VueParser`'s V-tree and parsed script/directive/interpolation nodes instead of `vue-compiler-core`.
+- The `vue-compiler-core` dependency has been removed from the workspace.
+- The npm package now exposes the parser surface (`nativeParse` / `parse`) and no longer exposes package-level `transformJsx`.
+- Toolkit fixture tests compare the exposed V-tree shape against `vue-eslint-parser` for representative fixtures. The comparison is normalized to the currently exposed adapter fields; full ESTree body/token equivalence remains a future compatibility hardening area.
+
+`vue_oxlint_jsx` previously depended on `vue-compiler-core`, which is unmaintained, ships incomplete spans, and had accumulated a tower of patches in the JSX crate to compensate. This RFC proposes implementing `vue_oxlint_parser` as the first-party SFC parser for the toolkit, designed so both `vue_oxlint_jsx` and `packages/vue-oxlint-toolkit` consume the same AST without re-parsing embedded JavaScript.
 
 We should strictly follow the lexer/parser and recursive-descent design mode in the coming parser. We should design the tokens carefully. the tokens will be returned as a part of components (As well as oxc_parser's estree token, for toolkit and its ESLint compatible js-plugins).
 

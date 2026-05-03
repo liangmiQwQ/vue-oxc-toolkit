@@ -348,7 +348,7 @@ Program {
 [
     OxcDiagnostic {
         inner: OxcDiagnosticInner {
-            message: "Invalid end tag.",
+            message: "Void elements must not have end tags.",
             labels: Some(
                 [
                     LabeledSpan {

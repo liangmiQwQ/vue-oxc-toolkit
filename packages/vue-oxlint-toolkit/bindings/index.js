@@ -579,5 +579,5 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { transformJsx } = nativeBinding
-export { transformJsx }
+const { nativeParse } = nativeBinding
+export { nativeParse }

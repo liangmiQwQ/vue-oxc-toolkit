@@ -18,7 +18,6 @@ mod interface;
 mod irregular_whitespaces;
 mod modules;
 mod parse;
-mod script;
 
 pub use interface::{VueJsxParser, VueJsxParserReturn};
 
@@ -46,8 +45,6 @@ pub struct ParserImpl<'a> {
   source_text: &'a str,
   mut_ptr_source_text: *mut [u8],
   ast: AstBuilder<'a>,
-  script_set: bool,
-  setup_set: bool,
 
   global: ScriptBlock<'a>,
   setup: ScriptBlock<'a>,
@@ -82,8 +79,6 @@ impl<'a> ParserImpl<'a> {
       // SAFETY: alloced_str is from a `&str`
       source_text: unsafe { str::from_utf8_unchecked(alloced_str) },
       ast,
-      script_set: false,
-      setup_set: false,
 
       global: ScriptBlock { directives: ast.vec(), statements: ast.vec() },
       setup: ScriptBlock { directives: ast.vec(), statements: ast.vec() },
@@ -213,10 +208,6 @@ macro_rules! is_void_tag {
 type ResParse<T> = Result<T, ()>;
 
 trait ResParseExt<T> {
-  fn panic() -> ResParse<T> {
-    Err(())
-  }
-
   // do not use `ok` as name, because it is a method of Result
   fn success(t: T) -> ResParse<T> {
     Ok(t)

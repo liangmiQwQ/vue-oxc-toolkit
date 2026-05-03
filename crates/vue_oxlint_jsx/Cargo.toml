@@ -29,7 +29,7 @@ itoa = { workspace = true }
 memchr = { workspace = true }
 regex = { workspace = true }
 rustc-hash = { workspace = true }
-vue-compiler-core = { workspace = true }
+vue_oxlint_parser = { workspace = true }
 
 [dev-dependencies]
 insta = { workspace = true }

@@ -241,22 +241,12 @@ async()=>{<><template><div class="1"></div><div></div><div class="w-1"></div><ma
     },
     Mapping {
         codegen_span: Span {
-            start: 71,
-            end: 77,
-        },
-        original_span: Span {
-            start: 69,
-            end: 88,
-        },
-    },
-    Mapping {
-        codegen_span: Span {
             start: 73,
             end: 76,
         },
         original_span: Span {
-            start: 71,
-            end: 74,
+            start: 70,
+            end: 73,
         },
     },
     Mapping {
@@ -321,22 +311,12 @@ async()=>{<><template><div class="1"></div><div></div><div class="w-1"></div><ma
     },
     Mapping {
         codegen_span: Span {
-            start: 93,
-            end: 100,
-        },
-        original_span: Span {
-            start: 91,
-            end: 109,
-        },
-    },
-    Mapping {
-        codegen_span: Span {
             start: 95,
             end: 99,
         },
         original_span: Span {
-            start: 93,
-            end: 97,
+            start: 92,
+            end: 96,
         },
     },
     Mapping {
@@ -371,22 +351,12 @@ async()=>{<><template><div class="1"></div><div></div><div class="w-1"></div><ma
     },
     Mapping {
         codegen_span: Span {
-            start: 105,
-            end: 111,
-        },
-        original_span: Span {
-            start: 112,
-            end: 119,
-        },
-    },
-    Mapping {
-        codegen_span: Span {
             start: 107,
             end: 110,
         },
         original_span: Span {
-            start: 114,
-            end: 117,
+            start: 113,
+            end: 116,
         },
     },
     Mapping {
@@ -421,22 +391,12 @@ async()=>{<><template><div class="1"></div><div></div><div class="w-1"></div><ma
     },
     Mapping {
         codegen_span: Span {
-            start: 115,
-            end: 120,
-        },
-        original_span: Span {
-            start: 122,
-            end: 128,
-        },
-    },
-    Mapping {
-        codegen_span: Span {
             start: 117,
             end: 119,
         },
         original_span: Span {
-            start: 124,
-            end: 126,
+            start: 123,
+            end: 125,
         },
     },
     Mapping {

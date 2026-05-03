@@ -1,40 +1,37 @@
-use std::cell::RefCell;
 use std::cmp::Ordering;
-use std::collections::HashSet;
 
-use oxc_allocator::{self, Dummy, Vec as ArenaVec};
+use oxc_allocator::{self, CloneIn, Dummy, Vec as ArenaVec};
 use oxc_ast::ast::{Directive, Expression, FormalParameterKind, JSXChild, Program, Statement};
 use oxc_ast::{AstBuilder, NONE};
+use oxc_diagnostics::OxcDiagnostic;
 
 use oxc_span::{SPAN, Span};
 use oxc_syntax::module_record::ModuleRecord;
-use vue_compiler_core::SourceLocation;
-use vue_compiler_core::parser::{AstNode, Element, ParseOption, Parser, WhitespaceStrategy};
-use vue_compiler_core::scanner::{ScanOption, Scanner, TextMode};
+use vue_oxlint_parser::{
+  VueParseConfig, VueParser, VueParserReturn,
+  ast::{VNode, VScriptKind},
+};
 
-use crate::is_void_tag;
-use crate::parser::error::OxcErrorHandler;
 use crate::parser::irregular_whitespaces::collect_irregular_whitespaces;
-use crate::parser::{ResParse, ResParseExt};
+use crate::parser::{ResParse, ResParseExt, modules::Merge};
 
 use super::ParserImpl;
 use super::ParserImplReturn;
 
-macro_rules! get_text_mode {
-  ($name: expr) => {
-    match $name {
-      "textarea" => TextMode::RcData,
-      "iframe" | "xmp" | "noembed" | "noframes" | "noscript" | "script" | "style" => {
-        TextMode::RawText
-      }
-      _ => TextMode::Data,
-    }
-  };
-}
-
 impl<'a> ParserImpl<'a> {
   pub fn parse(mut self) -> ParserImplReturn<'a> {
-    let result = self.analyze();
+    let mut ret = self.parse_sfc();
+    if !self.load_script_blocks_from_vue_parser(&mut ret) || ret.panicked {
+      return ParserImplReturn {
+        program: Program::dummy(self.allocator),
+        fatal: true,
+        errors: self.errors,
+        module_record: ModuleRecord::new(self.allocator),
+        irregular_whitespaces: Box::new([]),
+        clean_spans: rustc_hash::FxHashSet::default(),
+      };
+    }
+    let result = self.analyze(&ret.sfc.children);
     match result {
       Ok(()) => {
         self.fix_module_records();
@@ -118,66 +115,21 @@ impl<'a> ParserImpl<'a> {
   }
 }
 
-enum ParsingChild<'a> {
-  Finish(JSXChild<'a>),
-  Skip(Element<'a>),
-}
-
 impl<'a> ParserImpl<'a> {
-  fn analyze(&mut self) -> ResParse<()> {
-    let parser = Parser::new(ParseOption {
-      whitespace: WhitespaceStrategy::Preserve,
-      is_void_tag: |name| is_void_tag!(name),
-      get_text_mode: |name| get_text_mode!(name),
-      ..Default::default()
-    });
-    let scanner =
-      Scanner::new(ScanOption { get_text_mode: |name| get_text_mode!(name), ..Default::default() });
-
-    // error processing
-    let errors = RefCell::from(&mut self.errors);
-    let panicked = RefCell::from(false);
-    // get ast from vue-compiler-core
-    let tokens = scanner.scan(self.source_text, OxcErrorHandler::new(&errors, &panicked));
-    let result = parser.parse(tokens, OxcErrorHandler::new(&errors, &panicked));
-
-    if *panicked.borrow() {
-      return ResParse::panic();
-    }
-
-    let mut raw_children = vec![];
-    let mut text_start: u32 = 0;
-    let mut source_types: HashSet<&str> = HashSet::new();
-    for child in result.children {
-      if let AstNode::Element(node) = child {
-        // Template text nodes are intentionally ignored.
-        text_start = node.location.end.offset as u32;
-
-        raw_children.push(if node.tag_name == "script" {
-          // Fill self.global, self.setup
-          self.parse_script(&node, &mut source_types)?;
-          ParsingChild::Finish(self.parse_element(node, Some(self.ast.vec())).0)
-        } else {
-          ParsingChild::Skip(node)
-        });
-      }
-    }
-    let _ = text_start;
-
-    // Parse the skip ones
+  fn analyze(&mut self, nodes: &[VNode<'a, 'a>]) -> ResParse<()> {
     let mut children: ArenaVec<'a, JSXChild<'a>> = self.ast.vec();
+    for child in nodes {
+      let VNode::Element(element) = child else {
+        continue;
+      };
 
-    for child in raw_children {
-      children.push(match child {
-        ParsingChild::Finish(child) => child,
-        ParsingChild::Skip(node) => {
-          if node.tag_name == "template" {
-            self.parse_element(node, None).0
-          } else {
-            self.parse_element(node, Some(self.ast.vec())).0
-          }
-        }
-      });
+      let tag_name = element.start_tag.name_span.source_text(self.source_text);
+      let parsed_child = if tag_name.eq_ignore_ascii_case("template") {
+        self.parse_element(element, None).0
+      } else {
+        self.parse_element(element, Some(self.ast.vec())).0
+      };
+      children.push(parsed_child);
     }
 
     self.sort_errors_and_commends();
@@ -195,6 +147,79 @@ impl<'a> ParserImpl<'a> {
     ResParse::success(())
   }
 
+  fn parse_sfc(&self) -> VueParserReturn<'a, 'a> {
+    VueParser::new(
+      self.allocator,
+      self.allocator,
+      self.origin_source_text,
+      self.options,
+      VueParseConfig { track_clean_spans: true },
+    )
+    .parse()
+  }
+
+  fn load_script_blocks_from_vue_parser(&mut self, ret: &mut VueParserReturn<'a, 'a>) -> bool {
+    self.source_type = ret.sfc.source_type;
+    let script_spans = collect_script_spans(&ret.sfc.children, self.source_text);
+    let mut script_comments = ArenaVec::new_in(self.allocator);
+    for comment in &ret.sfc.script_comments {
+      if span_in_spans(comment.span, &script_spans) {
+        script_comments.push(*comment);
+      }
+    }
+    self.comments.append(&mut script_comments);
+    let script_fatal = ret.errors.iter().any(is_fatal_script_block_error);
+    self.errors.extend(ret.errors.iter().cloned());
+    self.clean_spans.extend(ret.clean_spans.iter().copied());
+    self
+      .module_record
+      .merge(std::mem::replace(&mut ret.module_record, ModuleRecord::new(self.allocator)));
+
+    for child in &ret.sfc.children {
+      self.load_script_node(child);
+    }
+
+    !script_fatal
+  }
+
+  fn load_script_node(&mut self, node: &VNode<'a, 'a>) {
+    let VNode::Element(element) = node else {
+      return;
+    };
+
+    if let Some(script) = &element.script {
+      let mut directives = script.program.directives.clone_in(self.allocator);
+      let body = script.program.body.clone_in(self.allocator);
+
+      match script.kind {
+        VScriptKind::Script => {
+          self.global.directives.append(&mut directives);
+          self.global.statements.extend(body);
+        }
+        VScriptKind::Setup => {
+          self.setup.directives.append(&mut directives);
+
+          let mut imports = self.ast.vec();
+          let mut statements = self.ast.vec();
+          for statement in body {
+            match statement {
+              Statement::ImportDeclaration(_) => imports.push(statement),
+              _ => statements.push(statement),
+            }
+          }
+
+          imports.append(&mut self.global.statements);
+          self.global.statements = imports;
+          self.setup.statements = statements;
+        }
+      }
+    }
+
+    for child in &element.children {
+      self.load_script_node(child);
+    }
+  }
+
   fn sort_errors_and_commends(&mut self) {
     self.comments.sort_by_key(|a| a.span.start);
     self.errors.sort_by(|a, b| {
@@ -209,15 +234,34 @@ impl<'a> ParserImpl<'a> {
   }
 }
 
-// Easy transform from vue_compiler_core::SourceLocation to oxc_span::Span
-pub trait SourceLocatonSpan {
-  fn span(&self) -> Span;
+fn collect_script_spans(children: &[VNode<'_, '_>], source_text: &str) -> Vec<Span> {
+  let mut spans = Vec::new();
+  for child in children {
+    let VNode::Element(element) = child else {
+      continue;
+    };
+    if element.start_tag.name_span.source_text(source_text).eq_ignore_ascii_case("script") {
+      spans.push(element.span);
+    }
+    if let Some(script) = &element.script {
+      spans.push(script.body_span);
+    }
+    spans.extend(collect_script_spans(&element.children, source_text));
+  }
+  spans
 }
 
-impl SourceLocatonSpan for SourceLocation {
-  fn span(&self) -> Span {
-    Span::new(self.start.offset as u32, self.end.offset as u32)
-  }
+fn span_in_spans(inner: Span, spans: &[Span]) -> bool {
+  spans.iter().any(|span| inner.start >= span.start && inner.end <= span.end)
+}
+
+fn is_fatal_script_block_error(error: &OxcDiagnostic) -> bool {
+  matches!(
+    error.message.as_ref(),
+    "<script> and <script setup> must have the same language type."
+      | "Single file component can contain only one <script> element."
+      | "Single file component can contain only one <script setup> element."
+  ) || error.message.starts_with("Unsupported lang ")
 }
 
 #[cfg(test)]

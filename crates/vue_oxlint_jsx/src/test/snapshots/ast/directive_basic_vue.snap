@@ -618,8 +618,8 @@ Program {
                                                                                                                                         type_parameters: None,
                                                                                                                                         params: FormalParameters {
                                                                                                                                             span: Span {
-                                                                                                                                                start: 77,
-                                                                                                                                                end: 84,
+                                                                                                                                                start: 78,
+                                                                                                                                                end: 83,
                                                                                                                                             },
                                                                                                                                             node_id: Cell {
                                                                                                                                                 value: NodeId(0),
@@ -1984,8 +1984,8 @@ Slice: "default";
 Span: (69, 76); 
 Type: IdentifierName; 
 
-Slice: "\"{ a }\""; 
-Span: (77, 84); 
+Slice: "{ a }"; 
+Span: (78, 83); 
 Type: FormalParameters; 
 
 Slice: "{ a }"; 

@@ -99,13 +99,23 @@ where
     lang: Option<&'a str>,
     kind: ScriptKind,
   ) -> Option<Program<'b>> {
+    self.parse_script_block_with_diagnostic_span(span, span, lang, kind)
+  }
+
+  pub(super) fn parse_script_block_with_diagnostic_span(
+    &mut self,
+    span: Span,
+    diagnostic_span: Span,
+    lang: Option<&'a str>,
+    kind: ScriptKind,
+  ) -> Option<Program<'b>> {
     self.resolve_script_lang(lang)?;
 
     if span.source_text(self.source_text).trim().is_empty() {
       return Some(Program::dummy(self.allocator_b));
     }
 
-    self.register_script_block(kind, span)?;
+    self.register_script_block(kind, diagnostic_span)?;
 
     let mut ret = self.parse_program_region(span, &[], &[], self.allocator_b)?;
     self.collect_script_comments(&ret.program.comments);

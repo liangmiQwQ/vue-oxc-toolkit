@@ -483,17 +483,14 @@ Program {
                                                                                             node_id: Cell {
                                                                                                 value: NodeId(0),
                                                                                             },
-                                                                                            name: IdentifierReference(
-                                                                                                IdentifierReference {
+                                                                                            name: Identifier(
+                                                                                                JSXIdentifier {
                                                                                                     span: Span {
                                                                                                         start: 83,
                                                                                                         end: 92,
                                                                                                     },
                                                                                                     node_id: Cell {
                                                                                                         value: NodeId(0),
-                                                                                                    },
-                                                                                                    reference_id: Cell {
-                                                                                                        value: None,
                                                                                                     },
                                                                                                     name: "component",
                                                                                                 },
@@ -515,17 +512,14 @@ Program {
                                                                                                 node_id: Cell {
                                                                                                     value: NodeId(0),
                                                                                                 },
-                                                                                                name: IdentifierReference(
-                                                                                                    IdentifierReference {
+                                                                                                name: Identifier(
+                                                                                                    JSXIdentifier {
                                                                                                         span: Span {
                                                                                                             start: 95,
                                                                                                             end: 104,
                                                                                                         },
                                                                                                         node_id: Cell {
                                                                                                             value: NodeId(0),
-                                                                                                        },
-                                                                                                        reference_id: Cell {
-                                                                                                            value: None,
                                                                                                         },
                                                                                                         name: "component",
                                                                                                     },
@@ -953,7 +947,7 @@ Type: JSXOpeningElement;
 
 Slice: "component"; 
 Span: (83, 92); 
-Type: IdentifierReference; 
+Type: JSXIdentifier; 
 
 Slice: "</component>"; 
 Span: (93, 105); 
@@ -961,7 +955,7 @@ Type: JSXClosingElement;
 
 Slice: "component"; 
 Span: (95, 104); 
-Type: IdentifierReference; 
+Type: JSXIdentifier; 
 
 Slice: "<motion.div></motion.div>"; 
 Span: (108, 133); 

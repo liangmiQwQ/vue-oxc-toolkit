@@ -55,7 +55,6 @@ itoa = "1.0.17"
 memchr = "2.8.0"
 regex = "1.12.3"
 rustc-hash = "2.1.1"
-vue-compiler-core = "0.1.0"
 
 napi = { version = "3.8.6", features = ["napi9"] }
 napi-build = "2.3.1"

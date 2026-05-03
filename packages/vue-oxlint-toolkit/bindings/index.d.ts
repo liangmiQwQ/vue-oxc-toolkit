@@ -13,11 +13,16 @@ export interface NativeDiagnostic {
   end: number
 }
 
-export interface NativeMapping {
-  virtualStart: number
-  virtualEnd: number
-  originalStart: number
-  originalEnd: number
+export declare function nativeParse(source: string): NativeParseResult
+
+export interface NativeParseResult {
+  astJson: string
+  sourceType: 'script' | 'module'
+  templateTokens: Array<NativeTemplateToken>
+  comments: Array<NativeComment>
+  irregularWhitespaces: Array<NativeRange>
+  errors: Array<NativeDiagnostic>
+  panicked: boolean
 }
 
 export interface NativeRange {
@@ -25,13 +30,9 @@ export interface NativeRange {
   end: number
 }
 
-export interface NativeTransformResult {
-  sourceText: string
-  scriptKind: 'jsx' | 'tsx'
-  comments: Array<NativeComment>
-  irregularWhitespaces: Array<NativeRange>
-  errors: Array<NativeDiagnostic>
-  mappings: Array<NativeMapping>
+export interface NativeTemplateToken {
+  type: string
+  value: string
+  start: number
+  end: number
 }
-
-export declare function transformJsx(source: string): NativeTransformResult

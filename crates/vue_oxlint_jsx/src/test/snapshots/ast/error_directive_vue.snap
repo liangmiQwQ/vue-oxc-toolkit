@@ -495,14 +495,14 @@ Program {
                                                                                                                 ExpressionContainer(
                                                                                                                     JSXExpressionContainer {
                                                                                                                         span: Span {
-                                                                                                                            start: 77,
-                                                                                                                            end: 90,
+                                                                                                                            start: 0,
+                                                                                                                            end: 0,
                                                                                                                         },
                                                                                                                         node_id: Cell {
                                                                                                                             value: NodeId(0),
                                                                                                                         },
-                                                                                                                        expression: EmptyExpression(
-                                                                                                                            JSXEmptyExpression {
+                                                                                                                        expression: Identifier(
+                                                                                                                            IdentifierReference {
                                                                                                                                 span: Span {
                                                                                                                                     start: 0,
                                                                                                                                     end: 0,
@@ -510,6 +510,10 @@ Program {
                                                                                                                                 node_id: Cell {
                                                                                                                                     value: NodeId(0),
                                                                                                                                 },
+                                                                                                                                reference_id: Cell {
+                                                                                                                                    value: None,
+                                                                                                                                },
+                                                                                                                                name: "key",
                                                                                                                             },
                                                                                                                         ),
                                                                                                                     },
@@ -911,7 +915,7 @@ async () => {
 			a,
 			b
 		};
-	})}></div><div v-bind:key={}></div></template><script lang="ts" setup></script><style></style></>;
+	})}></div><div v-bind:key={key}></div></template><script lang="ts" setup></script><style></style></>;
 };
 
 
@@ -1043,10 +1047,6 @@ Type: JSXIdentifier;
 Slice: "key"; 
 Span: (73, 76); 
 Type: JSXIdentifier; 
-
-Slice: "\"a 1 )`Hi '`\""; 
-Span: (77, 90); 
-Type: JSXExpressionContainer; 
 
 Slice: "</div>"; 
 Span: (91, 97); 

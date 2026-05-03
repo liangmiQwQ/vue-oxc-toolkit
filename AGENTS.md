@@ -33,13 +33,13 @@ Cargo workspace members live in `crates/*`, `packages/*`, and `benchmark/`.
 - **`crates/vue_oxlint_parser`** — in-progress Rust port of `vue-eslint-parser`.
   - `ast.rs` — canonical V-tree surface (`VueSingleFileComponent`, `VElement`, directive/value nodes, embedded-JS attachment points).
   - `lexer/` — first-party HTML/Vue template tokenizer, including raw-text/RCDATA/foreign-content/v-pre modes and vue-eslint-parser-compatible token kinds.
-  - `parser/mod.rs` — two-allocator `VueParser` scaffold and parse return surface.
+  - `parser/mod.rs` — two-allocator `VueParser` entry point and initial recursive V-tree builder for top-level elements, nested plain elements, comments/text, interpolations, and `<script>` / `<script setup>` attachment.
   - `parser/script.rs` — phase-3 script-side utilities: wrapped `oxc_parser` calls, script lang/source-type resolution, duplicate-script guards, module-record aggregation, comment/token collection, and clean-span tracking.
   - `parser/template.rs` — reserved for the recursive-descent V-tree builder in phase 4.
 
 - **`packages/vue-oxlint-toolkit`** — published npm package `vue-oxlint-toolkit`.
-  - `src/lib.rs` — napi-rs cdylib exposing `transformJsx(source)` which calls `VueJsxCodegen::build` and converts results to N-API types (`NativeTransformResult`).
-  - `js/index.ts` — JS wrapper that converts native UTF-8 byte offsets into JS UTF-16 indices and `{ line, column }` locations via a per-source `createLocator`. Returns `@oxlint/plugins`-shaped `Comment`/`Diagnostic`/`Range` objects.
+  - `src/lib.rs` — napi-rs cdylib exposing `nativeParse(source)` through `VueParser`; converts the V-tree, parser side channels, and diagnostics to N-API types.
+  - `js/index.ts` — JS wrapper that converts native UTF-8 byte offsets into JS UTF-16 indices and `{ line, column }` locations via a per-source `createLocator`. Returns `@oxlint/plugins`-shaped `Comment`/`Diagnostic`/`Range` objects and a JSON-backed AST for `parse(path, source)`.
   - Built with `napi build` (`build:debug` also runs `vp pack` to produce the JS bundle).
 
 - **`benchmark/`** — Criterion benches over `small.vue`, `medium.vue`, `large.vue`.
@@ -54,7 +54,7 @@ Cargo workspace members live in `crates/*`, `packages/*`, and `benchmark/`.
 
 ## Vue/SFC parsing context
 
-The current parsing still happens in `vue_oxlint_jsx`, powered by `vue-compiler-core`. But we plan to move it to the standalone crate `crates/vue_oxlint_parser` for the united parsing logic in the future.
+The canonical SFC parse now happens in `crates/vue_oxlint_parser`. `vue_oxlint_jsx` consumes the V-tree and parsed embedded-JS nodes from that crate, then transforms the V-tree into the JSX-shaped `Program` used by codegen. The npm package consumes the same parser through `nativeParse` / `parse`.
 
 ## Conventions
 

@@ -1,4 +1,4 @@
-use oxc_allocator::{Allocator, CloneIn, TakeIn};
+use oxc_allocator::CloneIn;
 use oxc_ast::{
   AstBuilder, NONE,
   ast::{
@@ -8,10 +8,9 @@ use oxc_ast::{
 };
 
 use oxc_span::{SPAN, Span};
-use regex::Regex;
-use vue_compiler_core::parser::Directive;
+use vue_oxlint_parser::ast::{VDirective, VDirectiveExpression};
 
-use crate::parser::{ParserImpl, error, parse::SourceLocatonSpan};
+use crate::parser::{ParserImpl, error};
 
 pub struct VForWrapper<'a, 'b> {
   ast: &'a AstBuilder<'b>,
@@ -25,54 +24,17 @@ impl<'a> ParserImpl<'a> {
     None
   }
 
-  pub fn analyze_v_for(&mut self, dir: &Directive<'a>, wrapper: &mut VForWrapper<'_, 'a>) {
+  pub fn analyze_v_for(&mut self, dir: &VDirective<'a, 'a>, wrapper: &mut VForWrapper<'_, 'a>) {
     (|| {
-      if dir.has_empty_expr() {
-        self.invalid_v_for_expression(dir.location.span())?;
-      }
-      let expr = dir.expression.as_ref().unwrap(); // SAFETY: Checked above
-
-      // https://github.com/vuejs/core/blob/e1ccd9fde8f57fe7bd40fdf1345692ab3e6a1fa0/packages/compiler-core/src/utils.ts#L571
-      let for_alias_regex = Regex::new(r"^([\s\S]*?)\s+(?:in|of)\s+(\S[\s\S]*)").unwrap();
-      if let Some(caps) = for_alias_regex.captures(expr.content.raw)
-        && let Some(cap1) = caps.get(1)
-        && let Some(cap2) = caps.get(2)
+      if let Some(value) = &dir.value
+        && let VDirectiveExpression::VFor(v_for) = &value.expression
       {
-        let start = expr.location.span().start + 1;
-        wrapper.set_data_origin(self.ast.parenthesized_expression(
-          SPAN,
-          self.parse_pure_expression(Span::new(
-            start + cap2.start() as u32,
-            start + cap2.end() as u32,
-          ))?,
-        ));
-
-        let span = Span::new(start + cap1.start() as u32, start + cap1.end() as u32);
-        let params = cap1.as_str();
-        let allocator = Allocator::new();
-        let (mut expr, should_dummy_span) =
-          if params.trim().starts_with('(') && params.trim().ends_with(')') {
-            // SAFETY: use `()` as wrap
-            let expr = unsafe { self.parse_expression(span, b"(", b"=>0)", &allocator)? };
-            (expr, false)
-          } else {
-            // SAFETY: use `(` and `)` as wrap
-            let expr = unsafe { self.parse_expression(span, b"((", b")=>0)", &allocator)? };
-            (expr, true)
-          };
-
-        let Expression::ArrowFunctionExpression(expression) = &mut expr else {
-          unreachable!();
-        };
-
-        let mut params = expression.params.take_in(self.ast.allocator);
-        if should_dummy_span {
-          params.span = SPAN;
-        }
-
-        wrapper.set_params(params.clone_in(self.allocator));
+        wrapper.set_data_origin(
+          self.ast.parenthesized_expression(SPAN, v_for.right.clone_in(self.allocator)),
+        );
+        wrapper.set_params(v_for.left.clone_in(self.allocator));
       } else {
-        self.invalid_v_for_expression(dir.location.span())?;
+        self.invalid_v_for_expression(dir.span)?;
       }
 
       Some(())

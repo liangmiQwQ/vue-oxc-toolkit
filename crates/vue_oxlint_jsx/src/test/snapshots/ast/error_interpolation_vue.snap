@@ -37,16 +37,16 @@ Program {
 [
     OxcDiagnostic {
         inner: OxcDiagnosticInner {
-            message: "Interpolation end sign was not found.",
+            message: "Interpolation is missing end delimiter.",
             labels: Some(
                 [
                     LabeledSpan {
                         label: None,
                         span: SourceSpan {
                             offset: SourceOffset(
-                                95,
+                                18,
                             ),
-                            length: 0,
+                            length: 6,
                         },
                         primary: false,
                     },

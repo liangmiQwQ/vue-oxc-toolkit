@@ -15,10 +15,15 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-vue_oxlint_jsx = { workspace = true }
+vue_oxlint_parser = { workspace = true }
 napi = { workspace = true }
 napi-derive = { workspace = true }
 oxc_ast = { workspace = true }
+oxc_allocator = { workspace = true }
+oxc_diagnostics = { workspace = true }
+oxc_parser = { workspace = true }
+oxc_span = { workspace = true }
+serde_json = "1.0.145"
 
 [build-dependencies]
 napi-build = { workspace = true }

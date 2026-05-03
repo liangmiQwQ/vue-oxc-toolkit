@@ -661,30 +661,7 @@ Program {
                                                                                                                     },
                                                                                                                 },
                                                                                                             ),
-                                                                                                            value: Some(
-                                                                                                                ExpressionContainer(
-                                                                                                                    JSXExpressionContainer {
-                                                                                                                        span: Span {
-                                                                                                                            start: 84,
-                                                                                                                            end: 86,
-                                                                                                                        },
-                                                                                                                        node_id: Cell {
-                                                                                                                            value: NodeId(0),
-                                                                                                                        },
-                                                                                                                        expression: EmptyExpression(
-                                                                                                                            JSXEmptyExpression {
-                                                                                                                                span: Span {
-                                                                                                                                    start: 0,
-                                                                                                                                    end: 0,
-                                                                                                                                },
-                                                                                                                                node_id: Cell {
-                                                                                                                                    value: NodeId(0),
-                                                                                                                                },
-                                                                                                                            },
-                                                                                                                        ),
-                                                                                                                    },
-                                                                                                                ),
-                                                                                                            ),
+                                                                                                            value: None,
                                                                                                         },
                                                                                                     ),
                                                                                                 ],
@@ -896,30 +873,7 @@ Program {
                                                                                                                     },
                                                                                                                 },
                                                                                                             ),
-                                                                                                            value: Some(
-                                                                                                                ExpressionContainer(
-                                                                                                                    JSXExpressionContainer {
-                                                                                                                        span: Span {
-                                                                                                                            start: 122,
-                                                                                                                            end: 124,
-                                                                                                                        },
-                                                                                                                        node_id: Cell {
-                                                                                                                            value: NodeId(0),
-                                                                                                                        },
-                                                                                                                        expression: EmptyExpression(
-                                                                                                                            JSXEmptyExpression {
-                                                                                                                                span: Span {
-                                                                                                                                    start: 0,
-                                                                                                                                    end: 0,
-                                                                                                                                },
-                                                                                                                                node_id: Cell {
-                                                                                                                                    value: NodeId(0),
-                                                                                                                                },
-                                                                                                                            },
-                                                                                                                        ),
-                                                                                                                    },
-                                                                                                                ),
-                                                                                                            ),
+                                                                                                            value: None,
                                                                                                         },
                                                                                                     ),
                                                                                                 ],
@@ -1189,34 +1143,7 @@ Program {
                             offset: SourceOffset(
                                 79,
                             ),
-                            length: 8,
-                        },
-                        primary: false,
-                    },
-                ],
-            ),
-            help: None,
-            note: None,
-            severity: Error,
-            code: OxcCode {
-                scope: None,
-                number: None,
-            },
-            url: None,
-        },
-    },
-    OxcDiagnostic {
-        inner: OxcDiagnosticInner {
-            message: "Empty parenthesized expression",
-            labels: Some(
-                [
-                    LabeledSpan {
-                        label: None,
-                        span: SourceSpan {
-                            offset: SourceOffset(
-                                84,
-                            ),
-                            length: 2,
+                            length: 7,
                         },
                         primary: false,
                     },
@@ -1243,7 +1170,7 @@ Program {
                             offset: SourceOffset(
                                 97,
                             ),
-                            length: 5,
+                            length: 4,
                         },
                         primary: false,
                     },
@@ -1270,34 +1197,7 @@ Program {
                             offset: SourceOffset(
                                 112,
                             ),
-                            length: 13,
-                        },
-                        primary: false,
-                    },
-                ],
-            ),
-            help: None,
-            note: None,
-            severity: Error,
-            code: OxcCode {
-                scope: None,
-                number: None,
-            },
-            url: None,
-        },
-    },
-    OxcDiagnostic {
-        inner: OxcDiagnosticInner {
-            message: "Empty parenthesized expression",
-            labels: Some(
-                [
-                    LabeledSpan {
-                        label: None,
-                        span: SourceSpan {
-                            offset: SourceOffset(
-                                122,
-                            ),
-                            length: 2,
+                            length: 12,
                         },
                         primary: false,
                     },
@@ -1324,7 +1224,7 @@ Program {
                             offset: SourceOffset(
                                 135,
                             ),
-                            length: 10,
+                            length: 9,
                         },
                         primary: false,
                     },
@@ -1344,7 +1244,7 @@ Program {
 
 =============== Codegen ===============
 async () => {
-	<><template><div v-else-if:={}></><div v-else:></>{1 ? <><div v-if:={}></></> : undefined}<div v-if:={}></><div v-if:></><div v-else-if:={}></><div v-else-if:></></template></>;
+	<><template><div v-else-if:={}></><div v-else:></>{1 ? <><div v-if:={}></></> : undefined}<div v-if:></><div v-if:></><div v-else-if:></><div v-else-if:></></template></>;
 };
 
 
@@ -1473,10 +1373,6 @@ Slice: "v-if";
 Span: (79, 83); 
 Type: JSXIdentifier; 
 
-Slice: "\"\""; 
-Span: (84, 86); 
-Type: JSXExpressionContainer; 
-
 Slice: "<div v-if />"; 
 Span: (92, 104); 
 Type: JSXElement; 
@@ -1524,10 +1420,6 @@ Type: JSXNamespacedName;
 Slice: "v-else-if"; 
 Span: (112, 121); 
 Type: JSXIdentifier; 
-
-Slice: "\"\""; 
-Span: (122, 124); 
-Type: JSXExpressionContainer; 
 
 Slice: "<div v-else-if />"; 
 Span: (130, 147); 

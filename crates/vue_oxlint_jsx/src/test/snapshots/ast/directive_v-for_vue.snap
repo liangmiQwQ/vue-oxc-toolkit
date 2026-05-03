@@ -203,8 +203,8 @@ Program {
                                                                                                                 type_parameters: None,
                                                                                                                 params: FormalParameters {
                                                                                                                     span: Span {
-                                                                                                                        start: 0,
-                                                                                                                        end: 0,
+                                                                                                                        start: 25,
+                                                                                                                        end: 29,
                                                                                                                     },
                                                                                                                     node_id: Cell {
                                                                                                                         value: NodeId(0),
@@ -493,8 +493,8 @@ Program {
                                                                                                                 type_parameters: None,
                                                                                                                 params: FormalParameters {
                                                                                                                     span: Span {
-                                                                                                                        start: 0,
-                                                                                                                        end: 0,
+                                                                                                                        start: 58,
+                                                                                                                        end: 63,
                                                                                                                     },
                                                                                                                     node_id: Cell {
                                                                                                                         value: NodeId(0),
@@ -1463,8 +1463,8 @@ Program {
                                                                                                                 type_parameters: None,
                                                                                                                 params: FormalParameters {
                                                                                                                     span: Span {
-                                                                                                                        start: 0,
-                                                                                                                        end: 0,
+                                                                                                                        start: 194,
+                                                                                                                        end: 208,
                                                                                                                     },
                                                                                                                     node_id: Cell {
                                                                                                                         value: NodeId(0),
@@ -3040,8 +3040,8 @@ Program {
                                                                                                                 type_parameters: None,
                                                                                                                 params: FormalParameters {
                                                                                                                     span: Span {
-                                                                                                                        start: 0,
-                                                                                                                        end: 0,
+                                                                                                                        start: 408,
+                                                                                                                        end: 423,
                                                                                                                     },
                                                                                                                     node_id: Cell {
                                                                                                                         value: NodeId(0),
@@ -3365,8 +3365,8 @@ Program {
                                                                                                                 type_parameters: None,
                                                                                                                 params: FormalParameters {
                                                                                                                     span: Span {
-                                                                                                                        start: 0,
-                                                                                                                        end: 0,
+                                                                                                                        start: 455,
+                                                                                                                        end: 477,
                                                                                                                     },
                                                                                                                     node_id: Cell {
                                                                                                                         value: NodeId(0),
@@ -3748,6 +3748,10 @@ Type: IdentifierReference;
 
 Slice: "item"; 
 Span: (25, 29); 
+Type: FormalParameters; 
+
+Slice: "item"; 
+Span: (25, 29); 
 Type: FormalParameter; 
 
 Slice: "item"; 
@@ -3785,6 +3789,10 @@ Type: JSXExpressionContainer;
 Slice: "source1"; 
 Span: (67, 74); 
 Type: IdentifierReference; 
+
+Slice: "item1"; 
+Span: (58, 63); 
+Type: FormalParameters; 
 
 Slice: "item1"; 
 Span: (58, 63); 
@@ -3937,6 +3945,10 @@ Type: JSXExpressionContainer;
 Slice: "users4"; 
 Span: (212, 218); 
 Type: IdentifierReference; 
+
+Slice: "{ id4, name4 }"; 
+Span: (194, 208); 
+Type: FormalParameters; 
 
 Slice: "{ id4, name4 }"; 
 Span: (194, 208); 
@@ -4232,6 +4244,10 @@ Type: IdentifierReference;
 
 Slice: "[item8, index8]"; 
 Span: (408, 423); 
+Type: FormalParameters; 
+
+Slice: "[item8, index8]"; 
+Span: (408, 423); 
 Type: FormalParameter; 
 
 Slice: "[item8, index8]"; 
@@ -4277,6 +4293,10 @@ Type: JSXExpressionContainer;
 Slice: "someIter9"; 
 Span: (481, 490); 
 Type: IdentifierReference; 
+
+Slice: "[item9 = 'hi', index9]"; 
+Span: (455, 477); 
+Type: FormalParameters; 
 
 Slice: "[item9 = 'hi', index9]"; 
 Span: (455, 477); 

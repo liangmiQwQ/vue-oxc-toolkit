@@ -101,22 +101,12 @@ import SomeComponent from './SomeComponent.vue';import { motion } from 'motion-v
     },
     Mapping {
         codegen_span: Span {
-            start: 119,
-            end: 135,
-        },
-        original_span: Span {
-            start: 13,
-            end: 30,
-        },
-    },
-    Mapping {
-        codegen_span: Span {
             start: 121,
             end: 134,
         },
         original_span: Span {
-            start: 15,
-            end: 28,
+            start: 14,
+            end: 27,
         },
     },
     Mapping {
@@ -151,22 +141,12 @@ import SomeComponent from './SomeComponent.vue';import { motion } from 'motion-v
     },
     Mapping {
         codegen_span: Span {
-            start: 150,
-            end: 166,
-        },
-        original_span: Span {
-            start: 33,
-            end: 51,
-        },
-    },
-    Mapping {
-        codegen_span: Span {
             start: 152,
             end: 165,
         },
         original_span: Span {
-            start: 35,
-            end: 49,
+            start: 34,
+            end: 48,
         },
     },
     Mapping {

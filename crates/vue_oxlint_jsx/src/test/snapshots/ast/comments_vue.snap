@@ -19,21 +19,8 @@ Program {
         [
             Comment {
                 span: Span {
-                    start: 26,
-                    end: 52,
-                },
-                attached_to: 52,
-                kind: SingleLineBlock,
-                position: Leading,
-                newlines: CommentNewlines(
-                    0x0,
-                ),
-                content: None,
-            },
-            Comment {
-                span: Span {
-                    start: 63,
-                    end: 77,
+                    start: 59,
+                    end: 80,
                 },
                 attached_to: 0,
                 kind: SingleLineBlock,
